@@ -12,6 +12,7 @@
         <FormContainer />
       </div>
     </main>
+    <ToastContainer />
     <AppFooter />
   </div>
 </template>
@@ -26,6 +27,7 @@ import ProgressIndicator from '@/components/ProgressIndicator.vue'
 import StepNavigator from '@/components/StepNavigator.vue'
 import FormContainer from '@/components/FormContainer.vue'
 import { googleSheetsService } from '@/services/googleSheets'
+import ToastContainer from '@/components/ToastContainer.vue'
 
 const formStore = useFormStore()
 const isOnline = ref<boolean>(typeof navigator !== 'undefined' ? navigator.onLine : true)

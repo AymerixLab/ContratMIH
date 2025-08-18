@@ -49,6 +49,11 @@ class GoogleSheetsService {
 
       const result = await response.json()
       
+      // Notify success
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('mih:toast', { detail: { message: 'Données envoyées vers Google Sheets', type: 'success' } }))
+      }
+
       return {
         success: true,
         message: result.message || 'Données envoyées vers Google Sheets avec succès'
@@ -60,6 +65,9 @@ class GoogleSheetsService {
       const isNetworkError = error instanceof TypeError || (error instanceof Error && /Failed to fetch|NetworkError|abort/i.test(error.message))
       if (isOffline || isNetworkError) {
         await this.enqueue(sheetData)
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('mih:toast', { detail: { message: 'Hors-ligne: envoi mis en file d\'attente', type: 'info' } }))
+        }
         return {
           success: true,
           message: 'Envoi hors-ligne: données mises en file d\'attente'
@@ -110,6 +118,7 @@ class GoogleSheetsService {
   public async flushQueue(): Promise<void> {
     if (typeof navigator !== 'undefined' && !navigator.onLine) return
     let item = await this.dequeue()
+    let sent = 0
     while (item) {
       try {
         const controller = new AbortController()
@@ -122,6 +131,7 @@ class GoogleSheetsService {
         })
         clearTimeout(timeoutId)
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        sent++
       } catch (e) {
         // Put back and stop if still failing
         const queue = (await localforage.getItem<Record<string, any>[]>(this.QUEUE_KEY)) || []
@@ -131,6 +141,9 @@ class GoogleSheetsService {
         break
       }
       item = await this.dequeue()
+    }
+    if (sent > 0 && typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('mih:toast', { detail: { message: `${sent} envoi(s) traités depuis la file d'attente`, type: 'success' } }))
     }
   }
 
