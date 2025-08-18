@@ -1,0 +1,223 @@
+/*
+ * Stylesheet pour le formulaire « Contrat de participation MIH 2026 ».
+ * Ce fichier vise à reproduire l’apparence générale du contrat papier : des
+ * blocs colorés verts et rouges, un typographie claire et une mise en page
+ * aérée. Les couleurs et espacements peuvent être adaptés à vos goûts.
+ */
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #fafafa;
+  color: #333;
+}
+
+/* En-tête du formulaire : reprend les couleurs du contrat papier */
+header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: #e85d40; /* rouge orangé comme sur le PDF */
+  color: #fff;
+}
+
+header .event-info {
+  max-width: 60%;
+}
+
+header .event-info h1 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.2;
+}
+
+header .event-info p {
+  margin: 4px 0;
+  font-size: 16px;
+}
+
+header .logo {
+  text-align: right;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* Sections */
+.section {
+  margin: 20px;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.section h2 {
+  margin-top: 0;
+  font-size: 20px;
+  background: #009E70; /* vert du PDF */
+  color: #fff;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+/* Mise en page des champs */
+.field-group {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.field-group label {
+  width: 200px;
+  padding-right: 10px;
+  font-weight: bold;
+}
+
+.field-group input,
+.field-group select,
+.field-group textarea {
+  flex: 1;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Cases à cocher et radios */
+.checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.checkbox-group label {
+  width: 200px;
+  margin-right: 10px;
+}
+
+.checkbox-group input {
+  margin-right: 5px;
+}
+
+/* Tableau des lignes tarifaires */
+table.tarifs {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 15px;
+}
+
+table.tarifs th,
+table.tarifs td {
+  border-bottom: 1px solid #eee;
+  padding: 8px;
+}
+
+table.tarifs th {
+  background: #f5f5f5;
+  font-weight: bold;
+}
+
+table.tarifs td.right {
+  text-align: right;
+}
+
+/* Totaux */
+#totalsDisplay p {
+  margin: 5px 0;
+}
+
+/* Bouton de génération de devis */
+button#generatePdf {
+  display: block;
+  margin: 20px auto;
+  padding: 12px 20px;
+  font-size: 16px;
+  color: #fff;
+  background: #e85d40;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button#generatePdf:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Alignement horizontal de la case à cocher et du texte du règlement */
+.consent-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+/*
+ * Modal overlay for displaying the conditions générales de vente.
+ * The modal covers the entire viewport with a semi‑transparent background and
+ * centers a white content box. The content uses <pre> tags to preserve line
+ * breaks and spacing from the original PDF.
+ */
+#conditionsModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  padding: 40px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+#conditionsModal .modal-content {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 800px;
+  margin: 40px auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+#conditionsModal h3 {
+  margin-top: 0;
+  font-size: 20px;
+  color: #0b8457;
+}
+
+#conditionsModal pre {
+  white-space: pre-wrap;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+#conditionsModal button {
+  margin-top: 16px;
+  padding: 8px 16px;
+  border: none;
+  background-color: #d9534f;
+  color: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Style de la zone signature */
+.signature-section {
+  margin-top: 20px;
+}
+
+.signature-section label {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.signature-section input {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
