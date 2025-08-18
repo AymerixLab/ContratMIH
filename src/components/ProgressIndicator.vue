@@ -18,12 +18,13 @@
     </div>
     
     <!-- Step indicators -->
-    <div class="flex items-center justify-between">
-      <div 
-        v-for="step in formStore.steps" 
-        :key="step.id"
-        class="flex flex-col items-center flex-1"
-      >
+    <div class="overflow-x-auto scrollbar-hide -mx-2 px-2">
+      <div class="flex items-center md:justify-between gap-3 md:gap-0 snap-x snap-mandatory">
+        <div 
+          v-for="step in formStore.steps" 
+          :key="step.id"
+          class="flex flex-col items-center flex-none md:flex-1 min-w-[64px] snap-center"
+        >
         <!-- Step circle -->
         <div 
           class="w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300"
@@ -56,6 +57,7 @@
           }"
           style="width: calc(100% / 7 - 2.5rem); margin-left: 1.25rem;"
         ></div>
+        </div>
       </div>
     </div>
   </div>
