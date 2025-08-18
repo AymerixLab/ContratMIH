@@ -18,6 +18,9 @@
             type="text"
             class="form-input"
             :class="{ 'border-red-300': errors.factCodePostal }"
+            :aria-invalid="!!errors.factCodePostal"
+            inputmode="numeric"
+            autocomplete="postal-code"
             v-model="formData.factCodePostal"
             placeholder="59000"
           />
@@ -34,6 +37,8 @@
             type="text"
             class="form-input"
             :class="{ 'border-red-300': errors.factVille }"
+            :aria-invalid="!!errors.factVille"
+            autocomplete="address-level2"
             v-model="formData.factVille"
             placeholder="Lille"
           />
@@ -50,6 +55,8 @@
             type="text"
             class="form-input"
             :class="{ 'border-red-300': errors.factPays }"
+            :aria-invalid="!!errors.factPays"
+            autocomplete="country-name"
             v-model="formData.factPays"
             placeholder="France"
           />
@@ -65,15 +72,17 @@
             <label for="contactNom" class="block text-sm font-medium text-gray-700 mb-2">
               Nom <span class="text-red-500">*</span>
             </label>
-            <Field
-              id="contactNom"
-              name="contactNom"
-              type="text"
-              class="form-input"
-              :class="{ 'border-red-300': errors.contactNom }"
-              v-model="formData.contactNom"
-              placeholder="Nom du contact"
-            />
+          <Field
+            id="contactNom"
+            name="contactNom"
+            type="text"
+            class="form-input"
+            :class="{ 'border-red-300': errors.contactNom }"
+            :aria-invalid="!!errors.contactNom"
+            autocomplete="name"
+            v-model="formData.contactNom"
+            placeholder="Nom du contact"
+          />
             <ErrorMessage name="contactNom" class="error-message" />
           </div>
 
@@ -81,15 +90,18 @@
             <label for="contactTel" class="block text-sm font-medium text-gray-700 mb-2">
               Téléphone <span class="text-red-500">*</span>
             </label>
-            <Field
-              id="contactTel"
-              name="contactTel"
-              type="tel"
-              class="form-input"
-              :class="{ 'border-red-300': errors.contactTel }"
-              v-model="formData.contactTel"
-              placeholder="03 20 00 00 00"
-            />
+          <Field
+            id="contactTel"
+            name="contactTel"
+            type="tel"
+            class="form-input"
+            :class="{ 'border-red-300': errors.contactTel }"
+            :aria-invalid="!!errors.contactTel"
+            inputmode="tel"
+            autocomplete="tel"
+            v-model="formData.contactTel"
+            placeholder="03 20 00 00 00"
+          />
             <ErrorMessage name="contactTel" class="error-message" />
           </div>
 
@@ -97,15 +109,17 @@
             <label for="contactMail" class="block text-sm font-medium text-gray-700 mb-2">
               Email <span class="text-red-500">*</span>
             </label>
-            <Field
-              id="contactMail"
-              name="contactMail"
-              type="email"
-              class="form-input"
-              :class="{ 'border-red-300': errors.contactMail }"
-              v-model="formData.contactMail"
-              placeholder="contact@exemple.fr"
-            />
+          <Field
+            id="contactMail"
+            name="contactMail"
+            type="email"
+            class="form-input"
+            :class="{ 'border-red-300': errors.contactMail }"
+            :aria-invalid="!!errors.contactMail"
+            autocomplete="email"
+            v-model="formData.contactMail"
+            placeholder="contact@exemple.fr"
+          />
             <ErrorMessage name="contactMail" class="error-message" />
           </div>
         </div>
@@ -119,56 +133,61 @@
             <label for="respNom" class="block text-sm font-medium text-gray-700 mb-2">
               Nom
             </label>
-            <Field
-              id="respNom"
-              name="respNom"
-              type="text"
-              class="form-input"
-              v-model="formData.respNom"
-              placeholder="Nom du responsable"
-            />
+          <Field
+            id="respNom"
+            name="respNom"
+            type="text"
+            class="form-input"
+            autocomplete="name"
+            v-model="formData.respNom"
+            placeholder="Nom du responsable"
+          />
           </div>
 
           <div>
             <label for="respPrenom" class="block text-sm font-medium text-gray-700 mb-2">
               Prénom
             </label>
-            <Field
-              id="respPrenom"
-              name="respPrenom"
-              type="text"
-              class="form-input"
-              v-model="formData.respPrenom"
-              placeholder="Prénom du responsable"
-            />
+          <Field
+            id="respPrenom"
+            name="respPrenom"
+            type="text"
+            class="form-input"
+            autocomplete="given-name"
+            v-model="formData.respPrenom"
+            placeholder="Prénom du responsable"
+          />
           </div>
 
           <div>
             <label for="respTel" class="block text-sm font-medium text-gray-700 mb-2">
               Téléphone
             </label>
-            <Field
-              id="respTel"
-              name="respTel"
-              type="tel"
-              class="form-input"
-              v-model="formData.respTel"
-              placeholder="03 20 00 00 00"
-            />
+          <Field
+            id="respTel"
+            name="respTel"
+            type="tel"
+            class="form-input"
+            inputmode="tel"
+            autocomplete="tel"
+            v-model="formData.respTel"
+            placeholder="03 20 00 00 00"
+          />
           </div>
 
           <div>
             <label for="respMail" class="block text-sm font-medium text-gray-700 mb-2">
               Email
             </label>
-            <Field
-              id="respMail"
-              name="respMail"
-              type="email"
-              class="form-input"
-              v-model="formData.respMail"
-              placeholder="responsable@exemple.fr"
-            />
+          <Field
+            id="respMail"
+            name="respMail"
+            type="email"
+            class="form-input"
+            autocomplete="email"
+            v-model="formData.respMail"
+            placeholder="responsable@exemple.fr"
+          />
           </div>
         </div>
       </div>
@@ -181,56 +200,61 @@
             <label for="opNom" class="block text-sm font-medium text-gray-700 mb-2">
               Nom
             </label>
-            <Field
-              id="opNom"
-              name="opNom"
-              type="text"
-              class="form-input"
-              v-model="formData.opNom"
-              placeholder="Nom du contact opérationnel"
-            />
+          <Field
+            id="opNom"
+            name="opNom"
+            type="text"
+            class="form-input"
+            autocomplete="name"
+            v-model="formData.opNom"
+            placeholder="Nom du contact opérationnel"
+          />
           </div>
 
           <div>
             <label for="opPrenom" class="block text-sm font-medium text-gray-700 mb-2">
               Prénom
             </label>
-            <Field
-              id="opPrenom"
-              name="opPrenom"
-              type="text"
-              class="form-input"
-              v-model="formData.opPrenom"
-              placeholder="Prénom du contact opérationnel"
-            />
+          <Field
+            id="opPrenom"
+            name="opPrenom"
+            type="text"
+            class="form-input"
+            autocomplete="given-name"
+            v-model="formData.opPrenom"
+            placeholder="Prénom du contact opérationnel"
+          />
           </div>
 
           <div>
             <label for="opTel" class="block text-sm font-medium text-gray-700 mb-2">
               Téléphone
             </label>
-            <Field
-              id="opTel"
-              name="opTel"
-              type="tel"
-              class="form-input"
-              v-model="formData.opTel"
-              placeholder="03 20 00 00 00"
-            />
+          <Field
+            id="opTel"
+            name="opTel"
+            type="tel"
+            class="form-input"
+            inputmode="tel"
+            autocomplete="tel"
+            v-model="formData.opTel"
+            placeholder="03 20 00 00 00"
+          />
           </div>
 
           <div>
             <label for="opMail" class="block text-sm font-medium text-gray-700 mb-2">
               Email
             </label>
-            <Field
-              id="opMail"
-              name="opMail"
-              type="email"
-              class="form-input"
-              v-model="formData.opMail"
-              placeholder="operationnel@exemple.fr"
-            />
+          <Field
+            id="opMail"
+            name="opMail"
+            type="email"
+            class="form-input"
+            autocomplete="email"
+            v-model="formData.opMail"
+            placeholder="operationnel@exemple.fr"
+          />
           </div>
         </div>
       </div>

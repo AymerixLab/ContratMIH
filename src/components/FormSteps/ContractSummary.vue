@@ -79,15 +79,17 @@
             <label for="nomSignataire" class="block text-sm font-medium text-gray-700 mb-2">
               Nom du signataire <span class="text-red-500">*</span>
             </label>
-            <Field
-              id="nomSignataire"
-              name="nomSignataire"
-              type="text"
-              class="form-input"
-              :class="{ 'border-red-300': errors.nomSignataire }"
-              v-model="formData.nomSignataire"
-              placeholder="Nom et prénom du signataire"
-            />
+          <Field
+            id="nomSignataire"
+            name="nomSignataire"
+            type="text"
+            class="form-input"
+            :class="{ 'border-red-300': errors.nomSignataire }"
+            :aria-invalid="!!errors.nomSignataire"
+            autocomplete="name"
+            v-model="formData.nomSignataire"
+            placeholder="Nom et prénom du signataire"
+          />
             <ErrorMessage name="nomSignataire" class="error-message" />
           </div>
 
@@ -95,14 +97,15 @@
             <label for="dateSignature" class="block text-sm font-medium text-gray-700 mb-2">
               Date de signature <span class="text-red-500">*</span>
             </label>
-            <Field
-              id="dateSignature"
-              name="dateSignature"
-              type="date"
-              class="form-input"
-              :class="{ 'border-red-300': errors.dateSignature }"
-              v-model="formData.dateSignature"
-            />
+          <Field
+            id="dateSignature"
+            name="dateSignature"
+            type="date"
+            class="form-input"
+            :class="{ 'border-red-300': errors.dateSignature }"
+            :aria-invalid="!!errors.dateSignature"
+            v-model="formData.dateSignature"
+          />
             <ErrorMessage name="dateSignature" class="error-message" />
           </div>
         </div>
@@ -115,6 +118,7 @@
               type="checkbox"
               class="form-checkbox mt-1"
               :class="{ 'border-red-300': errors.acceptReglement }"
+              :aria-invalid="!!errors.acceptReglement"
               v-model="formData.acceptReglement"
             />
             <label for="acceptReglement" class="ml-3 text-sm text-gray-700">

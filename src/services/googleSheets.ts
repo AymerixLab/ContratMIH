@@ -1,6 +1,7 @@
 import type { FormData, PriceCalculation } from '@/types/form'
 import type { PdfSection } from '@/types/pdf'
 import { FIELD_META } from '@/types/fields'
+import localforage from 'localforage'
 
 interface GoogleSheetsResponse {
   success: boolean
@@ -13,6 +14,7 @@ class GoogleSheetsService {
     'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec'
   
   private readonly TIMEOUT = 10000 // 10 seconds
+  private readonly QUEUE_KEY = 'mih-google-sheets-queue'
 
   /**
    * Send form data to Google Sheets
@@ -53,26 +55,82 @@ class GoogleSheetsService {
       }
 
     } catch (error) {
-      console.error('Google Sheets integration error:', error)
-      
-      if (error instanceof Error) {
-        if (error.name === 'AbortError') {
-          return {
-            success: false,
-            error: 'Timeout: La requête a pris trop de temps'
-          }
+      // If offline or network error, enqueue for background retry
+      const isOffline = typeof navigator !== 'undefined' && navigator.onLine === false
+      const isNetworkError = error instanceof TypeError || (error instanceof Error && /Failed to fetch|NetworkError|abort/i.test(error.message))
+      if (isOffline || isNetworkError) {
+        await this.enqueue(sheetData)
+        return {
+          success: true,
+          message: 'Envoi hors-ligne: données mises en file d\'attente'
         }
-        
+      }
+      // Timeout explicit
+      if (error instanceof Error && error.name === 'AbortError') {
         return {
           success: false,
-          error: `Erreur: ${error.message}`
+          error: 'Timeout: La requête a pris trop de temps'
         }
       }
-
+      // Fallback unknown error
       return {
         success: false,
-        error: 'Erreur inconnue lors de l\'envoi vers Google Sheets'
+        error: error instanceof Error ? `Erreur: ${error.message}` : 'Erreur inconnue lors de l\'envoi vers Google Sheets'
       }
+    }
+  }
+
+  // Queue helpers
+  private async enqueue(payload: Record<string, any>) {
+    const queue = (await localforage.getItem<Record<string, any>[]>(this.QUEUE_KEY)) || []
+    queue.push(payload)
+    await localforage.setItem(this.QUEUE_KEY, queue)
+    this.dispatchQueueCount(queue.length)
+  }
+
+  private async dequeue(): Promise<Record<string, any> | undefined> {
+    const queue = (await localforage.getItem<Record<string, any>[]>(this.QUEUE_KEY)) || []
+    const item = queue.shift()
+    await localforage.setItem(this.QUEUE_KEY, queue)
+    this.dispatchQueueCount(queue.length)
+    return item
+  }
+
+  private dispatchQueueCount(count: number) {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('mih:queue-updated', { detail: count }))
+    }
+  }
+
+  public async getQueueLength(): Promise<number> {
+    const queue = (await localforage.getItem<unknown>(this.QUEUE_KEY)) as Record<string, any>[] | null
+    return Array.isArray(queue) ? queue.length : 0
+  }
+
+  public async flushQueue(): Promise<void> {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) return
+    let item = await this.dequeue()
+    while (item) {
+      try {
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), this.TIMEOUT)
+        const res = await fetch(this.SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(item),
+          signal: controller.signal
+        })
+        clearTimeout(timeoutId)
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      } catch (e) {
+        // Put back and stop if still failing
+        const queue = (await localforage.getItem<Record<string, any>[]>(this.QUEUE_KEY)) || []
+        queue.unshift(item)
+        await localforage.setItem(this.QUEUE_KEY, queue)
+        this.dispatchQueueCount(queue.length)
+        break
+      }
+      item = await this.dequeue()
     }
   }
 

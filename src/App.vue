@@ -1,8 +1,12 @@
 <template>
   <div id="app" class="min-h-screen bg-mih-light">
     <AppHeader />
+    <!-- Offline banner -->
+    <div v-if="!isOnline" class="bg-yellow-50 border-b border-yellow-200 text-yellow-800 text-sm py-2 text-center">
+      Mode hors-ligne — envoi différé<span v-if="queueCount > 0"> · {{ queueCount }} en attente</span>
+    </div>
     <main class="container mx-auto px-4 py-8">
-      <div class="max-w-4xl mx-auto">
+      <div class="max-w-4xl mx-auto pb-28 md:pb-0">
         <ProgressIndicator />
         <StepNavigator />
         <FormContainer />
@@ -13,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, onBeforeUnmount, ref } from 'vue'
 import { useHead } from '@vueuse/head'
 import { useFormStore } from '@/stores/form'
 import AppHeader from '@/components/AppHeader.vue'
@@ -21,8 +25,11 @@ import AppFooter from '@/components/AppFooter.vue'
 import ProgressIndicator from '@/components/ProgressIndicator.vue'
 import StepNavigator from '@/components/StepNavigator.vue'
 import FormContainer from '@/components/FormContainer.vue'
+import { googleSheetsService } from '@/services/googleSheets'
 
 const formStore = useFormStore()
+const isOnline = ref<boolean>(typeof navigator !== 'undefined' ? navigator.onLine : true)
+const queueCount = ref<number>(0)
 
 // SEO and PWA meta tags
 useHead({
@@ -43,9 +50,35 @@ useHead({
   ]
 })
 
+const updateOnline = () => {
+  isOnline.value = navigator.onLine
+  if (isOnline.value) {
+    googleSheetsService.flushQueue()
+  }
+}
+const onQueueUpdate = (e: Event) => {
+  const ev = e as CustomEvent<number>
+  queueCount.value = ev.detail || 0
+}
+
 onMounted(() => {
   // Load saved form data on app start
   formStore.loadFromStorage()
+  // Initialize network listeners
+  window.addEventListener('online', updateOnline)
+  window.addEventListener('offline', updateOnline)
+  window.addEventListener('mih:queue-updated', onQueueUpdate as EventListener)
+  // Initialize queue count and attempt flush on startup
+  googleSheetsService.getQueueLength().then(c => { queueCount.value = c })
+  if (navigator.onLine) {
+    googleSheetsService.flushQueue()
+  }
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('online', updateOnline)
+  window.removeEventListener('offline', updateOnline)
+  window.removeEventListener('mih:queue-updated', onQueueUpdate as EventListener)
 })
 </script>
 

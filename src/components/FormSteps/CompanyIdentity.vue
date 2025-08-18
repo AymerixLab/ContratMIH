@@ -18,6 +18,8 @@
             type="text"
             class="form-input"
             :class="{ 'border-red-300': errors.raisonSociale }"
+            :aria-invalid="!!errors.raisonSociale"
+            autocomplete="organization"
             v-model="formData.raisonSociale"
             placeholder="Nom de votre entreprise"
           />
@@ -34,6 +36,8 @@
             type="text"
             class="form-input"
             :class="{ 'border-red-300': errors.adresse }"
+            :aria-invalid="!!errors.adresse"
+            autocomplete="street-address"
             v-model="formData.adresse"
             placeholder="Adresse complète"
           />
@@ -50,6 +54,9 @@
             type="text"
             class="form-input"
             :class="{ 'border-red-300': errors.codePostal }"
+            :aria-invalid="!!errors.codePostal"
+            inputmode="numeric"
+            autocomplete="postal-code"
             v-model="formData.codePostal"
             placeholder="59000"
           />
@@ -66,6 +73,8 @@
             type="text"
             class="form-input"
             :class="{ 'border-red-300': errors.ville }"
+            :aria-invalid="!!errors.ville"
+            autocomplete="address-level2"
             v-model="formData.ville"
             placeholder="Lille"
           />
@@ -82,6 +91,8 @@
             type="text"
             class="form-input"
             :class="{ 'border-red-300': errors.pays }"
+            :aria-invalid="!!errors.pays"
+            autocomplete="country-name"
             v-model="formData.pays"
             placeholder="France"
           />
@@ -97,6 +108,8 @@
             name="telephone"
             type="tel"
             class="form-input"
+            inputmode="tel"
+            autocomplete="tel"
             v-model="formData.telephone"
             placeholder="03 20 00 00 00"
           />
@@ -112,6 +125,8 @@
             name="fax"
             type="tel"
             class="form-input"
+            inputmode="tel"
+            autocomplete="tel"
             v-model="formData.fax"
             placeholder="03 20 00 00 00"
           />
@@ -126,6 +141,7 @@
             name="siteInternet"
             type="url"
             class="form-input"
+            autocomplete="url"
             v-model="formData.siteInternet"
             placeholder="https://www.exemple.fr"
           />
@@ -141,6 +157,7 @@
             name="siret"
             type="text"
             class="form-input"
+            inputmode="numeric"
             v-model="formData.siret"
             placeholder="12345678901234"
           />
@@ -171,6 +188,7 @@
             name="enseigne"
             type="text"
             class="form-input"
+            autocomplete="organization"
             v-model="formData.enseigne"
             placeholder="Nom affiché sur le stand"
           />

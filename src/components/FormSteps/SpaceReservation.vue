@@ -14,30 +14,32 @@
             <label for="standEquipeSurface" class="block text-sm font-medium text-gray-700 mb-2">
               Stand équipé - Surface (m²)
             </label>
-            <Field
-              id="standEquipeSurface"
-              name="standEquipeSurface"
-              type="number"
-              min="0"
-              class="form-input"
-              v-model.number="formData.standEquipeSurface"
-              placeholder="0"
-            />
+          <Field
+            id="standEquipeSurface"
+            name="standEquipeSurface"
+            type="number"
+            min="0"
+            class="form-input"
+            inputmode="numeric"
+            v-model.number="formData.standEquipeSurface"
+            placeholder="0"
+          />
           </div>
 
           <div>
             <label for="standEquipeAngle" class="block text-sm font-medium text-gray-700 mb-2">
               Stand équipé - Angle (m²)
             </label>
-            <Field
-              id="standEquipeAngle"
-              name="standEquipeAngle"
-              type="number"
-              min="0"
-              class="form-input"
-              v-model.number="formData.standEquipeAngle"
-              placeholder="0"
-            />
+          <Field
+            id="standEquipeAngle"
+            name="standEquipeAngle"
+            type="number"
+            min="0"
+            class="form-input"
+            inputmode="numeric"
+            v-model.number="formData.standEquipeAngle"
+            placeholder="0"
+          />
           </div>
         </div>
       </div>
@@ -50,60 +52,64 @@
             <label for="pack12" class="block text-sm font-medium text-gray-700 mb-2">
               Pack 12 m²
             </label>
-            <Field
-              id="pack12"
-              name="pack12"
-              type="number"
-              min="0"
-              class="form-input"
-              v-model.number="formData.pack12"
-              placeholder="0"
-            />
+          <Field
+            id="pack12"
+            name="pack12"
+            type="number"
+            min="0"
+            class="form-input"
+            inputmode="numeric"
+            v-model.number="formData.pack12"
+            placeholder="0"
+          />
           </div>
 
           <div>
             <label for="pack15" class="block text-sm font-medium text-gray-700 mb-2">
               Pack 15 m²
             </label>
-            <Field
-              id="pack15"
-              name="pack15"
-              type="number"
-              min="0"
-              class="form-input"
-              v-model.number="formData.pack15"
-              placeholder="0"
-            />
+          <Field
+            id="pack15"
+            name="pack15"
+            type="number"
+            min="0"
+            class="form-input"
+            inputmode="numeric"
+            v-model.number="formData.pack15"
+            placeholder="0"
+          />
           </div>
 
           <div>
             <label for="pack18" class="block text-sm font-medium text-gray-700 mb-2">
               Pack 18 m²
             </label>
-            <Field
-              id="pack18"
-              name="pack18"
-              type="number"
-              min="0"
-              class="form-input"
-              v-model.number="formData.pack18"
-              placeholder="0"
-            />
+          <Field
+            id="pack18"
+            name="pack18"
+            type="number"
+            min="0"
+            class="form-input"
+            inputmode="numeric"
+            v-model.number="formData.pack18"
+            placeholder="0"
+          />
           </div>
 
           <div>
             <label for="packAngles" class="block text-sm font-medium text-gray-700 mb-2">
               Pack Angles
             </label>
-            <Field
-              id="packAngles"
-              name="packAngles"
-              type="number"
-              min="0"
-              class="form-input"
-              v-model.number="formData.packAngles"
-              placeholder="0"
-            />
+          <Field
+            id="packAngles"
+            name="packAngles"
+            type="number"
+            min="0"
+            class="form-input"
+            inputmode="numeric"
+            v-model.number="formData.packAngles"
+            placeholder="0"
+          />
           </div>
         </div>
       </div>
@@ -116,30 +122,32 @@
             <label for="standNuSurface" class="block text-sm font-medium text-gray-700 mb-2">
               Stand nu - Surface (m²)
             </label>
-            <Field
-              id="standNuSurface"
-              name="standNuSurface"
-              type="number"
-              min="0"
-              class="form-input"
-              v-model.number="formData.standNuSurface"
-              placeholder="0"
-            />
+          <Field
+            id="standNuSurface"
+            name="standNuSurface"
+            type="number"
+            min="0"
+            class="form-input"
+            inputmode="numeric"
+            v-model.number="formData.standNuSurface"
+            placeholder="0"
+          />
           </div>
 
           <div>
             <label for="standNuAngle" class="block text-sm font-medium text-gray-700 mb-2">
               Stand nu - Angle (m²)
             </label>
-            <Field
-              id="standNuAngle"
-              name="standNuAngle"
-              type="number"
-              min="0"
-              class="form-input"
-              v-model.number="formData.standNuAngle"
-              placeholder="0"
-            />
+          <Field
+            id="standNuAngle"
+            name="standNuAngle"
+            type="number"
+            min="0"
+            class="form-input"
+            inputmode="numeric"
+            v-model.number="formData.standNuAngle"
+            placeholder="0"
+          />
           </div>
         </div>
       </div>
@@ -176,30 +184,32 @@
             <label for="surfaceExterieur" class="block text-sm font-medium text-gray-700 mb-2">
               Surface extérieur (m²)
             </label>
-            <Field
-              id="surfaceExterieur"
-              name="surfaceExterieur"
-              type="number"
-              min="0"
-              class="form-input"
-              v-model.number="formData.surfaceExterieur"
-              placeholder="0"
-            />
+          <Field
+            id="surfaceExterieur"
+            name="surfaceExterieur"
+            type="number"
+            min="0"
+            class="form-input"
+            inputmode="numeric"
+            v-model.number="formData.surfaceExterieur"
+            placeholder="0"
+          />
           </div>
 
           <div>
             <label for="cottage" class="block text-sm font-medium text-gray-700 mb-2">
               Cottage
             </label>
-            <Field
-              id="cottage"
-              name="cottage"
-              type="number"
-              min="0"
-              class="form-input"
-              v-model.number="formData.cottage"
-              placeholder="0"
-            />
+          <Field
+            id="cottage"
+            name="cottage"
+            type="number"
+            min="0"
+            class="form-input"
+            inputmode="numeric"
+            v-model.number="formData.cottage"
+            placeholder="0"
+          />
           </div>
         </div>
       </div>
