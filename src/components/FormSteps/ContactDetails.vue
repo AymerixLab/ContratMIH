@@ -131,63 +131,75 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label for="respNom" class="block text-sm font-medium text-gray-700 mb-2">
-              Nom
+              Nom <span class="text-red-500">*</span>
             </label>
           <Field
             id="respNom"
             name="respNom"
             type="text"
             class="form-input"
+            :class="{ 'border-red-300': errors.respNom }"
+            :aria-invalid="!!errors.respNom"
             autocomplete="name"
             v-model="formData.respNom"
             placeholder="Nom du responsable"
           />
+            <ErrorMessage name="respNom" class="error-message" />
           </div>
 
           <div>
             <label for="respPrenom" class="block text-sm font-medium text-gray-700 mb-2">
-              Prénom
+              Prénom <span class="text-red-500">*</span>
             </label>
           <Field
             id="respPrenom"
             name="respPrenom"
             type="text"
             class="form-input"
+            :class="{ 'border-red-300': errors.respPrenom }"
+            :aria-invalid="!!errors.respPrenom"
             autocomplete="given-name"
             v-model="formData.respPrenom"
             placeholder="Prénom du responsable"
           />
+            <ErrorMessage name="respPrenom" class="error-message" />
           </div>
 
           <div>
             <label for="respTel" class="block text-sm font-medium text-gray-700 mb-2">
-              Téléphone
+              Téléphone <span class="text-red-500">*</span>
             </label>
           <Field
             id="respTel"
             name="respTel"
             type="tel"
             class="form-input"
+            :class="{ 'border-red-300': errors.respTel }"
+            :aria-invalid="!!errors.respTel"
             inputmode="tel"
             autocomplete="tel"
             v-model="formData.respTel"
             placeholder="03 20 00 00 00"
           />
+            <ErrorMessage name="respTel" class="error-message" />
           </div>
 
           <div>
             <label for="respMail" class="block text-sm font-medium text-gray-700 mb-2">
-              Email
+              Email <span class="text-red-500">*</span>
             </label>
           <Field
             id="respMail"
             name="respMail"
             type="email"
             class="form-input"
+            :class="{ 'border-red-300': errors.respMail }"
+            :aria-invalid="!!errors.respMail"
             autocomplete="email"
             v-model="formData.respMail"
             placeholder="responsable@exemple.fr"
           />
+            <ErrorMessage name="respMail" class="error-message" />
           </div>
         </div>
       </div>
@@ -263,7 +275,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, watch, nextTick } from 'vue'
 import { Field, ErrorMessage, useForm } from 'vee-validate'
 import * as yup from 'yup'
 import { UserIcon } from '@heroicons/vue/24/outline'
@@ -279,17 +291,30 @@ const formData = computed(() => formStore.formData.contact)
 const schema = yup.object({
   contactNom: yup.string().required('Le nom du contact est requis'),
   contactTel: yup.string().required('Le téléphone du contact est requis'),
-  contactMail: yup.string().email('Format d\'email invalide').required('L\'email du contact est requis')
+  contactMail: yup.string().email('Format d\'email invalide').required('L\'email du contact est requis'),
+  respNom: yup.string().required('Le nom du responsable est requis'),
+  respPrenom: yup.string().required('Le prénom du responsable est requis'),
+  respTel: yup.string().required('Le téléphone du responsable est requis'),
+  respMail: yup.string().email('Format d\'email invalide').required('L\'email du responsable est requis')
 })
 
-const { errors, meta } = useForm({
+const { errors, meta, resetForm } = useForm({
   validationSchema: schema,
-  initialValues: formData.value
+  initialValues: formData.value,
+  validateOnMount: false
 })
 
 watch(meta, (newMeta) => {
   emit('step-validated', newMeta.valid)
 }, { immediate: true, deep: true })
+
+// Watch for store data changes and reset form with new values
+watch(formData, (newFormData) => {
+  // Use nextTick to ensure DOM is updated before resetting form
+  nextTick(() => {
+    resetForm({ values: newFormData })
+  })
+}, { deep: true, immediate: true })
 
 // v-model writes through computed setter; avoid duplicate updates
 </script>

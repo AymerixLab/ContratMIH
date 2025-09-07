@@ -9,6 +9,9 @@
       <!-- Visual Communication -->
       <div>
         <h3 class="text-lg font-medium text-gray-900 mb-4">Communication visuelle</h3>
+        <p class="text-sm text-gray-600 mb-4">
+          <em>Photos des propositions disponibles sur demande - contactez-nous pour voir les options visuelles</em>
+        </p>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div>
             <label for="visu_packComplet" class="block text-sm font-medium text-gray-700 mb-2">
@@ -137,6 +140,36 @@
           </div>
 
           <div>
+            <label for="ameli_catalogueDemiPage" class="block text-sm font-medium text-gray-700 mb-2">
+              Catalogue 1/2 page
+            </label>
+            <Field
+              id="ameli_catalogueDemiPage"
+              name="ameli_catalogueDemiPage"
+              type="number"
+              min="0"
+              class="form-input"
+              v-model.number="formData.ameli_catalogueDemiPage"
+              placeholder="0"
+            />
+          </div>
+
+          <div>
+            <label for="ameli_catalogueUnePage" class="block text-sm font-medium text-gray-700 mb-2">
+              Catalogue 1 page
+            </label>
+            <Field
+              id="ameli_catalogueUnePage"
+              name="ameli_catalogueUnePage"
+              type="number"
+              min="0"
+              class="form-input"
+              v-model.number="formData.ameli_catalogueUnePage"
+              placeholder="0"
+            />
+          </div>
+
+          <div>
             <label for="ameli_deuxiemeCouverture" class="block text-sm font-medium text-gray-700 mb-2">
               2ème de couverture
             </label>
@@ -181,18 +214,29 @@
             />
           </div>
 
-          <div>
+          <div class="md:col-span-2">
             <label for="ameli_goodies" class="block text-sm font-medium text-gray-700 mb-2">
-              Goodies
+              Goodies (quantité)
             </label>
             <Field
               id="ameli_goodies"
               name="ameli_goodies"
               type="number"
               min="0"
-              class="form-input"
+              class="form-input mb-3"
               v-model.number="formData.ameli_goodies"
               placeholder="0"
+            />
+            <label for="ameli_goodiesDescription" class="block text-sm font-medium text-gray-700 mb-2">
+              Description des goodies
+            </label>
+            <Field
+              id="ameli_goodiesDescription"
+              name="ameli_goodiesDescription"
+              type="text"
+              class="form-input"
+              v-model="formData.ameli_goodiesDescription"
+              placeholder="Décrivez les goodies souhaités"
             />
           </div>
 
@@ -217,7 +261,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, watch, nextTick } from 'vue'
 import { Field, useForm } from 'vee-validate'
 import { MegaphoneIcon } from '@heroicons/vue/24/outline'
 import { useFormStore } from '@/stores/form'
@@ -229,13 +273,22 @@ const emit = defineEmits<{
 
 const formData = computed(() => formStore.formData.communication)
 
-const { meta } = useForm({
-  initialValues: formData.value
+const { meta, resetForm } = useForm({
+  initialValues: formData.value,
+  validateOnMount: false
 })
 
 watch(meta, (newMeta) => {
   emit('step-validated', true) // Always valid for this step
 }, { immediate: true, deep: true })
+
+// Watch for store data changes and reset form with new values
+watch(formData, (newFormData) => {
+  // Use nextTick to ensure DOM is updated before resetting form
+  nextTick(() => {
+    resetForm({ values: newFormData })
+  })
+}, { deep: true, immediate: true })
 
 // v-model writes through computed setter; avoid duplicate updates
 </script>

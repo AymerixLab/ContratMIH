@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed, watch } from 'vue'
 import type { FormData, FormStep, PriceCalculation } from '@/types/form'
-import localforage from 'localforage'
 import { FIELD_META, SECTION_TO_STEP } from '@/types/fields'
 
 const FORM_STORAGE_KEY = 'mih-contract-form'
@@ -17,13 +16,13 @@ export const useFormStore = defineStore('form', () => {
       ville: '',
       pays: 'France',
       telephone: '',
-      fax: '',
       siteInternet: '',
       siret: '',
       tva: '',
       membrePorte: false,
       exposant2024: false,
       activites: [],
+      autreActivite: '',
       enseigne: ''
     },
     contact: {
@@ -43,6 +42,7 @@ export const useFormStore = defineStore('form', () => {
       opMail: ''
     },
     spaceReservation: {
+      selectedStandType: undefined,
       standEquipeSurface: 0,
       standEquipeAngle: 0,
       pack12: 0,
@@ -53,15 +53,17 @@ export const useFormStore = defineStore('form', () => {
       standNuAngle: 0,
       puissance: '0',
       surfaceExterieur: 0,
-      cottage: 0
+      cottage: 0,
+      moquetteCouleur: '',
+      coExposants: []
     },
     optionalEquipment: {
       reserveMelamine: 0,
-      moquetteDiff: 0,
       velum: 0,
       cloisonBoisTissu: 0,
       reserveBois: 0,
       railSpots: 0,
+      bandeauSignaletique: 0,
       mobilier_comptoir: 0,
       mobilier_tabouret: 0,
       mobilier_mangeDebout: 0,
@@ -72,7 +74,6 @@ export const useFormStore = defineStore('form', () => {
       mobilier_frigo140: 0,
       mobilier_frigo260: 0,
       mobilier_presentoir: 0,
-      mobilier_bandeau: 0,
       mobilier_blocPrises: 0,
       mobilier_fauteuil: 0,
       mobilier_tableBasse: 0,
@@ -97,10 +98,13 @@ export const useFormStore = defineStore('form', () => {
       ameli_invitations: 0,
       ameli_demiPage: 0,
       ameli_unePage: 0,
+      ameli_catalogueDemiPage: 0,
+      ameli_catalogueUnePage: 0,
       ameli_deuxiemeCouverture: 0,
       ameli_quatriemeCouverture: 0,
       ameli_logoPlan: 0,
       ameli_goodies: 0,
+      ameli_goodiesDescription: '',
       ameli_hotesse: 0
     },
     signature: {
@@ -125,20 +129,22 @@ export const useFormStore = defineStore('form', () => {
     standEquipeSurface: 270,
     standEquipeAngle: 185,
     pack12: 3552,
-    pack15: 4438,
-    pack18: 5326,
+    pack15: 4440,
+    pack18: 5328,
     packAngles: 185,
     standNuSurface: 225,
     standNuAngle: 185,
     power: { '0': 0, '220': 220, '260': 260, '350': 350 },
     surfaceExterieur: 50,
     cottage: 800,
+    coExposant: 400,
     reserveMelamine: 200,
     moquetteDiff: 6.5,
     velum: 15,
-    cloisonBoisTissu: 50,
+    cloisonBoisTissu: 35,
     reserveBois: 260,
-    railSpots: 45,
+    railSpots: 35,
+    bandeauSignaletique: 35,
     mobilier_comptoir: 165,
     mobilier_tabouret: 40,
     mobilier_mangeDebout: 90,
@@ -149,7 +155,6 @@ export const useFormStore = defineStore('form', () => {
     mobilier_frigo140: 125,
     mobilier_frigo260: 210,
     mobilier_presentoir: 115,
-    mobilier_bandeau: 35,
     mobilier_blocPrises: 18,
     mobilier_fauteuil: 59,
     mobilier_tableBasse: 55,
@@ -166,7 +171,7 @@ export const useFormStore = defineStore('form', () => {
     visu_comptoir: 180,
     visu_hautCloisons: 435,
     visu_cloisonComplete: 185,
-    visu_enseigneHaute: 180,
+    visu_enseigneHaute: 225,
     ameli_invitations: 100,
     ameli_demiPage: 700,
     ameli_unePage: 1200,
@@ -211,7 +216,8 @@ export const useFormStore = defineStore('form', () => {
       space.standNuAngle * pricing.standNuAngle +
       pricing.power[space.puissance as keyof typeof pricing.power] +
       space.surfaceExterieur * pricing.surfaceExterieur +
-      space.cottage * pricing.cottage
+      space.cottage * pricing.cottage +
+      (space.coExposants ? space.coExposants.length * pricing.coExposant : 0)
 
     // Section 2: Optional Equipment
     const section2Total = Object.entries(equipment).reduce((total, [key, value]) => {
@@ -253,45 +259,46 @@ export const useFormStore = defineStore('form', () => {
     }
   })
 
-  // Persist and validate when any form field changes
-  watch(formData, () => {
-    // Update validity for sections with required metadata
-    Object.values(SECTION_TO_STEP).forEach((s) => {
-      stepValidation.value[s] = computeStepValidity(s)
-    })
-    saveToStorage()
-  }, { deep: true })
+  // No automatic watching - save only on navigation
 
   // Actions
   const setCurrentStep = (step: number) => {
     if (step >= 1 && step <= 7) {
+      console.log('📍 Navigating to step:', step)
+      saveToStorage() // Save before changing step
       currentStep.value = step
     }
   }
 
   const nextStep = () => {
     if (currentStep.value < 7) {
+      console.log('➡️ Moving to next step')
+      saveToStorage() // Save before moving
       currentStep.value++
     }
   }
 
   const previousStep = () => {
     if (currentStep.value > 1) {
+      console.log('⬅️ Moving to previous step')
+      saveToStorage() // Save before moving
       currentStep.value--
     }
   }
 
   const updateFormData = (section: keyof FormData, data: Partial<FormData[keyof FormData]>) => {
+    console.log('📝 updateFormData called:', { section, data, currentFormData: formData.value[section] })
     ;(formData.value[section] as any) = { ...formData.value[section], ...data }
+    console.log('✅ Form data updated:', { section, newData: formData.value[section] })
     // Recompute step validity for sections that have required metadata
     recomputeStepValidityForSection(section)
-    saveToStorage()
+    // No automatic save - only save on navigation
   }
 
   const validateStep = (step: number, _isValid: boolean) => {
     // Ignore external boolean and compute from required metadata for determinism
     stepValidation.value[step] = computeStepValidity(step)
-    saveToStorage()
+    // No automatic save - only save on navigation
   }
 
   const computeStepValidity = (step: number): boolean => {
@@ -323,43 +330,59 @@ export const useFormStore = defineStore('form', () => {
     }
   }
 
-  const saveToStorage = async () => {
+  const saveToStorage = () => {
     try {
-      // Persist a plain JSON snapshot to avoid IndexedDB DataCloneError on Vue proxies
-      const payload = JSON.parse(JSON.stringify({
+      const payload = {
         formData: formData.value,
         stepValidation: stepValidation.value,
         currentStep: currentStep.value
-      }))
-      await localforage.setItem(FORM_STORAGE_KEY, payload)
+      }
+      console.log('💾 Saving to localStorage:', FORM_STORAGE_KEY, payload)
+      localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(payload))
+      console.log('✅ Successfully saved to localStorage')
     } catch (error) {
-      console.warn('Failed to save form to storage:', error)
+      console.error('❌ Failed to save form to storage:', error)
     }
   }
 
-  const loadFromStorage = async () => {
+  const loadFromStorage = () => {
     try {
-      const saved = await localforage.getItem<{
-        formData: FormData
-        stepValidation: Record<number, boolean>
-        currentStep: number
-      }>(FORM_STORAGE_KEY)
-
-      if (saved) {
-        formData.value = saved.formData
-        stepValidation.value = saved.stepValidation
-        currentStep.value = saved.currentStep
-        // Ensure step validity aligns with current required metadata
-        Object.values(SECTION_TO_STEP).forEach((s) => {
-          stepValidation.value[s] = computeStepValidity(s)
-        })
+      console.log('📂 Loading from localStorage:', FORM_STORAGE_KEY)
+      const savedData = localStorage.getItem(FORM_STORAGE_KEY)
+      
+      if (savedData) {
+        const saved = JSON.parse(savedData) as {
+          formData: FormData
+          stepValidation: Record<number, boolean>
+          currentStep: number
+        }
+        console.log('📁 Loaded data from localStorage:', saved)
+        
+        if (saved.formData) {
+          console.log('🔄 Restoring form data...', saved.formData)
+          
+          // Direct assignment - no watchers to interfere!
+          formData.value = { ...saved.formData }
+          stepValidation.value = { ...saved.stepValidation }
+          currentStep.value = saved.currentStep
+          
+          console.log('✅ Successfully restored form data from storage')
+          console.log('📊 Final restored form data:', formData.value)
+          
+          // Ensure step validity aligns with current required metadata
+          Object.values(SECTION_TO_STEP).forEach((s) => {
+            stepValidation.value[s] = computeStepValidity(s)
+          })
+        }
+      } else {
+        console.log('ℹ️ No saved data found in localStorage')
       }
     } catch (error) {
-      console.warn('Failed to load form from storage:', error)
+      console.error('❌ Failed to load form from storage:', error)
     }
   }
 
-  const resetForm = async () => {
+  const resetForm = () => {
     formData.value = {
       company: {
         raisonSociale: '',
@@ -394,6 +417,7 @@ export const useFormStore = defineStore('form', () => {
         opMail: ''
       },
       spaceReservation: {
+        selectedStandType: undefined,
         standEquipeSurface: 0,
         standEquipeAngle: 0,
         pack12: 0,
@@ -404,11 +428,11 @@ export const useFormStore = defineStore('form', () => {
         standNuAngle: 0,
         puissance: '0',
         surfaceExterieur: 0,
-        cottage: 0
+        cottage: 0,
+        moquetteCouleur: ''
       },
       optionalEquipment: {
         reserveMelamine: 0,
-        moquetteDiff: 0,
         velum: 0,
         cloisonBoisTissu: 0,
         reserveBois: 0,
@@ -474,7 +498,7 @@ export const useFormStore = defineStore('form', () => {
     currentStep.value = 1
     
     try {
-      await localforage.removeItem(FORM_STORAGE_KEY)
+      localStorage.removeItem(FORM_STORAGE_KEY)
     } catch (error) {
       console.warn('Failed to clear form storage:', error)
     }
@@ -532,6 +556,65 @@ export const useFormStore = defineStore('form', () => {
     }
   }
 
+  // Stand selection functions (mutual exclusion logic)
+  const selectStandType = (standType: 'standEquipe' | 'standPretAExposer' | 'standNu') => {
+    // Clear all existing stand selections when changing type
+    formData.value.spaceReservation = {
+      ...formData.value.spaceReservation,
+      selectedStandType: standType,
+      // Reset all stand values
+      standEquipeSurface: standType === 'standEquipe' ? formData.value.spaceReservation.standEquipeSurface : 0,
+      standEquipeAngle: standType === 'standEquipe' ? formData.value.spaceReservation.standEquipeAngle : 0,
+      pack12: standType === 'standPretAExposer' ? formData.value.spaceReservation.pack12 : 0,
+      pack15: standType === 'standPretAExposer' ? formData.value.spaceReservation.pack15 : 0,
+      pack18: standType === 'standPretAExposer' ? formData.value.spaceReservation.pack18 : 0,
+      packAngles: standType === 'standPretAExposer' ? formData.value.spaceReservation.packAngles : 0,
+      standNuSurface: standType === 'standNu' ? formData.value.spaceReservation.standNuSurface : 0,
+      standNuAngle: standType === 'standNu' ? formData.value.spaceReservation.standNuAngle : 0
+    }
+    // No automatic save - only save on navigation
+  }
+
+  const clearStandSelection = () => {
+    formData.value.spaceReservation = {
+      ...formData.value.spaceReservation,
+      selectedStandType: undefined,
+      standEquipeSurface: 0,
+      standEquipeAngle: 0,
+      pack12: 0,
+      pack15: 0,
+      pack18: 0,
+      packAngles: 0,
+      standNuSurface: 0,
+      standNuAngle: 0
+    }
+    // No automatic save - only save on navigation
+  }
+
+  // Get the current selected stand size for pass calculation
+  const getCurrentStandSize = computed(() => {
+    const space = formData.value.spaceReservation
+    switch (space.selectedStandType) {
+      case 'standEquipe':
+        return Math.max(space.standEquipeSurface, space.standEquipeAngle)
+      case 'standPretAExposer':
+        if (space.pack12 > 0) return 12
+        if (space.pack15 > 0) return 15
+        if (space.pack18 > 0) return 18
+        return 0
+      case 'standNu':
+        return Math.max(space.standNuSurface, space.standNuAngle)
+      default:
+        return 0
+    }
+  })
+
+  // Manual save function for explicit saves (like form submission)
+  const saveFormData = () => {
+    console.log('💾 Manual save triggered')
+    saveToStorage()
+  }
+
   return {
     // State
     currentStep,
@@ -552,8 +635,14 @@ export const useFormStore = defineStore('form', () => {
     updateFormData,
     validateStep,
     saveToStorage,
+    saveFormData,
     loadFromStorage,
     resetForm,
-    getFormDataForExport
+    getFormDataForExport,
+    
+    // Stand selection
+    selectStandType,
+    clearStandSelection,
+    getCurrentStandSize
   }
 })

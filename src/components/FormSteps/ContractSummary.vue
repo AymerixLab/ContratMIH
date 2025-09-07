@@ -122,7 +122,14 @@
               v-model="formData.acceptReglement"
             />
             <label for="acceptReglement" class="ml-3 text-sm text-gray-700">
-              J'accepte le règlement du salon et les conditions générales de vente.
+              J'accepte le 
+              <button
+                type="button"
+                @click="showCGVModal = true"
+                class="text-mih-primary underline hover:text-mih-coral-dark"
+              >
+                règlement du salon et les conditions générales de vente
+              </button>.
               <span class="text-red-500">*</span>
             </label>
           </div>
@@ -216,11 +223,85 @@
         </div>
       </div>
     </div>
+    
+    <!-- CGV Modal -->
+    <div
+      v-if="showCGVModal"
+      class="fixed inset-0 z-50 overflow-y-auto"
+      @click.self="showCGVModal = false"
+    >
+      <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+        
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+          <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-medium text-gray-900">
+                Règlement du salon et conditions générales de vente
+              </h3>
+              <button
+                @click="showCGVModal = false"
+                class="text-gray-400 hover:text-gray-600 focus:outline-none"
+              >
+                <XMarkIcon class="h-6 w-6" />
+              </button>
+            </div>
+            
+            <div class="max-h-96 overflow-y-auto text-sm text-gray-700 space-y-4">
+              <div>
+                <h4 class="font-bold mb-2">Article 1 - Objet</h4>
+                <p>Les présentes conditions générales de vente régissent les relations entre l'organisateur du Salon Made in Hainaut 2026 et les exposants.</p>
+              </div>
+              
+              <div>
+                <h4 class="font-bold mb-2">Article 2 - Inscription</h4>
+                <p>L'inscription au salon est conditionnée par l'acceptation des présentes conditions générales de vente et du règlement du salon. Le dossier d'inscription doit être complet et accompagné du paiement de l'acompte.</p>
+              </div>
+              
+              <div>
+                <h4 class="font-bold mb-2">Article 3 - Paiement</h4>
+                <p>Un acompte de 50% est exigible à la signature du contrat. Le solde est payable 30 jours avant l'ouverture du salon. Tout retard de paiement entraînera l'exclusion du salon.</p>
+              </div>
+              
+              <div>
+                <h4 class="font-bold mb-2">Article 4 - Annulation</h4>
+                <p>Toute annulation par l'exposant doit être signifiée par lettre recommandée. Les conditions d'annulation sont définies selon les délais de notification.</p>
+              </div>
+              
+              <div>
+                <h4 class="font-bold mb-2">Article 5 - Responsabilité</h4>
+                <p>L'exposant est responsable de ses biens et de ses visiteurs. Il doit souscrire une assurance responsabilité civile couvrant son activité pendant la durée du salon.</p>
+              </div>
+              
+              <div>
+                <h4 class="font-bold mb-2">Article 6 - Règlement du salon</h4>
+                <p>L'exposant s'engage à respecter le règlement du salon, les horaires d'ouverture et de fermeture, ainsi que toutes les consignes de sécurité.</p>
+              </div>
+              
+              <div>
+                <h4 class="font-bold mb-2">Contact</h4>
+                <p>Pour toute information complémentaire, contactez-nous au <strong>06 85 91 32 69</strong>.</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <button
+              @click="showCGVModal = false"
+              type="button"
+              class="btn-primary"
+            >
+              Fermer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, watch, onMounted } from 'vue'
+import { computed, watch, onMounted, ref, nextTick } from 'vue'
 import { Field, ErrorMessage, useForm } from 'vee-validate'
 import * as yup from 'yup'
 import { 
@@ -228,13 +309,15 @@ import {
   ArrowPathIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,
-  DocumentArrowDownIcon
+  DocumentArrowDownIcon,
+  XMarkIcon
 } from '@heroicons/vue/24/outline'
 import { useFormStore } from '@/stores/form'
 import { usePdfGeneration } from '@/composables/usePdfGeneration'
 
 const formStore = useFormStore()
 const pdfGeneration = usePdfGeneration()
+const showCGVModal = ref(false)
 
 const emit = defineEmits<{
   'step-validated': [isValid: boolean]
@@ -248,14 +331,23 @@ const schema = yup.object({
   acceptReglement: yup.boolean().oneOf([true], 'Vous devez accepter le règlement')
 })
 
-const { errors, meta } = useForm({
+const { errors, meta, resetForm } = useForm({
   validationSchema: schema,
-  initialValues: formData.value
+  initialValues: formData.value,
+  validateOnMount: false
 })
 
 watch(meta, (newMeta) => {
   emit('step-validated', newMeta.valid)
 }, { immediate: true, deep: true })
+
+// Watch for store data changes and reset form with new values
+watch(formData, (newFormData) => {
+  // Use nextTick to ensure DOM is updated before resetting form
+  nextTick(() => {
+    resetForm({ values: newFormData })
+  })
+}, { deep: true, immediate: true })
 
 // v-model writes through computed setter; avoid duplicate updates
 

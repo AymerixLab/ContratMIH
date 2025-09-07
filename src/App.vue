@@ -6,10 +6,22 @@
       Mode hors-ligne — envoi différé<span v-if="queueCount > 0"> · {{ queueCount }} en attente</span>
     </div>
     <main class="container mx-auto px-4 py-8">
-      <div class="max-w-4xl mx-auto pb-28 md:pb-0">
-        <ProgressIndicator />
-        <StepNavigator />
-        <FormContainer />
+      <div class="max-w-7xl mx-auto pb-28 md:pb-0">
+        <div class="flex justify-center">
+          <div class="lg:grid lg:grid-cols-12 lg:gap-8 w-full max-w-6xl">
+            <!-- Main Form Area -->
+            <div class="lg:col-span-8">
+              <ProgressIndicator />
+              <StepNavigator />
+              <FormContainer />
+            </div>
+            
+            <!-- Pricing Calculator Sidebar -->
+            <div class="lg:col-span-4 mt-8 lg:mt-0">
+              <PricingCalculator />
+            </div>
+          </div>
+        </div>
       </div>
     </main>
     <ToastContainer />
@@ -26,6 +38,7 @@ import AppFooter from '@/components/AppFooter.vue'
 import ProgressIndicator from '@/components/ProgressIndicator.vue'
 import StepNavigator from '@/components/StepNavigator.vue'
 import FormContainer from '@/components/FormContainer.vue'
+import PricingCalculator from '@/components/PricingCalculator.vue'
 import { googleSheetsService } from '@/services/googleSheets'
 import ToastContainer from '@/components/ToastContainer.vue'
 

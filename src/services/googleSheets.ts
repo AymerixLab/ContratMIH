@@ -24,13 +24,17 @@ class GoogleSheetsService {
     price?: PriceCalculation,
     sections?: PdfSection[]
   ): Promise<GoogleSheetsResponse> {
+    console.log('🚀 GoogleSheets.sendData called with:', { formData, price, sections })
     try {
       // Format data for Google Sheets
       const sheetData = this.formatDataForSheet(formData, price, sections)
+      console.log('📊 Formatted sheet data:', sheetData)
 
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), this.TIMEOUT)
 
+      console.log('📡 Sending to Google Sheets URL:', this.SCRIPT_URL)
+      
       const response = await fetch(this.SCRIPT_URL, {
         method: 'POST',
         mode: 'cors',
@@ -40,6 +44,8 @@ class GoogleSheetsService {
         body: JSON.stringify(sheetData),
         signal: controller.signal
       })
+      
+      console.log('📥 Google Sheets response status:', response.status, response.statusText)
 
       clearTimeout(timeoutId)
 
@@ -48,6 +54,7 @@ class GoogleSheetsService {
       }
 
       const result = await response.json()
+      console.log('📋 Google Sheets response data:', result)
       
       // Notify success
       if (typeof window !== 'undefined') {
@@ -60,9 +67,14 @@ class GoogleSheetsService {
       }
 
     } catch (error) {
+      console.error('❌ Google Sheets sendData error:', error)
+      
       // If offline or network error, enqueue for background retry
       const isOffline = typeof navigator !== 'undefined' && navigator.onLine === false
       const isNetworkError = error instanceof TypeError || (error instanceof Error && /Failed to fetch|NetworkError|abort/i.test(error.message))
+      
+      console.log('🔍 Error analysis:', { isOffline, isNetworkError, onlineStatus: navigator?.onLine })
+      
       if (isOffline || isNetworkError) {
         await this.enqueue(sheetData)
         if (typeof window !== 'undefined') {

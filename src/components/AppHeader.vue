@@ -16,7 +16,7 @@
         
         <div class="mt-4 md:mt-0 text-center md:text-right">
           <div class="text-lg font-semibold">
-            Le Salon Made in Hainaut
+            Salon Made in Hainaut
           </div>
           <div class="text-xs opacity-75 mt-1">
             Contrat de participation

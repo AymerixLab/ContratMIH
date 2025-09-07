@@ -414,6 +414,7 @@ export function usePdfGeneration() {
       // Send to Google Sheets if requested
       if (sendToSheets) {
         try {
+          console.log('📤 Starting Google Sheets export...')
           progress.step = 'Envoi vers Google Sheets...'
           progress.progress = 95
           progress.total = 100
@@ -424,12 +425,16 @@ export function usePdfGeneration() {
             pdfData.sections
           )
           
+          console.log('📊 Google Sheets export result:', sheetsResult)
+          
           if (!sheetsResult.success) {
-            console.warn('Google Sheets export failed:', sheetsResult.error)
+            console.warn('⚠️ Google Sheets export failed:', sheetsResult.error)
             // Don't fail the whole process for Google Sheets errors
+          } else {
+            console.log('✅ Google Sheets export successful')
           }
         } catch (sheetsError) {
-          console.warn('Google Sheets export error:', sheetsError)
+          console.error('❌ Google Sheets export error:', sheetsError)
           // Don't fail the whole process for Google Sheets errors
         }
       }

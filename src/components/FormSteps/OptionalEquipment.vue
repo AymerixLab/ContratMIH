@@ -12,7 +12,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div>
             <label for="reserveMelamine" class="block text-sm font-medium text-gray-700 mb-2">
-              Réserve mélaminé
+              Réserve 1 m² - {{ getPrice('reserveMelamine') }}€
             </label>
             <Field
               id="reserveMelamine"
@@ -25,21 +25,6 @@
             />
           </div>
 
-          <div>
-            <label for="moquetteDiff" class="block text-sm font-medium text-gray-700 mb-2">
-              Moquette différente (m²)
-            </label>
-            <Field
-              id="moquetteDiff"
-              name="moquetteDiff"
-              type="number"
-              min="0"
-              step="0.1"
-              class="form-input"
-              v-model.number="formData.moquetteDiff"
-              placeholder="0"
-            />
-          </div>
 
           <div>
             <label for="velum" class="block text-sm font-medium text-gray-700 mb-2">
@@ -75,7 +60,7 @@
 
           <div>
             <label for="reserveBois" class="block text-sm font-medium text-gray-700 mb-2">
-              Réserve bois
+              Réserve
             </label>
             <Field
               id="reserveBois"
@@ -90,14 +75,14 @@
 
           <div>
             <label for="railSpots" class="block text-sm font-medium text-gray-700 mb-2">
-              Rail spots (ml)
+              Rail de 3 spots supp (1-3 max) - {{ getPrice('railSpots') }}€
             </label>
             <Field
               id="railSpots"
               name="railSpots"
               type="number"
               min="0"
-              step="0.1"
+              max="3"
               class="form-input"
               v-model.number="formData.railSpots"
               placeholder="0"
@@ -112,7 +97,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div>
             <label for="mobilier_comptoir" class="block text-sm font-medium text-gray-700 mb-2">
-              Comptoir
+              Comptoir - {{ getPrice('mobilier_comptoir') }}€
             </label>
             <Field
               id="mobilier_comptoir"
@@ -187,13 +172,14 @@
 
           <div>
             <label for="mobilier_packMangeDebout" class="block text-sm font-medium text-gray-700 mb-2">
-              Pack mange-debout
+              Pack mange-debout et 3 tabourets (max 4) - {{ getPrice('mobilier_packMangeDebout') }}€
             </label>
             <Field
               id="mobilier_packMangeDebout"
               name="mobilier_packMangeDebout"
               type="number"
               min="0"
+              max="4"
               class="form-input"
               v-model.number="formData.mobilier_packMangeDebout"
               placeholder="0"
@@ -202,13 +188,14 @@
 
           <div>
             <label for="mobilier_ecran52" class="block text-sm font-medium text-gray-700 mb-2">
-              Écran 52"
+              Écran 52" (max 2) - {{ getPrice('mobilier_ecran52') }}€
             </label>
             <Field
               id="mobilier_ecran52"
               name="mobilier_ecran52"
               type="number"
               min="0"
+              max="2"
               class="form-input"
               v-model.number="formData.mobilier_ecran52"
               placeholder="0"
@@ -431,10 +418,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, watch, nextTick } from 'vue'
 import { Field, useForm } from 'vee-validate'
 import { CubeIcon } from '@heroicons/vue/24/outline'
 import { useFormStore } from '@/stores/form'
+import { getItemPricing } from '@/config/pricing'
 
 const formStore = useFormStore()
 const emit = defineEmits<{
@@ -443,13 +431,28 @@ const emit = defineEmits<{
 
 const formData = computed(() => formStore.formData.optionalEquipment)
 
-const { meta } = useForm({
-  initialValues: formData.value
+// Helper function to get price for equipment
+const getPrice = (itemId: string) => {
+  const pricing = getItemPricing(itemId)
+  return pricing ? pricing.price : 0
+}
+
+const { meta, resetForm } = useForm({
+  initialValues: formData.value,
+  validateOnMount: false
 })
 
 watch(meta, (newMeta) => {
   emit('step-validated', true) // Always valid for this step
 }, { immediate: true, deep: true })
+
+// Watch for store data changes and reset form with new values
+watch(formData, (newFormData) => {
+  // Use nextTick to ensure DOM is updated before resetting form
+  nextTick(() => {
+    resetForm({ values: newFormData })
+  })
+}, { deep: true, immediate: true })
 
 // v-model writes through computed setter; avoid duplicate updates
 </script>

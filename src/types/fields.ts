@@ -15,13 +15,13 @@ export const FIELD_META = {
     ville: { required: true, column: 'Ville' },
     pays: { required: true, column: 'Pays' },
     telephone: { column: 'Téléphone' },
-    fax: { column: 'Fax' },
     siteInternet: { column: 'Site internet' },
     siret: { column: 'SIRET' },
     tva: { column: 'TVA intracommunautaire' },
     membrePorte: { column: 'Membre Porte du Hainaut' },
     exposant2024: { column: 'Exposant 2024' },
     activites: { column: 'Activités' },
+    autreActivite: { column: 'Autre activité' },
     enseigne: { column: 'Enseigne' }
   },
   contact: {
@@ -31,14 +31,17 @@ export const FIELD_META = {
     factCodePostal: { column: 'Facturation Code postal' },
     factVille: { column: 'Facturation Ville' },
     factPays: { column: 'Facturation Pays' },
-    respNom: { column: 'Responsable Nom' },
-    respPrenom: { column: 'Responsable Prénom' },
-    respTel: { column: 'Responsable Téléphone' },
-    respMail: { column: 'Responsable Email' },
+    respNom: { required: true, column: 'Responsable Nom' },
+    respPrenom: { required: true, column: 'Responsable Prénom' },
+    respTel: { required: true, column: 'Responsable Téléphone' },
+    respMail: { required: true, column: 'Responsable Email' },
     opNom: { column: 'Opérationnel Nom' },
     opPrenom: { column: 'Opérationnel Prénom' },
     opTel: { column: 'Opérationnel Téléphone' },
     opMail: { column: 'Opérationnel Email' }
+  },
+  spaceReservation: {
+    selectedStandType: { required: true, column: 'Type de stand' }
   },
   signature: {
     nomSignataire: { required: true, column: 'Nom signataire' },
@@ -52,7 +55,8 @@ export type FormSections = keyof typeof FIELD_META
 export const SECTION_TO_STEP: Record<FormSections, number> = {
   company: 1,
   contact: 2,
-  // steps 3-6 have no required fields by default; they remain navigable
+  spaceReservation: 3,
+  // steps 4-6 have no required fields by default; they remain navigable
   // Only add entries here if you mark required fields in FIELD_META for them
   signature: 7
 }

@@ -1,6 +1,6 @@
 <template>
   <div
-    class="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 border-t border-gray-200 px-4 py-3 pb-[env(safe-area-inset-bottom)]
+    class="fixed bottom-0 inset-x-0 z-50 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 border-t border-gray-200 px-4 py-3 pb-[env(safe-area-inset-bottom)]
            md:static md:z-auto md:bg-white md:backdrop-blur-0 md:px-6 md:py-6 md:rounded-lg md:shadow-sm md:mb-6 flex items-center justify-between">
     <button
       v-if="formStore.currentStep > 1"
