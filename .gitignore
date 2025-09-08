@@ -1,39 +1,35 @@
 # Dependencies
 node_modules/
-package-lock.json
 
-# Build outputs
+# Build output
 dist/
+build/
+coverage/
+
+# Vite cache
+node_modules/.vite/
 .vite/
 
-# Environment files
-.env*
-!.env.example
+# TypeScript
+*.tsbuildinfo
 
-# IDE/Editor files
-.vscode/
+# Env files
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor directories and files
 .idea/
+.vscode/
 *.swp
-*.swo
 
 # OS files
 .DS_Store
 Thumbs.db
-
-# Logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Temporary files
-*.tmp
-*.temp
-
-# Coverage reports
-coverage/
-
-# AI-related files
-AGENTS.md
-IMPLEMENTATION.md
-CLAUDE.md
