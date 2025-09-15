@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { CurrentPage } from './lib/types';
 import { calculateTotalHT1, calculateTotalHT2, calculateTotalHT3 } from './lib/utils';
 import { useFormData } from './hooks/useFormData';
-import { generateContractZip } from './lib/documentGenerator';
+import { fillAndDownloadContractPdf } from './lib/pdfFiller';
 import { Header } from './components/shared/Header';
 import { ProgressIndicator } from './components/shared/ProgressIndicator';
 import { IdentityPage } from './components/pages/IdentityPage';
@@ -12,6 +12,7 @@ import { AmenagementPage } from './components/pages/AmenagementPage';
 import { VisibilitePage } from './components/pages/VisibilitePage';
 import { EngagementPage } from './components/pages/EngagementPage';
 import { ThanksPage } from './components/pages/ThanksPage';
+import { mockFormData, mockReservationData, mockAmenagementData, mockVisibiliteData, mockEngagementData } from './lib/mockData';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<CurrentPage>('identity');
@@ -71,24 +72,36 @@ export default function App() {
   const tva = totalHT * 0.20;
   const totalTTC = totalHT + tva;
 
+  // Dev/test: URL ?pdfMock=1 génère un PDF rempli avec des données mock
+  useEffect(() => {
+    if ((import.meta as any).env?.DEV) {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('pdfMock')) {
+        fillAndDownloadContractPdf(
+          mockFormData,
+          mockReservationData,
+          mockAmenagementData,
+          mockVisibiliteData,
+          mockEngagementData,
+          { mockAll: true }
+        ).catch((e) => console.error('PDF mock generation failed', e));
+      } else if (params.has('pdfFieldsCsv')) {
+        import('./lib/pdfFiller').then(m => m.downloadContractPdfFieldsCsv()).catch((e) => console.error(e));
+      }
+    }
+  }, []);
+
   const handleComplete = async () => {
     try {
       // Sauvegarder les données d'identité
       setSavedIdentityData(formData);
-      
-      // Générer et télécharger automatiquement le ZIP
-      await generateContractZip(
+      // Générer et télécharger automatiquement le PDF contrat (aplati)
+      await fillAndDownloadContractPdf(
         formData,
         reservationData,
         amenagementData,
         visibiliteData,
-        engagementData,
-        totalHT1,
-        totalHT2,
-        totalHT3,
-        totalHT,
-        tva,
-        totalTTC
+        engagementData
       );
       
       // Rediriger vers la page de remerciement
