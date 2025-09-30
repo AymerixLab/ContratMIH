@@ -4,6 +4,7 @@ import { CurrentPage } from './lib/types';
 import { calculateTotalHT1, calculateTotalHT2, calculateTotalHT3 } from './lib/utils';
 import { useFormData } from './hooks/useFormData';
 import { fillAndDownloadContractPdf } from './lib/pdfFiller';
+import { submitFormData } from './lib/api';
 import { Header } from './components/shared/Header';
 import { ProgressIndicator } from './components/shared/ProgressIndicator';
 import { IdentityPage } from './components/pages/IdentityPage';
@@ -92,10 +93,34 @@ export default function App() {
   }, []);
 
   const handleComplete = async () => {
+    const submittedAt = new Date().toISOString();
+    const totals = {
+      totalHT1,
+      totalHT2,
+      totalHT3,
+      totalHT,
+      tva,
+      totalTTC,
+    };
+
+    // Sauvegarder les données d'identité pour un éventuel retour
+    setSavedIdentityData(formData);
+
     try {
-      // Sauvegarder les données d'identité
-      setSavedIdentityData(formData);
-      // Générer et télécharger automatiquement le PDF contrat (aplati)
+      await submitFormData({
+        formData,
+        reservationData,
+        amenagementData,
+        visibiliteData,
+        engagementData,
+        totals,
+        submittedAt,
+      });
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde en base de données:', error);
+    }
+
+    try {
       await fillAndDownloadContractPdf(
         formData,
         reservationData,
@@ -103,12 +128,9 @@ export default function App() {
         visibiliteData,
         engagementData
       );
-      
-      // Rediriger vers la page de remerciement
-      setCurrentPage('thanks');
     } catch (error) {
       console.error('Erreur lors de la génération du contrat:', error);
-      // Rediriger quand même vers la page de remerciement
+    } finally {
       setCurrentPage('thanks');
     }
   };

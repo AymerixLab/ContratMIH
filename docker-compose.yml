@@ -1,0 +1,27 @@
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: mih
+      POSTGRES_PASSWORD: mih_password
+      POSTGRES_DB: mih_staging
+    volumes:
+      - ./docker/db-data:/var/lib/postgresql/data
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/00-init.sql:ro
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://mih:mih_password@db:5432/mih_staging}
+      NODE_ENV: production
+      PORT: ${PORT:-8080}
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
