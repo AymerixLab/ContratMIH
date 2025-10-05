@@ -235,6 +235,15 @@ app.use((req, res) => {
   res.sendFile(path.join(buildDir, 'index.html'));
 });
 
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
-});
+// Check database connection before starting server
+pool.query('SELECT NOW()')
+  .then(() => {
+    console.log('Database connection established');
+    app.listen(port, () => {
+      console.log(`Server listening on port ${port}`);
+    });
+  })
+  .catch((err) => {
+    console.error('Failed to connect to database:', err);
+    process.exit(1);
+  });
