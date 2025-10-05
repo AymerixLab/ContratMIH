@@ -1,8 +1,5 @@
+docker/db-data
+docker/*-data
 node_modules
-npm-debug.log
-Dockerfile
-.dockerignore
 .git
-.gitignore
-build
-coverage
+.env*
