@@ -1,7 +1,11 @@
-const express = require('express');
-const path = require('path');
-const cors = require('cors');
-const pool = require('./db');
+import express from 'express';
+import path from 'path';
+import cors from 'cors';
+import { fileURLToPath } from 'url';
+import pool from './db.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const toNullableText = (value) => {
   if (value === null || value === undefined) return null;
