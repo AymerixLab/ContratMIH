@@ -2,10 +2,13 @@ import express from 'express';
 import path from 'path';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
-import pool from './db.js';
+import { PrismaClient } from '@prisma/client';
+import { SubmissionSchema } from './validation.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+const prisma = new PrismaClient();
 
 const toNullableText = (value) => {
   if (value === null || value === undefined) return null;
@@ -33,31 +36,6 @@ const toMoney = (value) => {
   return Math.round(parsed * 100) / 100;
 };
 
-const buildInsertQuery = (table, fields, options = {}) => {
-  const columns = Object.keys(fields);
-  if (columns.length === 0) {
-    throw new Error(`No fields provided for insert into ${table}`);
-  }
-
-  const placeholders = columns.map((_, idx) => `$${idx + 1}`);
-  const textLines = [
-    `INSERT INTO ${table} (`,
-    `  ${columns.join(',\n  ')}`,
-    ') VALUES (',
-    `  ${placeholders.join(', ')}`,
-    ')',
-  ];
-
-  if (options.returning) {
-    textLines.push(`RETURNING ${options.returning}`);
-  }
-
-  return {
-    text: textLines.join('\n'),
-    values: Object.values(fields),
-  };
-};
-
 const app = express();
 const port = process.env.PORT || 8080;
 
@@ -75,156 +53,185 @@ app.get('/api/health', (_req, res) => {
 });
 
 app.post('/api/submissions', async (req, res) => {
-  const {
-    formData,
-    reservationData,
-    amenagementData,
-    visibiliteData,
-    engagementData,
-    totals,
-    submittedAt,
-  } = req.body || {};
-
-  if (!formData || !reservationData || !amenagementData || !visibiliteData || !engagementData || !totals) {
-    return res.status(400).json({ error: 'Payload incomplet' });
-  }
-
-  const client = await pool.connect();
-
   try {
-    await client.query('BEGIN');
+    // VALIDATION ZOD - Protection contre données malformées
+    const validationResult = SubmissionSchema.safeParse(req.body);
 
-    const submissionRow = {
-      client_submitted_at: submittedAt ? new Date(submittedAt) : null,
-      raison_sociale: formData.raisonSociale,
-      adresse: formData.adresse,
-      code_postal: formData.codePostal,
-      ville: formData.ville,
-      pays: formData.pays,
-      tel: formData.tel,
-      site_internet: toNullableText(formData.siteInternet),
-      siret: toNullableText(formData.siret),
-      tva_intra: toNullableText(formData.tvaIntra),
-      membre_association: toBoolean(formData.membreAssociation),
-      exposant_2024: toBoolean(formData.exposant2024),
-      activite_industrie: toBoolean(formData.activites.industrie),
-      activite_transport_logistique: toBoolean(formData.activites.transportLogistique),
-      activite_btp_construction_logement: toBoolean(formData.activites.btpConstructionLogement),
-      activite_environnement_energie: toBoolean(formData.activites.environnementEnergie),
-      activite_services_entreprises: toBoolean(formData.activites.servicesEntreprises),
-      activite_image_nouvelles_technologies: toBoolean(formData.activites.imageNouvellesTechnologies),
-      activite_tourisme_bien_etre: toBoolean(formData.activites.tourismeBienEtre),
-      activite_autre: toBoolean(formData.activites.autre),
-      autre_activite: toNullableText(formData.autreActivite),
-      facturation_adresse: toNullableText(formData.facturationAdresse),
-      facturation_cp: toNullableText(formData.facturationCP),
-      facturation_ville: toNullableText(formData.facturationVille),
-      facturation_pays: toNullableText(formData.facturationPays),
-      contact_compta_nom: toNullableText(formData.contactComptaNom),
-      contact_compta_tel: toNullableText(formData.contactComptaTel),
-      contact_compta_mail: toNullableText(formData.contactComptaMail),
-      responsable_nom: toNullableText(formData.responsableNom),
-      responsable_prenom: toNullableText(formData.responsablePrenom),
-      responsable_tel: toNullableText(formData.responsableTel),
-      responsable_mail: toNullableText(formData.responsableMail),
-      resp_op_nom: toNullableText(formData.respOpNom),
-      resp_op_prenom: toNullableText(formData.respOpPrenom),
-      resp_op_tel: toNullableText(formData.respOpTel),
-      resp_op_mail: toNullableText(formData.respOpMail),
-      enseigne: toNullableText(formData.enseigne),
-      stand_type: toNullableText(reservationData.standType),
-      stand_size: toNullableText(reservationData.standSize),
-      stand_angles: toInteger(reservationData.standAngles),
-      electricity_upgrade: toNullableText(reservationData.electricityUpgrade),
-      exterior_space: toBoolean(reservationData.exteriorSpace),
-      exterior_surface: toNullableText(reservationData.exteriorSurface),
-      garden_cottage: toBoolean(reservationData.gardenCottage),
-      micro_stand: toBoolean(reservationData.microStand),
-      reserve_porte_melamine: toIntegerOrZero(amenagementData.reservePorteMelamine),
-      moquette_differente: toIntegerOrZero(amenagementData.moquetteDifferente),
-      moquette_couleur: toNullableText(amenagementData.moquetteCouleur),
-      velum_stand: toIntegerOrZero(amenagementData.velumStand),
-      cloison_bois_gainee: toIntegerOrZero(amenagementData.cloisonBoisGainee),
-      reserve_porte_bois: toIntegerOrZero(amenagementData.reservePorteBois),
-      bandeau_signaletique: toIntegerOrZero(amenagementData.bandeauSignaletique),
-      comptoir: toIntegerOrZero(amenagementData.comptoir),
-      tabouret: toIntegerOrZero(amenagementData.tabouret),
-      mange_debout: toIntegerOrZero(amenagementData.mangeDebout),
-      chaise: toIntegerOrZero(amenagementData.chaise),
-      table_120x60: toIntegerOrZero(amenagementData.table120x60),
-      mange_3_tabourets: toIntegerOrZero(amenagementData.mange3Tabourets),
-      ecran_52: toIntegerOrZero(amenagementData.ecran52),
-      refrigerateur_140: toIntegerOrZero(amenagementData.refrigerateur140),
-      refrigerateur_240: toIntegerOrZero(amenagementData.refrigerateur240),
-      presentoir_a4: toIntegerOrZero(amenagementData.presentoirA4),
-      bloc_prises: toIntegerOrZero(amenagementData.blocPrises),
-      fauteuil: toIntegerOrZero(amenagementData.fauteuil),
-      table_basse: toIntegerOrZero(amenagementData.tableBasse),
-      gueridon_haut: toIntegerOrZero(amenagementData.gueridonHaut),
-      pouf_cube: toIntegerOrZero(amenagementData.poufCube),
-      pouf_couleur: toNullableText(amenagementData.poufCouleur),
-      colonne_vitrine: toIntegerOrZero(amenagementData.colonneVitrine),
-      comptoir_vitrine: toIntegerOrZero(amenagementData.comptoirVitrine),
-      porte_manteaux: toIntegerOrZero(amenagementData.porteManteux),
-      plante_bambou: toIntegerOrZero(amenagementData.planteBambou),
-      plante_kentia: toIntegerOrZero(amenagementData.planteKentia),
-      scan_badges: toBoolean(amenagementData.scanBadges),
-      pass_soiree: toIntegerOrZero(amenagementData.passSoiree),
-      pack_signaletique_complet: toBoolean(visibiliteData.packSignaletiqueComplet),
-      signaletique_comptoir: toBoolean(visibiliteData.signaletiqueComptoir),
-      signaletique_haut_cloisons: toBoolean(visibiliteData.signaletiqueHautCloisons),
-      signaletique_cloisons_lineaires: toIntegerOrZero(visibiliteData.signalethqueCloisons),
-      signaletique_enseigne_haute: toBoolean(visibiliteData.signaletiqueEnseigneHaute),
-      demi_page_catalogue: toBoolean(visibiliteData.demiPageCatalogue),
-      page_complete_catalogue: toBoolean(visibiliteData.pageCompleeteCatalogue),
-      deuxieme_couverture: toBoolean(visibiliteData.deuxiemeCouverture),
-      quatrieme_couverture: toBoolean(visibiliteData.quatriemeCouverture),
-      logo_plan_salon: toBoolean(visibiliteData.logoplanSalon),
-      documentation_sac_visiteur: toBoolean(visibiliteData.documentationSacVisiteur),
-      distribution_hotesse: toBoolean(visibiliteData.distributionHotesse),
-      mode_reglement: engagementData.modeReglement,
-      accepte_reglement: toBoolean(engagementData.accepteReglement),
-      date_signature: toNullableText(engagementData.dateSignature),
-      cachet_signature: toNullableText(engagementData.cachetSignature),
-      total_ht_section1: toMoney(totals.totalHT1),
-      total_ht_section2: toMoney(totals.totalHT2),
-      total_ht_section3: toMoney(totals.totalHT3),
-      total_ht: toMoney(totals.totalHT),
-      total_tva: toMoney(totals.tva),
-      total_ttc: toMoney(totals.totalTTC),
-    };
-
-    const submissionQuery = buildInsertQuery('submissions', submissionRow, { returning: 'id' });
-    const submissionResult = await client.query(submissionQuery);
-
-    const submissionId = submissionResult.rows[0].id;
-
-    if (Array.isArray(reservationData.coExposants)) {
-      for (const coExposant of reservationData.coExposants) {
-        if (!coExposant?.nomEntreprise) continue;
-        const coExposantRow = {
-          submission_id: submissionId,
-          nom_entreprise: coExposant.nomEntreprise,
-          nom_responsable: toNullableText(coExposant.nomResponsable),
-          prenom_responsable: toNullableText(coExposant.prenomResponsable),
-          tel_responsable: toNullableText(coExposant.telResponsable),
-          mail_responsable: toNullableText(coExposant.mailResponsable),
-        };
-
-        const coExposantQuery = buildInsertQuery('co_exposants', coExposantRow);
-        await client.query(coExposantQuery);
-      }
+    if (!validationResult.success) {
+      console.error('Validation failed:', validationResult.error.format());
+      return res.status(400).json({
+        error: 'Données invalides',
+        details: validationResult.error.format()
+      });
     }
 
-    await client.query('COMMIT');
+    const {
+      formData,
+      reservationData,
+      amenagementData,
+      visibiliteData,
+      engagementData,
+      totals,
+      submittedAt,
+    } = validationResult.data;
 
-    return res.status(201).json({ id: submissionId });
+    // Utiliser une transaction Prisma (sécurisée et type-safe)
+    const result = await prisma.$transaction(async (tx) => {
+      // Créer la soumission avec backup JSON complet
+      const submission = await tx.submission.create({
+        data: {
+          // BACKUP COMPLET - Aucune perte de données possible
+          rawPayload: req.body,
+          rawTotals: totals,
+
+          clientSubmittedAt: submittedAt ? new Date(submittedAt) : null,
+
+          // IDENTITÉ ENTREPRISE
+          raisonSociale: formData.raisonSociale,
+          adresse: formData.adresse,
+          codePostal: formData.codePostal,
+          ville: formData.ville,
+          pays: formData.pays,
+          tel: formData.tel,
+          siteInternet: toNullableText(formData.siteInternet),
+          siret: toNullableText(formData.siret),
+          tvaIntra: toNullableText(formData.tvaIntra),
+          membreAssociation: toBoolean(formData.membreAssociation),
+          exposant2024: toBoolean(formData.exposant2024),
+
+          // ACTIVITÉS
+          activiteIndustrie: toBoolean(formData.activites.industrie),
+          activiteTransportLogistique: toBoolean(formData.activites.transportLogistique),
+          activiteBtpConstructionLogement: toBoolean(formData.activites.btpConstructionLogement),
+          activiteEnvironnementEnergie: toBoolean(formData.activites.environnementEnergie),
+          activiteServicesEntreprises: toBoolean(formData.activites.servicesEntreprises),
+          activiteImageNouvellesTechnologies: toBoolean(formData.activites.imageNouvellesTechnologies),
+          activiteTourismeBienEtre: toBoolean(formData.activites.tourismeBienEtre),
+          activiteAutre: toBoolean(formData.activites.autre),
+          autreActivite: toNullableText(formData.autreActivite),
+
+          // FACTURATION
+          facturationAdresse: toNullableText(formData.facturationAdresse),
+          facturationCp: toNullableText(formData.facturationCP),
+          facturationVille: toNullableText(formData.facturationVille),
+          facturationPays: toNullableText(formData.facturationPays),
+
+          // CONTACTS
+          contactComptaNom: toNullableText(formData.contactComptaNom),
+          contactComptaTel: toNullableText(formData.contactComptaTel),
+          contactComptaMail: toNullableText(formData.contactComptaMail),
+          responsableNom: toNullableText(formData.responsableNom),
+          responsablePrenom: toNullableText(formData.responsablePrenom),
+          responsableTel: toNullableText(formData.responsableTel),
+          responsableMail: toNullableText(formData.responsableMail),
+          respOpNom: toNullableText(formData.respOpNom),
+          respOpPrenom: toNullableText(formData.respOpPrenom),
+          respOpTel: toNullableText(formData.respOpTel),
+          respOpMail: toNullableText(formData.respOpMail),
+          enseigne: toNullableText(formData.enseigne),
+
+          // RÉSERVATION STAND
+          standType: toNullableText(reservationData.standType),
+          standSize: toNullableText(reservationData.standSize),
+          standAngles: toInteger(reservationData.standAngles),
+          electricityUpgrade: toNullableText(reservationData.electricityUpgrade),
+          exteriorSpace: toBoolean(reservationData.exteriorSpace),
+          exteriorSurface: toNullableText(reservationData.exteriorSurface),
+          gardenCottage: toBoolean(reservationData.gardenCottage),
+          microStand: toBoolean(reservationData.microStand),
+
+          // AMÉNAGEMENT - ÉQUIPEMENTS STANDS
+          reservePorteMelamine: toIntegerOrZero(amenagementData.reservePorteMelamine),
+          moquetteDifferente: toIntegerOrZero(amenagementData.moquetteDifferente),
+          moquetteCouleur: toNullableText(amenagementData.moquetteCouleur),
+          velumStand: toIntegerOrZero(amenagementData.velumStand),
+          cloisonBoisGainee: toIntegerOrZero(amenagementData.cloisonBoisGainee),
+          reservePorteBois: toIntegerOrZero(amenagementData.reservePorteBois),
+          bandeauSignaletique: toIntegerOrZero(amenagementData.bandeauSignaletique),
+
+          // AMÉNAGEMENT - MOBILIER
+          comptoir: toIntegerOrZero(amenagementData.comptoir),
+          tabouret: toIntegerOrZero(amenagementData.tabouret),
+          mangeDebout: toIntegerOrZero(amenagementData.mangeDebout),
+          chaise: toIntegerOrZero(amenagementData.chaise),
+          table120x60: toIntegerOrZero(amenagementData.table120x60),
+          mange3Tabourets: toIntegerOrZero(amenagementData.mange3Tabourets),
+          ecran52: toIntegerOrZero(amenagementData.ecran52),
+          refrigerateur140: toIntegerOrZero(amenagementData.refrigerateur140),
+          refrigerateur240: toIntegerOrZero(amenagementData.refrigerateur240),
+          presentoirA4: toIntegerOrZero(amenagementData.presentoirA4),
+          blocPrises: toIntegerOrZero(amenagementData.blocPrises),
+          fauteuil: toIntegerOrZero(amenagementData.fauteuil),
+          tableBasse: toIntegerOrZero(amenagementData.tableBasse),
+          gueridonHaut: toIntegerOrZero(amenagementData.gueridonHaut),
+          poufCube: toIntegerOrZero(amenagementData.poufCube),
+          poufCouleur: toNullableText(amenagementData.poufCouleur),
+          colonneVitrine: toIntegerOrZero(amenagementData.colonneVitrine),
+          comptoirVitrine: toIntegerOrZero(amenagementData.comptoirVitrine),
+          // FIX: Correction du bug porteManteux -> porte_manteaux
+          porteManteaux: toIntegerOrZero(amenagementData.porteManteux),
+          planteBambou: toIntegerOrZero(amenagementData.planteBambou),
+          planteKentia: toIntegerOrZero(amenagementData.planteKentia),
+
+          // AMÉNAGEMENT - PRODUITS COMPLÉMENTAIRES
+          scanBadges: toBoolean(amenagementData.scanBadges),
+          passSoiree: toIntegerOrZero(amenagementData.passSoiree),
+
+          // VISIBILITÉ
+          packSignaletiqueComplet: toBoolean(visibiliteData.packSignaletiqueComplet),
+          signaletiqueComptoir: toBoolean(visibiliteData.signaletiqueComptoir),
+          signaletiqueHautCloisons: toBoolean(visibiliteData.signaletiqueHautCloisons),
+          signaletiqueCloisonsLineaires: toIntegerOrZero(visibiliteData.signalethqueCloisons),
+          signaletiqueEnseigneHaute: toBoolean(visibiliteData.signaletiqueEnseigneHaute),
+          demiPageCatalogue: toBoolean(visibiliteData.demiPageCatalogue),
+          pageCompleteCatalogue: toBoolean(visibiliteData.pageCompleeteCatalogue),
+          deuxiemeCouverture: toBoolean(visibiliteData.deuxiemeCouverture),
+          quatriemeCouverture: toBoolean(visibiliteData.quatriemeCouverture),
+          logoPlanSalon: toBoolean(visibiliteData.logoplanSalon),
+          documentationSacVisiteur: toBoolean(visibiliteData.documentationSacVisiteur),
+          distributionHotesse: toBoolean(visibiliteData.distributionHotesse),
+
+          // ENGAGEMENT
+          modeReglement: engagementData.modeReglement,
+          accepteReglement: toBoolean(engagementData.accepteReglement),
+          dateSignature: toNullableText(engagementData.dateSignature),
+          cachetSignature: toNullableText(engagementData.cachetSignature),
+
+          // TOTAUX
+          totalHtSection1: toMoney(totals.totalHT1),
+          totalHtSection2: toMoney(totals.totalHT2),
+          totalHtSection3: toMoney(totals.totalHT3),
+          totalHt: toMoney(totals.totalHT),
+          totalTva: toMoney(totals.tva),
+          totalTtc: toMoney(totals.totalTTC),
+        },
+      });
+
+      // Créer les co-exposants
+      if (Array.isArray(reservationData.coExposants)) {
+        for (const coExposant of reservationData.coExposants) {
+          if (!coExposant?.nomEntreprise) continue;
+
+          await tx.coExposant.create({
+            data: {
+              submissionId: submission.id,
+              nomEntreprise: coExposant.nomEntreprise,
+              nomResponsable: toNullableText(coExposant.nomResponsable),
+              prenomResponsable: toNullableText(coExposant.prenomResponsable),
+              telResponsable: toNullableText(coExposant.telResponsable),
+              mailResponsable: toNullableText(coExposant.mailResponsable),
+            },
+          });
+        }
+      }
+
+      return submission;
+    });
+
+    return res.status(201).json({ id: result.id });
   } catch (error) {
-    await client.query('ROLLBACK');
     console.error('Erreur lors de la sauvegarde du formulaire:', error);
     return res.status(500).json({ error: 'Erreur interne' });
-  } finally {
-    client.release();
   }
 });
 
@@ -236,7 +243,7 @@ app.use((req, res) => {
 });
 
 // Check database connection before starting server
-pool.query('SELECT NOW()')
+prisma.$queryRaw`SELECT NOW()`
   .then(() => {
     console.log('Database connection established');
     app.listen(port, () => {
@@ -247,3 +254,14 @@ pool.query('SELECT NOW()')
     console.error('Failed to connect to database:', err);
     process.exit(1);
   });
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  await prisma.$disconnect();
+  process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+  await prisma.$disconnect();
+  process.exit(0);
+});
