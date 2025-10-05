@@ -46,7 +46,7 @@ services:
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     volumes:
-      - ./docker/pgadmin-data:/var/lib/pgadmin
+      - pgadmin-data:/var/lib/pgadmin
     depends_on:
       - db
     labels:
@@ -96,3 +96,6 @@ services:
 networks:
   traefik-network:
     driver: bridge
+
+volumes:
+  pgadmin-data:
