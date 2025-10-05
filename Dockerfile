@@ -11,6 +11,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
+COPY prisma ./prisma
+RUN npx prisma generate
 COPY --from=builder /app/build ./build
 COPY --from=builder /app/server ./server
 CMD ["node", "server/index.js"]
