@@ -112,8 +112,8 @@ export function ReservationPage({
         // Stand équipé : 6 à 30 m² par pas de 3m² (6, 9, 12, 15, 18, 21, 24, 27, 30)
         return Array.from({ length: 9 }, (_, i) => (6 + i * 3).toString());
       case 'ready':
-        // Pack prêt à exposer : 3 choix fixes
-        return ['12', '15', '18'];
+        // Pack prêt à exposer : 6 choix fixes (21, 24, 27, 30, 33, 36 m²)
+        return ['21', '24', '27', '30', '33', '36'];
       case 'bare':
         // Stand nu : 6 à 30 m² par pas de 3m² (comme équipé)
         return Array.from({ length: 9 }, (_, i) => (6 + i * 3).toString());
@@ -135,16 +135,10 @@ export function ReservationPage({
 
   // Fonction pour calculer le prix du pack prêt à exposer
   const getReadyToExposePrice = (size: string) => {
-    switch (size) {
-      case '12':
-        return 3552;
-      case '15':
-        return 4440;
-      case '18':
-        return 5328;
-      default:
-        return 0;
-    }
+    const pricePerM2 = 296;
+    const sizeNum = parseInt(size);
+    if (isNaN(sizeNum)) return 0;
+    return sizeNum * pricePerM2;
   };
 
   // Fonction pour gérer la sélection/désélection des stands
@@ -336,7 +330,7 @@ export function ReservationPage({
                   <Label className="font-[Poppins] font-medium">
                     Surface du stand (m²)
                     {reservationData.standType === 'equipped' && " - De 6 à 30 m² (par pas de 3m²)"}
-                    {reservationData.standType === 'ready' && " - 3 choix disponibles"}
+                    {reservationData.standType === 'ready' && " - 6 choix disponibles (21 à 36 m²)"}
                     {reservationData.standType === 'bare' && " - De 6 à 30 m² (par pas de 3m²)"}
                   </Label>
                   <Select
@@ -364,7 +358,7 @@ export function ReservationPage({
 
                 <div>
                   <Label className="font-[Poppins] font-medium">
-                    Nombre d'angles ouverts (max {getMaxAngles(reservationData.standType)})
+                    Nombre d'angles ouverts (max {getMaxAngles(reservationData.standType)}) * sous réserve de disponibilité
                   </Label>
                   <Select
                     value={reservationData.standAngles.toString()}
@@ -700,11 +694,12 @@ export function ReservationPage({
               {reservationData.exteriorSpace && (
                 <div>
                   <Label className="font-[Poppins] font-medium">
-                    Surface extérieure (m²)
+                    Surface extérieure (m²) - Maximum 80 m²
                   </Label>
                   <Input
                     type="number"
                     min="1"
+                    max="80"
                     value={reservationData.exteriorSpaceSize}
                     onChange={(e) =>
                       onReservationChange(

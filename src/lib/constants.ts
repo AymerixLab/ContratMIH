@@ -17,13 +17,16 @@ export const standardSizes = Array.from({ length: 25 }, (_, i) => (i + 6).toStri
 
 // Surfaces et prix fixes pour le pack "Prêt à exposer"
 export const readyToExposePrices: { [key: string]: number } = {
-  '12': 3552,  // 12 m² à 3552 € HT
-  '15': 4440,  // 15 m² à 4440 € HT  
-  '18': 5328   // 18 m² à 5328 € HT
+  '21': 6216,  // 21 m² à 6216 € HT (21 × 296)
+  '24': 7104,  // 24 m² à 7104 € HT (24 × 296)
+  '27': 7992,  // 27 m² à 7992 € HT (27 × 296)
+  '30': 8880,  // 30 m² à 8880 € HT (30 × 296)
+  '33': 9768,  // 33 m² à 9768 € HT (33 × 296)
+  '36': 10656  // 36 m² à 10656 € HT (36 × 296)
 };
 
 // Surfaces disponibles pour le pack prêt à exposer
-export const readyToExposeSizes = ['12', '15', '18'];
+export const readyToExposeSizes = ['21', '24', '27', '30', '33', '36'];
 
 // Prix des angles (185 € par angle)
 export const anglePrice = 185;
@@ -56,6 +59,7 @@ export const amenagementPrices = {
   cloisonBoisGainee: 50,              // Cloison bois gainée tissu par ml
   reservePorteBois: 260,              // Réserve d'1m² avec porte (cloisons bois)
   bandeauSignaletique: 35,            // Bandeau signalétique par ml
+  railSpots: 45,                      // Rail de 3 spots supplémentaires
 
   // MOBILIER
   comptoir: 165,                      // Comptoir
@@ -71,13 +75,13 @@ export const amenagementPrices = {
   blocPrises: 18,                     // Bloc 3 prises
   fauteuil: 59,                       // Fauteuil
   tableBasse: 55,                     // Table basse ronde
-  gueridonHaut: 55,                   // Guéridon haut 120cm
+  gueridonHaut: 75,                   // Guéridon haut 120cm
   poufCube: 33,                       // Pouf cube
-  colonneVitrine: 252,                // Colonne vitrine
-  comptoirVitrine: 271,               // Comptoir vitrine
+  colonneVitrine: 350,                // Colonne vitrine
+  comptoirVitrine: 350,               // Comptoir vitrine
   porteManteux: 51,                   // Porte-manteaux
-  planteBambou: 50,                   // Plante bambou
-  planteKentia: 50,                   // Plante kentia
+  planteBambou: 80,                   // Plante bambou
+  planteKentia: 80,                   // Plante kentia
 
   // PRODUITS COMPLÉMENTAIRES
   scanBadges: 150,                    // Scan badges visiteurs
@@ -102,11 +106,11 @@ export const getPassSoireeInclus = (standSize: string): number => {
 // NOUVEAUX TARIFS VISIBILITÉ ET COMMUNICATION
 export const visibilitePrices = {
   // HABILLAGE ET VISIBILITÉ DE VOTRE STAND
-  packSignaletiqueComplet: 1020,      // Pack signalétique complet
+  packSignaletiqueComplet: 125,       // Pack signalétique complet - 125 €/m²
   signaletiqueComptoir: 180,          // Signalétique comptoir (condition: comptoir réservé)
-  signaletiqueHautCloisons: 435,      // Signalétique haut de cloisons
-  signalethqueCloisons: 185,          // Signalétique cloison complète (120€ à partir de 3)
-  signaletiqueEnseigneHaute: 225,     // Signalétique enseigne haute
+  signaletiqueHautCloisons: 50,       // Signalétique haut de cloisons - 50 €/m²
+  signalethqueCloisons: 185,          // Signalétique cloison complète - 185 €/cloison
+  signaletiqueEnseigneHaute: 180,     // Signalétique enseigne haute
 
   // AMÉLIORATION DE VISIBILITÉ ET COMMUNICATION
   demiPageCatalogue: 700,             // 1/2 page quadri catalogue
@@ -114,8 +118,8 @@ export const visibilitePrices = {
   deuxiemeCouverture: 1800,           // Deuxième de couverture catalogue
   quatriemeCouverture: 2300,          // Quatrième de couverture catalogue
   logoplanSalon: 550,                 // Logo sur plan salon
-  documentationSacVisiteur: 900,      // Documentation dans sac visiteur (nouveau)
-  distributionHotesse: 1500           // Distribution par hôtesse 2 jours (nouveau)
+  documentationSacVisiteur: 900,      // Documentation dans sac visiteur (3000 sacs, 4 entreprises)
+  distributionHotesse: 700            // Distribution par hôtesse - 700 €/jour
 };
 
 // DEPRECATED - Garder pour compatibilité avec le code existant

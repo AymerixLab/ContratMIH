@@ -227,7 +227,7 @@ app.post('/api/submissions', async (req, res) => {
 const buildDir = path.join(__dirname, '..', 'build');
 app.use(express.static(buildDir));
 
-app.get('*', (req, res) => {
+app.use((req, res) => {
   res.sendFile(path.join(buildDir, 'index.html'));
 });
 

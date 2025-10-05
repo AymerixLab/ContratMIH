@@ -139,7 +139,7 @@ export function EngagementPage({
                   <h4 className="font-semibold font-[Poppins]" style={{ color: COLORS.primary }}>Acompte :</h4>
                 </div>
                 <p className="text-sm font-[Poppins] leading-relaxed">
-                  Un premier acompte de <span className="font-semibold">50 % du montant total TTC</span> sera payé à la signature du contrat. Je soussigné, joins un acompte de <span className="font-semibold">{(totalTTC * 0.5).toLocaleString('fr-FR')} €</span> par chèque, à l'ordre de Porte du Hainaut Développement.
+                  Un premier acompte de <span className="font-semibold">50 % du montant total TTC</span> sera payé à la signature du contrat. Je soussigné <span className="font-semibold">{formData.responsableNom} {formData.responsablePrenom}</span>, responsable de <span className="font-semibold">{formData.raisonSociale || formData.enseigne}</span>, joins un acompte de <span className="font-semibold">{(totalTTC * 0.5).toLocaleString('fr-FR')} €</span> par chèque, à l'ordre de Porte du Hainaut Développement.
                 </p>
               </div>
 
@@ -158,11 +158,11 @@ export function EngagementPage({
               <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg" style={{ borderRadius: "8px" }}>
                 <div className="flex items-center space-x-2 mb-3">
                   <div className="w-3 h-3 rounded-full bg-gray-500"></div>
-                  <h4 className="font-semibold font-[Poppins]" style={{ color: COLORS.primary }}>Le règlement par virement :</h4>
+                  <h4 className="font-semibold font-[Poppins]" style={{ color: COLORS.primary }}>Le règlement :</h4>
                 </div>
                 <div className="space-y-2 text-sm font-[Poppins]">
                   <p>- soit par chèque, à l'ordre de Porte du Hainaut Développement</p>
-                  <p>- soit par virement bancaire, sur le compte <span className="font-semibold">n°30004 01039 00421006 262 - BIC CEPAFRPP627</span>. Dans ce cas, tous les frais bancaires éventuellement dus sont à la charge de l'exposant.</p>
+                  <p>- soit par virement bancaire, sur le compte <span className="font-semibold">n°FR76 1627 5500 0008 1039 1006 262 - BIC CEPAFRPP627</span>. Dans ce cas, tous les frais bancaires éventuellement dus sont à la charge de l'exposant.</p>
                 </div>
               </div>
 
@@ -176,7 +176,7 @@ export function EngagementPage({
               {/* Retour document */}
               <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg" style={{ borderRadius: "8px" }}>
                 <p className="text-sm font-[Poppins] leading-relaxed font-semibold" style={{ color: COLORS.primary }}>
-                  📝 À retourner impérativement signé par courrier avec le dossier dûment complété.
+                  📝 À retourner impérativement signé avec le dossier dûment complété.
                 </p>
               </div>
             </div>
@@ -198,7 +198,7 @@ export function EngagementPage({
                   className="data-[state=checked]:bg-[#3DB5A0] data-[state=checked]:border-[#3DB5A0] mt-1"
                 />
                 <Label htmlFor="accepteReglement" className="font-[Poppins] leading-relaxed">
-                  J'accepte que mes informations saisies soit conservé à des fins de suivie. Je certifie l'exactitude des informations fournies. Mon inscription sera définitive une fois les documents téléchargés seront tamponné et signé au nom du responsable de mon entreprise à l'adresse suivante <span className="font-semibold" style={{ color: COLORS.primary }}>mih@agence-porteduhainaut.fr</span>
+                  J'accepte que mes informations saisies soient conservées à des fins de suivi. Je certifie l'exactitude des informations fournies. Mon inscription sera définitive une fois les documents téléchargés tamponnés et signés au nom du responsable de mon entreprise à l'adresse suivante : <a href="mailto:mih@agence-porteduhainaut.fr" className="font-semibold underline" style={{ color: COLORS.primary }}>mih@agence-porteduhainaut.fr</a>
                 </Label>
               </div>
             </div>

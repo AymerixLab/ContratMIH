@@ -115,18 +115,46 @@ export const PDF_FIELD_MAP: Record<string, PdfFieldMapping> = {
   } },
 
   // Électricité
-  'elec_1_qte': { type: 'text', get: ({ reservationData, mockAll }) => reservationData.electricityUpgrade === '2kw' ? '1' : (mockAll ? '1' : '') },
-  'elec_2_qte': { type: 'text', get: ({ reservationData, mockAll }) => reservationData.electricityUpgrade === '4kw' ? '1' : (mockAll ? '1' : '') },
-  'elec_3_qte': { type: 'text', get: ({ reservationData, mockAll }) => reservationData.electricityUpgrade === '6kw' ? '1' : (mockAll ? '1' : '') },
-  'elec_1_prix_ht': { type: 'text', get: () => num(electricityPrices['2kw']) },
-  'elec_2_prix_ht': { type: 'text', get: () => num(electricityPrices['4kw']) },
-  'elec_3_prix_ht': { type: 'text', get: () => num(electricityPrices['6kw']) },
+  'elec_1_qte': { type: 'text', get: ({ reservationData, mockAll }) => {
+    const result = reservationData.electricityUpgrade === '2kw' ? '1' : (mockAll ? '1' : '');
+    console.log('[PDF] elec_1_qte:', { electricityUpgrade: reservationData.electricityUpgrade, mockAll, result });
+    return result;
+  } },
+  'elec_2_qte': { type: 'text', get: ({ reservationData, mockAll }) => {
+    const result = reservationData.electricityUpgrade === '4kw' ? '1' : (mockAll ? '1' : '');
+    console.log('[PDF] elec_2_qte:', { electricityUpgrade: reservationData.electricityUpgrade, mockAll, result });
+    return result;
+  } },
+  'elec_3_qte': { type: 'text', get: ({ reservationData, mockAll }) => {
+    const result = reservationData.electricityUpgrade === '6kw' ? '1' : (mockAll ? '1' : '');
+    console.log('[PDF] elec_3_qte:', { electricityUpgrade: reservationData.electricityUpgrade, mockAll, result });
+    return result;
+  } },
+  // Note: elec_X_prix_ht contient le TOTAL (quantité × prix unitaire), pas le prix unitaire seul
+  'elec_1_prix_ht': { type: 'text', get: ({ reservationData, mockAll }) => {
+    const shouldShow = reservationData.electricityUpgrade === '2kw' || mockAll;
+    const result = shouldShow ? num(1 * electricityPrices['2kw']) : '';
+    console.log('[PDF] elec_1_prix_ht:', { electricityUpgrade: reservationData.electricityUpgrade, mockAll, price: electricityPrices['2kw'], result });
+    return result;
+  } },
+  'elec_2_prix_ht': { type: 'text', get: ({ reservationData, mockAll }) => {
+    const shouldShow = reservationData.electricityUpgrade === '4kw' || mockAll;
+    const result = shouldShow ? num(1 * electricityPrices['4kw']) : '';
+    console.log('[PDF] elec_2_prix_ht:', { electricityUpgrade: reservationData.electricityUpgrade, mockAll, price: electricityPrices['4kw'], result });
+    return result;
+  } },
+  'elec_3_prix_ht': { type: 'text', get: ({ reservationData, mockAll }) => {
+    const shouldShow = reservationData.electricityUpgrade === '6kw' || mockAll;
+    const result = shouldShow ? num(1 * electricityPrices['6kw']) : '';
+    console.log('[PDF] elec_3_prix_ht:', { electricityUpgrade: reservationData.electricityUpgrade, mockAll, price: electricityPrices['6kw'], result });
+    return result;
+  } },
 
   // Espace extérieur
   'std_ext_surface_qte': { type: 'text', get: ({ reservationData, mockAll }) => reservationData.exteriorSpace ? (reservationData.exteriorSurface || '1') : (mockAll ? (reservationData.exteriorSurface || '12') : '') },
-  'std_ext_prix_ht': { type: 'text', get: ({ reservationData, mockAll }) => {
-    const q = reservationData.exteriorSpace ? parseInt(reservationData.exteriorSurface || '0') : (mockAll ? (parseInt(reservationData.exteriorSurface || '12')) : 0);
-    return q ? num(q * exteriorSpacePrice) : '';
+  'std_ext_prix_ht': { type: 'text', get: ({ reservationData }) => {
+    const q = reservationData.exteriorSpace ? parseInt(reservationData.exteriorSurface || '0') : 0;
+    return q > 0 ? num(q * exteriorSpacePrice) : '';
   } },
 
   // Aménagements – quantités
@@ -137,13 +165,31 @@ export const PDF_FIELD_MAP: Record<string, PdfFieldMapping> = {
   'reserve_bois_qte': { type: 'text', get: ({ amenagementData }) => amenagementData.reservePorteBois ? String(amenagementData.reservePorteBois) : '' },
   'bandeau_qte': { type: 'text', get: ({ amenagementData }) => amenagementData.bandeauSignaletique ? String(amenagementData.bandeauSignaletique) : '' },
   'rail_qte': { type: 'text', get: ({ amenagementData }) => amenagementData.bandeauSignaletique ? String(amenagementData.bandeauSignaletique) : '' },
-  // Aménagements – prix unitaires
-  'reserve_melamine_prix': { type: 'text', get: () => num(amenagementPrices.reservePorteMelamine) },
-  'moquette_prix': { type: 'text', get: () => num(amenagementPrices.moquetteDifferente) },
-  'velum_prix': { type: 'text', get: () => num(amenagementPrices.velumStand) },
-  'cloison_bois_prix': { type: 'text', get: () => num(amenagementPrices.cloisonBoisGainee) },
-  'reserve_bois_prix': { type: 'text', get: () => num(amenagementPrices.reservePorteBois) },
-  'rail_prix': { type: 'text', get: () => num(amenagementPrices.bandeauSignaletique) },
+  // Aménagements – totaux HT (les champs xxx_prix contiennent le total, pas le prix unitaire)
+  'reserve_melamine_prix': { type: 'text', get: ({ amenagementData }) => {
+    const qty = amenagementData.reservePorteMelamine || 0;
+    return qty > 0 ? num(qty * amenagementPrices.reservePorteMelamine) : '';
+  } },
+  'moquette_prix': { type: 'text', get: ({ amenagementData }) => {
+    const qty = amenagementData.moquetteDifferente || 0;
+    return qty > 0 ? num(qty * amenagementPrices.moquetteDifferente) : '';
+  } },
+  'velum_prix': { type: 'text', get: ({ amenagementData }) => {
+    const qty = amenagementData.velumStand || 0;
+    return qty > 0 ? num(qty * amenagementPrices.velumStand) : '';
+  } },
+  'cloison_bois_prix': { type: 'text', get: ({ amenagementData }) => {
+    const qty = amenagementData.cloisonBoisGainee || 0;
+    return qty > 0 ? num(qty * amenagementPrices.cloisonBoisGainee) : '';
+  } },
+  'reserve_bois_prix': { type: 'text', get: ({ amenagementData }) => {
+    const qty = amenagementData.reservePorteBois || 0;
+    return qty > 0 ? num(qty * amenagementPrices.reservePorteBois) : '';
+  } },
+  'rail_prix': { type: 'text', get: ({ amenagementData }) => {
+    const qty = amenagementData.bandeauSignaletique || 0;
+    return qty > 0 ? num(qty * amenagementPrices.bandeauSignaletique) : '';
+  } },
 
   // Mobilier – quantités
   'comptoir_qte': { type: 'text', get: ({ amenagementData }) => amenagementData.comptoir ? String(amenagementData.comptoir) : '' },
@@ -166,33 +212,106 @@ export const PDF_FIELD_MAP: Record<string, PdfFieldMapping> = {
   'porte_menteaux_qte': { type: 'text', get: ({ amenagementData }) => amenagementData.porteManteux ? String(amenagementData.porteManteux) : '' },
   'plante_bambou_qte': { type: 'text', get: ({ amenagementData }) => amenagementData.planteBambou ? String(amenagementData.planteBambou) : '' },
   'plante_kentia_qte': { type: 'text', get: ({ amenagementData }) => amenagementData.planteKentia ? String(amenagementData.planteKentia) : '' },
-  // Mobilier – prix unitaires
-  'comptoir_prix_ht': { type: 'text', get: () => num(amenagementPrices.comptoir) },
-  'tabouret_prix_ht': { type: 'text', get: () => num(amenagementPrices.tabouret) },
-  'mange_debout_prix_ht': { type: 'text', get: () => num(amenagementPrices.mangeDebout) },
-  'chaise_prix_ht': { type: 'text', get: () => num(amenagementPrices.chaise) },
-  'table_prix_ht': { type: 'text', get: () => num(amenagementPrices.table120x60) },
-  'pck_mange_tabouret_prix_ht': { type: 'text', get: () => num(amenagementPrices.mange3Tabourets) },
-  'ecran_prix_ht': { type: 'text', get: () => num(amenagementPrices.ecran52) },
-  'frigo_140_prix_ht': { type: 'text', get: () => num(amenagementPrices.refrigerateur140) },
-  'frigo_260_prix_ht': { type: 'text', get: () => num(amenagementPrices.refrigerateur240) },
-  'presentoir_prix_ht': { type: 'text', get: () => num(amenagementPrices.presentoirA4) },
-  'bandeau_prix_ht': { type: 'text', get: () => num(amenagementPrices.bandeauSignaletique) },
-  'bloc_prix_ht': { type: 'text', get: () => num(amenagementPrices.blocPrises) },
-  'fauteuil_prix_ht': { type: 'text', get: () => num(amenagementPrices.fauteuil) },
-  'table_basse_prix_ht': { type: 'text', get: () => num(amenagementPrices.tableBasse) },
-  'gueridon_prix_ht': { type: 'text', get: () => num(amenagementPrices.gueridonHaut) },
-  'pouf_prix_ht': { type: 'text', get: () => num(amenagementPrices.poufCube) },
-  'colonne_vitrine_prix_ht': { type: 'text', get: () => num(amenagementPrices.colonneVitrine) },
-  'comptoir_vitrine_prix_ht': { type: 'text', get: () => num(amenagementPrices.comptoirVitrine) },
-  'porte_menteaux_prix_ht': { type: 'text', get: () => num(amenagementPrices.porteManteux) },
-  'plante_bambou_prix_ht': { type: 'text', get: () => num(amenagementPrices.planteBambou) },
-  'plante_kentia_prix_ht': { type: 'text', get: () => num(amenagementPrices.planteKentia) },
+  // Mobilier – totaux HT (les champs xxx_prix_ht contiennent le total, pas le prix unitaire)
+  'comptoir_prix_ht': { type: 'text', get: ({ amenagementData }) => {
+    const qty = amenagementData.comptoir || 0;
+    const result = qty > 0 ? num(qty * amenagementPrices.comptoir) : '';
+    console.log('[PDF] comptoir_prix_ht:', { qty, unitPrice: amenagementPrices.comptoir, result });
+    return result;
+  } },
+  'tabouret_prix_ht': { type: 'text', get: ({ amenagementData }) => {
+    const qty = amenagementData.tabouret || 0;
+    const result = qty > 0 ? num(qty * amenagementPrices.tabouret) : '';
+    console.log('[PDF] tabouret_prix_ht:', { qty, unitPrice: amenagementPrices.tabouret, result });
+    return result;
+  } },
+  'mange_debout_prix_ht': { type: 'text', get: ({ amenagementData }) => {
+    const qty = amenagementData.mangeDebout || 0;
+    return qty > 0 ? num(qty * amenagementPrices.mangeDebout) : '';
+  } },
+  'chaise_prix_ht': { type: 'text', get: ({ amenagementData }) => {
+    const qty = amenagementData.chaise || 0;
+    return qty > 0 ? num(qty * amenagementPrices.chaise) : '';
+  } },
+  'table_prix_ht': { type: 'text', get: ({ amenagementData }) => {
+    const qty = amenagementData.table120x60 || 0;
+    return qty > 0 ? num(qty * amenagementPrices.table120x60) : '';
+  } },
+  'pck_mange_tabouret_prix_ht': { type: 'text', get: ({ amenagementData }) => {
+    const qty = amenagementData.mange3Tabourets || 0;
+    return qty > 0 ? num(qty * amenagementPrices.mange3Tabourets) : '';
+  } },
+  'ecran_prix_ht': { type: 'text', get: ({ amenagementData }) => {
+    const qty = amenagementData.ecran52 || 0;
+    return qty > 0 ? num(qty * amenagementPrices.ecran52) : '';
+  } },
+  'frigo_140_prix_ht': { type: 'text', get: ({ amenagementData }) => {
+    const qty = amenagementData.refrigerateur140 || 0;
+    return qty > 0 ? num(qty * amenagementPrices.refrigerateur140) : '';
+  } },
+  'frigo_260_prix_ht': { type: 'text', get: ({ amenagementData }) => {
+    const qty = amenagementData.refrigerateur240 || 0;
+    return qty > 0 ? num(qty * amenagementPrices.refrigerateur240) : '';
+  } },
+  'presentoir_prix_ht': { type: 'text', get: ({ amenagementData }) => {
+    const qty = amenagementData.presentoirA4 || 0;
+    return qty > 0 ? num(qty * amenagementPrices.presentoirA4) : '';
+  } },
+  'bandeau_prix_ht': { type: 'text', get: ({ amenagementData }) => {
+    const qty = amenagementData.bandeauSignaletique || 0;
+    return qty > 0 ? num(qty * amenagementPrices.bandeauSignaletique) : '';
+  } },
+  'bloc_prix_ht': { type: 'text', get: ({ amenagementData }) => {
+    const qty = amenagementData.blocPrises || 0;
+    return qty > 0 ? num(qty * amenagementPrices.blocPrises) : '';
+  } },
+  'fauteuil_prix_ht': { type: 'text', get: ({ amenagementData }) => {
+    const qty = amenagementData.fauteuil || 0;
+    return qty > 0 ? num(qty * amenagementPrices.fauteuil) : '';
+  } },
+  'table_basse_prix_ht': { type: 'text', get: ({ amenagementData }) => {
+    const qty = amenagementData.tableBasse || 0;
+    return qty > 0 ? num(qty * amenagementPrices.tableBasse) : '';
+  } },
+  'gueridon_prix_ht': { type: 'text', get: ({ amenagementData }) => {
+    const qty = amenagementData.gueridonHaut || 0;
+    return qty > 0 ? num(qty * amenagementPrices.gueridonHaut) : '';
+  } },
+  'pouf_prix_ht': { type: 'text', get: ({ amenagementData }) => {
+    const qty = amenagementData.poufCube || 0;
+    return qty > 0 ? num(qty * amenagementPrices.poufCube) : '';
+  } },
+  'colonne_vitrine_prix_ht': { type: 'text', get: ({ amenagementData }) => {
+    const qty = amenagementData.colonneVitrine || 0;
+    return qty > 0 ? num(qty * amenagementPrices.colonneVitrine) : '';
+  } },
+  'comptoir_vitrine_prix_ht': { type: 'text', get: ({ amenagementData }) => {
+    const qty = amenagementData.comptoirVitrine || 0;
+    return qty > 0 ? num(qty * amenagementPrices.comptoirVitrine) : '';
+  } },
+  'porte_menteaux_prix_ht': { type: 'text', get: ({ amenagementData }) => {
+    const qty = amenagementData.porteManteux || 0;
+    return qty > 0 ? num(qty * amenagementPrices.porteManteux) : '';
+  } },
+  'plante_bambou_prix_ht': { type: 'text', get: ({ amenagementData }) => {
+    const qty = amenagementData.planteBambou || 0;
+    return qty > 0 ? num(qty * amenagementPrices.planteBambou) : '';
+  } },
+  'plante_kentia_prix_ht': { type: 'text', get: ({ amenagementData }) => {
+    const qty = amenagementData.planteKentia || 0;
+    return qty > 0 ? num(qty * amenagementPrices.planteKentia) : '';
+  } },
 
   // Produits complémentaires
   'scan_badge': { type: 'checkbox', get: ({ amenagementData }) => !!amenagementData.scanBadges },
+  'scan_badge_prix_ht': { type: 'text', get: ({ amenagementData }) =>
+    amenagementData.scanBadges ? num(amenagementPrices.scanBadges) : ''
+  },
   'pass_soiree_qte': { type: 'text', get: ({ amenagementData }) => amenagementData.passSoiree ? String(amenagementData.passSoiree) : '' },
-  'pass_soiree_prix_ht': { type: 'text', get: () => num(amenagementPrices.passSoiree) },
+  'pass_soiree_prix_ht': { type: 'text', get: ({ amenagementData }) => {
+    const qty = amenagementData.passSoiree || 0;
+    return qty > 0 ? num(qty * amenagementPrices.passSoiree) : '';
+  } },
 
   // Visibilité & communication
   'signa_pck_qte': { type: 'text', get: ({ visibiliteData }) => visibiliteData.packSignaletiqueComplet ? '1' : '' },
@@ -200,11 +319,23 @@ export const PDF_FIELD_MAP: Record<string, PdfFieldMapping> = {
   'signa_haut_qte': { type: 'text', get: ({ visibiliteData }) => visibiliteData.signaletiqueHautCloisons ? '1' : '' },
   'signa_complete_qte': { type: 'text', get: ({ visibiliteData }) => visibiliteData.signalethqueCloisons ? String(visibiliteData.signalethqueCloisons) : '' },
   'signa_enseigne_haute_qte': { type: 'text', get: ({ visibiliteData }) => visibiliteData.signaletiqueEnseigneHaute ? '1' : '' },
-  'signa_pck_prix_ht': { type: 'text', get: () => num(visibilitePrices.packSignaletiqueComplet) },
-  'signa_comptoir_prix_ht': { type: 'text', get: () => num(visibilitePrices.signaletiqueComptoir) },
-  'signa_haut_prix_ht': { type: 'text', get: () => num(visibilitePrices.signaletiqueHautCloisons) },
-  'signa_complete_prix_ht': { type: 'text', get: () => num(visibilitePrices.signalethqueCloisons) },
-  'signa_enseigne_haute_prix_ht': { type: 'text', get: () => num(visibilitePrices.signaletiqueEnseigneHaute) },
+  'signa_pck_prix_ht': { type: 'text', get: ({ visibiliteData, reservationData }) => {
+    if (!visibiliteData.packSignaletiqueComplet) return '';
+    const standSize = parseInt(reservationData.standSize || '0');
+    return standSize > 0 ? num(standSize * visibilitePrices.packSignaletiqueComplet) : '';
+  } },
+  'signa_comptoir_prix_ht': { type: 'text', get: ({ visibiliteData }) => visibiliteData.signaletiqueComptoir ? num(1 * visibilitePrices.signaletiqueComptoir) : '' },
+  'signa_haut_prix_ht': { type: 'text', get: ({ visibiliteData, reservationData }) => {
+    if (!visibiliteData.signaletiqueHautCloisons) return '';
+    const standSize = parseInt(reservationData.standSize || '0');
+    return standSize > 0 ? num(standSize * visibilitePrices.signaletiqueHautCloisons) : '';
+  } },
+  'signa_complete_prix_ht': { type: 'text', get: ({ visibiliteData }) => {
+    const qty = visibiliteData.signalethqueCloisons || 0;
+    if (qty === 0) return '';
+    return num(qty * visibilitePrices.signalethqueCloisons);
+  } },
+  'signa_enseigne_haute_prix_ht': { type: 'text', get: ({ visibiliteData }) => visibiliteData.signaletiqueEnseigneHaute ? num(1 * visibilitePrices.signaletiqueEnseigneHaute) : '' },
 
   // Totaux
   'total_ht_1': { type: 'text', get: ({ totals }) => num(totals.ht1) },

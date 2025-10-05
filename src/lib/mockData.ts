@@ -1,121 +1,122 @@
 import { FormData, ReservationData, AmenagementData, VisibiliteData, EngagementData } from './types';
 
+/**
+ * Mock data par défaut - Configuration réaliste et cohérente
+ *
+ * ⚠️  Ce fichier a été mis à jour pour garantir la cohérence des calculs.
+ *
+ * Pour tester d'autres configurations:
+ * - mockDataFull.ts : Configuration maximale (tous les champs remplis)
+ * - mockDataRandom.ts : Configuration alternative réaliste
+ */
+
 export const mockFormData: FormData = {
-  raisonSociale: 'ACME Industries',
-  adresse: '12 Rue des Forges',
-  codePostal: '59800',
-  ville: 'LILLE',
+  raisonSociale: 'Innovatech Industries',
+  adresse: '78 Avenue Jean Jaurès',
+  codePostal: '59300',
+  ville: 'VALENCIENNES',
   pays: 'FRANCE',
-  tel: '0320123456',
-  siteInternet: 'https://acme.example.com',
-  siret: '12345678901234',
-  tvaIntra: 'FR12345678901',
-  membreAssociation: true,
-  exposant2024: true,
+  tel: '0327334455',
+  siteInternet: 'https://innovatech.example.com',
+  siret: '45612378945678',
+  tvaIntra: 'FR45612378945',
+  membreAssociation: false,
+  exposant2024: false,
   activites: {
     industrie: true,
-    transportLogistique: true,
-    btpConstructionLogement: true,
+    transportLogistique: false,
+    btpConstructionLogement: false,
     environnementEnergie: true,
-    servicesEntreprises: true,
+    servicesEntreprises: false,
     imageNouvellesTechnologies: true,
-    tourismeBienEtre: true,
-    autre: true,
+    tourismeBienEtre: false,
+    autre: false,
   },
-  autreActivite: 'test',
-  facturationAdresse: 'ZI Nord, 100 Avenue Centrale',
-  facturationCP: '59300',
-  facturationVille: 'VALENCIENNES',
-  facturationPays: 'FRANCE',
-  contactComptaNom: 'Dupont',
-  contactComptaTel: '0320998877',
-  contactComptaMail: 'compta@acme.example.com',
-  responsableNom: 'Martin',
-  responsablePrenom: 'Claire',
-  responsableTel: '0601020304',
-  responsableMail: 'claire.martin@acme.example.com',
-  respOpNom: 'Durand',
-  respOpPrenom: 'Alex',
-  respOpTel: '0605060708',
-  respOpMail: 'alex.durand@acme.example.com',
-  enseigne: 'ACME'
+  autreActivite: '',
+  facturationAdresse: '',
+  facturationCP: '',
+  facturationVille: '',
+  facturationPays: '',
+  contactComptaNom: 'Petit',
+  contactComptaTel: '0327998877',
+  contactComptaMail: 'comptabilite@innovatech.example.com',
+  responsableNom: 'Lambert',
+  responsablePrenom: 'Thomas',
+  responsableTel: '0698765432',
+  responsableMail: 'thomas.lambert@innovatech.example.com',
+  respOpNom: 'Garcia',
+  respOpPrenom: 'Marie',
+  respOpTel: '0676543210',
+  respOpMail: 'marie.garcia@innovatech.example.com',
+  enseigne: 'INNOVATECH'
 };
 
 export const mockReservationData: ReservationData = {
-  standType: 'equipped',
-  standSize: '18',
-  standAngles: 2,
-  electricityUpgrade: 'none',
-  exteriorSpace: true,
-  exteriorSurface: '12',
-  gardenCottage: true,
-  microStand: true,
-  coExposants: [
-    {
-      id: '1',
-      nomEntreprise: 'Beta Co',
-      nomResponsable: 'Leroy',
-      prenomResponsable: 'Nina',
-      telResponsable: '0611223344',
-      mailResponsable: 'nina.leroy@beta.example.com'
-    }
-  ]
+  standType: 'ready',
+  standSize: '15',
+  standAngles: 1,
+  electricityUpgrade: '4kw',
+  exteriorSpace: false,
+  exteriorSurface: '0',
+  gardenCottage: false,
+  microStand: false,
+  coExposants: []
 };
 
 export const mockAmenagementData: AmenagementData = {
   reservePorteMelamine: 1,
-  moquetteDifferente: 18,
-  moquetteCouleur: 'Bleu',
-  velumStand: 18,
-  cloisonBoisGainee: 6,
+  moquetteDifferente: 0,
+  moquetteCouleur: '',
+  velumStand: 0,
+  cloisonBoisGainee: 0,
   reservePorteBois: 0,
-  bandeauSignaletique: 6,
-  
+  bandeauSignaletique: 0,
+
   comptoir: 1,
   tabouret: 2,
-  mangeDebout: 1,
-  chaise: 2,
+  mangeDebout: 0,
+  chaise: 4,
   table120x60: 1,
-  mange3Tabourets: 1,
+  mange3Tabourets: 0,
   ecran52: 1,
-  refrigerateur140: 1,
+  refrigerateur140: 0,
   refrigerateur240: 1,
   presentoirA4: 1,
-  blocPrises: 2,
-  fauteuil: 2,
+  blocPrises: 1,
+  fauteuil: 0,
   tableBasse: 1,
-  gueridonHaut: 1,
-  poufCube: 1,
-  poufCouleur: 'Rouge',
-  colonneVitrine: 1,
-  comptoirVitrine: 1,
+  gueridonHaut: 0,
+  poufCube: 0,
+  poufCouleur: '',
+  colonneVitrine: 0,
+  comptoirVitrine: 0,
   porteManteux: 1,
-  planteBambou: 1,
-  planteKentia: 0,
-  
+  planteBambou: 0,
+  planteKentia: 1,
+
   scanBadges: true,
-  passSoiree: 3
+  passSoiree: 2
 };
 
 export const mockVisibiliteData: VisibiliteData = {
-  packSignaletiqueComplet: true,
+  packSignaletiqueComplet: false,
   signaletiqueComptoir: true,
   signaletiqueHautCloisons: true,
-  signalethqueCloisons: 2,
+  signalethqueCloisons: 0,
   signaletiqueEnseigneHaute: true,
   demiPageCatalogue: true,
-  pageCompleeteCatalogue: true,
-  deuxiemeCouverture: true,
-  quatriemeCouverture: true,
+  pageCompleeteCatalogue: false,
+  deuxiemeCouverture: false,
+  quatriemeCouverture: false,
   logoplanSalon: true,
-  documentationSacVisiteur: true,
-  distributionHotesse: true
+  documentationSacVisiteur: false,
+  distributionHotesse: false
 };
 
 export const mockEngagementData: EngagementData = {
   modeReglement: 'acompte',
   accepteReglement: true,
   dateSignature: new Date().toLocaleDateString('fr-FR'),
-  cachetSignature: 'ACME — Signature'
+  cachetSignature: 'INNOVATECH — Signature électronique'
 };
 

@@ -1,9 +1,33 @@
+version: '3.8'
+
 services:
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik
+    restart: unless-stopped
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.email=admin@rublood.fr"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
+    networks:
+      - traefik-network
+
   db:
     image: postgres:16
     restart: unless-stopped
-    ports:
-      - "5432:5432"
     environment:
       POSTGRES_USER: mih
       POSTGRES_PASSWORD: mih_password
@@ -11,6 +35,8 @@ services:
     volumes:
       - ./docker/db-data:/var/lib/postgresql/data
       - ./docker/init.sql:/docker-entrypoint-initdb.d/00-init.sql:ro
+    networks:
+      - traefik-network
 
   api:
     build:
@@ -22,6 +48,30 @@ services:
       PORT: ${PORT:-8080}
     depends_on:
       - db
-    ports:
-      - "8080:8080"
     restart: unless-stopped
+    labels:
+      - "traefik.enable=true"
+
+      # HTTP to HTTPS redirect middleware
+      - "traefik.http.middlewares.https-redirect.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.https-redirect.redirectscheme.permanent=true"
+
+      # HTTP router - redirects to HTTPS
+      - "traefik.http.routers.mih-http.rule=Host(`mih.rublood.fr`) || Host(`mih.tetra-info.fr`)"
+      - "traefik.http.routers.mih-http.entrypoints=web"
+      - "traefik.http.routers.mih-http.middlewares=https-redirect"
+
+      # HTTPS router
+      - "traefik.http.routers.mih-https.rule=Host(`mih.rublood.fr`) || Host(`mih.tetra-info.fr`)"
+      - "traefik.http.routers.mih-https.entrypoints=websecure"
+      - "traefik.http.routers.mih-https.tls=true"
+      - "traefik.http.routers.mih-https.tls.certresolver=letsencrypt"
+
+      # Service definition
+      - "traefik.http.services.mih.loadbalancer.server.port=8080"
+    networks:
+      - traefik-network
+
+networks:
+  traefik-network:
+    driver: bridge
