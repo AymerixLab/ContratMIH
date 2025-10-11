@@ -3,7 +3,7 @@ import { Button } from '../ui/button';
 import { Card, CardContent } from '../ui/card';
 import { COLORS } from '../../lib/constants';
 import { FormData, ReservationData, AmenagementData, VisibiliteData, EngagementData } from '../../lib/types';
-import { fillAndDownloadContractPdf } from '../../lib/pdfFiller';
+import { generateContractZip } from '../../lib/documentGenerator';
 import { DetailedSummary } from '../shared/DetailedSummary';
 
 interface ThanksPageProps {
@@ -41,12 +41,18 @@ export function ThanksPage({
     try {
       setIsDownloading(true);
       // Remplit le PDF du contrat et lance le téléchargement (PDF aplati)
-      await fillAndDownloadContractPdf(
+      await generateContractZip(
         formData,
         reservationData,
         amenagementData,
         visibiliteData,
-        engagementData
+        engagementData,
+        totalHT1,
+        totalHT2,
+        totalHT3,
+        totalHT,
+        tva,
+        totalTTC
       );
     } catch (error) {
       console.error('Erreur lors du téléchargement:', error);

@@ -62,15 +62,6 @@ export function VisibilitePage({
     }
   };
 
-  // Calcul du prix des cloisons selon la nouvelle règle
-  const getPrixCloisons = (nombre: number) => {
-    if (nombre === 0) return 0;
-    if (nombre >= 3) {
-      return visibilitePrices.signalethqueCloisons + (nombre - 1) * 120;
-    }
-    return nombre * visibilitePrices.signalethqueCloisons;
-  };
-
   // Gestionnaires de clic pour les cartes
   const handleCardClick = (field: string, currentValue: boolean, disabled = false) => {
     if (!disabled) {
@@ -270,13 +261,13 @@ export function VisibilitePage({
                 </div>
                 <p className="font-bold text-lg" style={{ color: COLORS.primary }}>
                   {visibiliteData.signalethqueCloisons > 0 
-                    ? `${getPrixCloisons(visibiliteData.signalethqueCloisons)} €`
-                    : `${visibilitePrices.signalethqueCloisons} € / 120 € (3+)`
+                    ? `${(visibiliteData.signalethqueCloisons * visibilitePrices.signalethqueCloisons).toLocaleString('fr-FR')} €`
+                    : `${visibilitePrices.signalethqueCloisons} € / cloison`
                   }
                 </p>
                 <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
                   <p className="text-xs text-blue-700 font-[Poppins]">
-                    *Un raidisseur métallique s'intercale entre chaque cloison
+                    *Tarif : 185 € par cloison. Un raidisseur métallique s'intercale entre chaque cloison
                   </p>
                 </div>
               </div>

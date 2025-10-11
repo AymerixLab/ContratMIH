@@ -1,5 +1,6 @@
 import JSZip from 'jszip';
 import { FormData, ReservationData, AmenagementData, VisibiliteData, EngagementData } from './types';
+import { generateContractPdfBytes, getContractPdfFilename, sanitizeFilename } from './pdfFiller';
 import { CSS_STYLES, CONTRACT_STYLES } from './documentStyles';
 import { 
   generateDevisTableRows, 
@@ -277,10 +278,19 @@ export async function generateContractZip(
     formData, reservationData, amenagementData, visibiliteData, engagementData,
     totalHT1, totalHT2, totalHT3, totalHT, tva, totalTTC
   );
+
+  const contractPdfBytes = await generateContractPdfBytes(
+    formData,
+    reservationData,
+    amenagementData,
+    visibiliteData,
+    engagementData
+  );
   
   // Ajouter les fichiers au ZIP
   zip.file("devis-salon-made-in-hainaut.html", devisHTML);
   zip.file("contrat-participation-salon.html", contractHTML);
+  zip.file(getContractPdfFilename(formData), contractPdfBytes);
   
   // Générer et télécharger le ZIP
   const content = await zip.generateAsync({ type: "blob" });
@@ -288,7 +298,8 @@ export async function generateContractZip(
   
   const link = document.createElement('a');
   link.href = url;
-  link.download = `contrat-salon-${formData.raisonSociale.replace(/[^a-zA-Z0-9]/g, '-')}.zip`;
+  const sanitizedBase = sanitizeFilename(formData.raisonSociale || 'exposant');
+  link.download = `documents-salon-${sanitizedBase}.zip`;
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

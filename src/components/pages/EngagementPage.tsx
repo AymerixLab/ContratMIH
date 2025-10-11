@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState, type UIEvent } from 'react';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Checkbox } from '../ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '../ui/dialog';
 import { DetailedSummary } from '../shared/DetailedSummary';
 import { EngagementData, FormData, ReservationData, AmenagementData, VisibiliteData } from '../../lib/types';
 import { COLORS } from '../../lib/constants';
@@ -25,6 +26,8 @@ interface EngagementPageProps {
   onComplete: () => void;
 }
 
+const REGULATION_PDF_URL = new URL('../../assets/Contrat de participation 2025 form.pdf', import.meta.url).href;
+
 export function EngagementPage({
   engagementData,
   formData,
@@ -41,6 +44,9 @@ export function EngagementPage({
   onBack,
   onComplete
 }: EngagementPageProps) {
+  const [showRegulationModal, setShowRegulationModal] = useState(false);
+  const [hasScrolledRegulation, setHasScrolledRegulation] = useState(false);
+  const regulationContainerRef = useRef<HTMLDivElement | null>(null);
   
   // Générer automatiquement la date et l'heure du jour
   useEffect(() => {
@@ -57,6 +63,15 @@ export function EngagementPage({
     }
   }, [engagementData.dateSignature, onEngagementChange]);
 
+  useEffect(() => {
+    if (showRegulationModal) {
+      setHasScrolledRegulation(false);
+      if (regulationContainerRef.current) {
+        regulationContainerRef.current.scrollTop = 0;
+      }
+    }
+  }, [showRegulationModal]);
+
   const handleBack = () => {
     window.scrollTo(0, 0);
     onBack();
@@ -68,6 +83,40 @@ export function EngagementPage({
       return;
     }
     onComplete();
+  };
+
+  const handleAcceptanceChange = (checked: boolean | 'indeterminate') => {
+    if (checked === true) {
+      setShowRegulationModal(true);
+      return;
+    }
+
+    onEngagementChange('accepteReglement', false);
+  };
+
+  const handleRegulationScroll = (event: UIEvent<HTMLDivElement>) => {
+    const target = event.currentTarget;
+    const reachedBottom = target.scrollTop + target.clientHeight >= target.scrollHeight - 12;
+
+    if (reachedBottom) {
+      setHasScrolledRegulation(true);
+    }
+  };
+
+  const handleConfirmAcceptance = () => {
+    onEngagementChange('accepteReglement', true);
+    setShowRegulationModal(false);
+  };
+
+  const handleDismissModal = () => {
+    setShowRegulationModal(false);
+    setHasScrolledRegulation(false);
+  };
+
+  const handleModalOpenChange = (open: boolean) => {
+    if (!open) {
+      handleDismissModal();
+    }
   };
 
   return (
@@ -169,7 +218,7 @@ export function EngagementPage({
               {/* Facture complémentaire */}
               <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg" style={{ borderRadius: "8px" }}>
                 <p className="text-sm font-[Poppins] leading-relaxed">
-                  <span className="font-semibold">Toute commande après signature du contrat de réservation</span> sera l'objet d'une facturation complémentaire, dont le règlement sera à effectuer au <span className="font-semibold">plus tard le 06 mai 2026</span>.
+                  <span className="font-semibold">Toute commande après signature du contrat de réservation</span> fera l'objet d'une facturation complémentaire, dont le règlement sera à effectuer au <span className="font-semibold">plus tard le 06 mai 2026</span>.
                 </p>
               </div>
 
@@ -194,7 +243,7 @@ export function EngagementPage({
                 <Checkbox 
                   id="accepteReglement"
                   checked={engagementData.accepteReglement}
-                  onCheckedChange={(checked) => onEngagementChange('accepteReglement', checked)}
+                  onCheckedChange={handleAcceptanceChange}
                   className="data-[state=checked]:bg-[#3DB5A0] data-[state=checked]:border-[#3DB5A0] mt-1"
                 />
                 <Label htmlFor="accepteReglement" className="font-[Poppins] leading-relaxed">
@@ -273,6 +322,35 @@ export function EngagementPage({
           </Button>
         </div>
       </CardContent>
+      <Dialog open={showRegulationModal} onOpenChange={handleModalOpenChange}>
+        <DialogContent className="sm:max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Règlement du Salon Made in Hainaut</DialogTitle>
+            <DialogDescription>
+              Faites défiler l'intégralité du règlement avant de confirmer votre acceptation.
+            </DialogDescription>
+          </DialogHeader>
+          <div
+            ref={regulationContainerRef}
+            onScroll={handleRegulationScroll}
+            className="max-h-[70vh] overflow-y-auto rounded-md border border-gray-200 p-4"
+          >
+            <iframe
+              src={REGULATION_PDF_URL}
+              className="h-[1200px] w-full"
+              title="Règlement du Salon"
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={handleDismissModal}>
+              J'ai besoin de plus de temps
+            </Button>
+            <Button onClick={handleConfirmAcceptance} disabled={!hasScrolledRegulation}>
+              J'ai lu et j'accepte le règlement
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

@@ -4,6 +4,7 @@ import { CurrentPage } from './lib/types';
 import { calculateTotalHT1, calculateTotalHT2, calculateTotalHT3 } from './lib/utils';
 import { useFormData } from './hooks/useFormData';
 import { fillAndDownloadContractPdf } from './lib/pdfFiller';
+import { generateContractZip } from './lib/documentGenerator';
 import { submitFormData } from './lib/api';
 import { Header } from './components/shared/Header';
 import { ProgressIndicator } from './components/shared/ProgressIndicator';
@@ -121,12 +122,18 @@ export default function App() {
     }
 
     try {
-      await fillAndDownloadContractPdf(
+      await generateContractZip(
         formData,
         reservationData,
         amenagementData,
         visibiliteData,
-        engagementData
+        engagementData,
+        totalHT1,
+        totalHT2,
+        totalHT3,
+        totalHT,
+        tva,
+        totalTTC
       );
     } catch (error) {
       console.error('Erreur lors de la génération du contrat:', error);

@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
-import { COLORS, amenagementPrices, visibilitePrices, standPrices, readyToExposePrices, anglePrice, electricityPrices, coExpositionPrice, gardenCottagePrice, getPassSoireeInclus } from '../../lib/constants';
+import { COLORS, amenagementPrices, visibilitePrices, standPrices, readyToExposePrices, anglePrice, electricityPrices, coExpositionPrice, gardenCottagePrice, exteriorSpacePrice, getPassSoireeInclus } from '../../lib/constants';
 import { FormData, ReservationData, AmenagementData, VisibiliteData } from '../../lib/types';
 
 interface DetailedSummaryProps {
@@ -197,12 +197,7 @@ export function DetailedSummary({
 
     if (visibiliteData.signalethqueCloisons > 0) {
       const quantity = visibiliteData.signalethqueCloisons;
-      let price;
-      if (quantity >= 3) {
-        price = visibilitePrices.signalethqueCloisons + (quantity - 1) * 120;
-      } else {
-        price = quantity * visibilitePrices.signalethqueCloisons;
-      }
+      const price = quantity * visibilitePrices.signalethqueCloisons;
       selected.push({
         name: `Signalétique cloison complète (${quantity} cloison${quantity > 1 ? 's' : ''})`,
         price
@@ -271,6 +266,8 @@ export function DetailedSummary({
   const selectedAmenagements = getSelectedAmenagements();
   const selectedVisibilite = getSelectedVisibilite();
   const standPrice = getStandPrice();
+  const exteriorSurface = parseInt(reservationData.exteriorSurface || '0', 10);
+  const exteriorSpaceCost = reservationData.exteriorSpace ? exteriorSurface * exteriorSpacePrice : 0;
 
   return (
     <Card className="mb-6" style={{ borderColor: COLORS.primary, borderWidth: "2px", borderRadius: "12px" }}>
@@ -358,11 +355,13 @@ export function DetailedSummary({
               </div>
             )}
 
-            {reservationData.exteriorSpace && (
+            {reservationData.exteriorSpace && exteriorSurface > 0 && (
               <div className="bg-green-50 p-4 rounded-lg mb-4">
                 <div className="flex justify-between items-center">
                   <span className="font-medium">Espace d'exposition extérieur</span>
-                  <span>{reservationData.exteriorSpaceSize} m² × 50 € = {(parseInt(reservationData.exteriorSpaceSize || '0') * 50).toLocaleString('fr-FR')} €</span>
+                  <span>
+                    {exteriorSurface} m² × {exteriorSpacePrice.toLocaleString('fr-FR')} € = {exteriorSpaceCost.toLocaleString('fr-FR')} €
+                  </span>
                 </div>
               </div>
             )}

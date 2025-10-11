@@ -22,8 +22,13 @@ function includesAll(name: string, parts: string[]) {
   return parts.every(p => n.includes(normalize(p)));
 }
 
-function sanitizeFilename(name: string) {
+export function sanitizeFilename(name: string) {
   return name.replace(/[^a-zA-Z0-9\-_.]/g, '-');
+}
+
+export function getContractPdfFilename(formData: FormData): string {
+  const base = formData.raisonSociale || 'exposant';
+  return `contrat-${sanitizeFilename(base)}.pdf`;
 }
 
 function sanitizeForPdf(text: string): string {
@@ -145,14 +150,14 @@ function resolveValue(
 
 export type FillOptions = { mockAll?: boolean };
 
-export async function fillAndDownloadContractPdf(
+export async function generateContractPdfBytes(
   formData: FormData,
   reservationData: ReservationData,
   amenagementData: AmenagementData,
   visibiliteData: VisibiliteData,
   engagementData: EngagementData,
   options?: FillOptions
-): Promise<void> {
+): Promise<Uint8Array> {
   // Load template
   const res = await fetch(CONTRACT_TEMPLATE_URL);
   const ab = await res.arrayBuffer();
@@ -238,16 +243,34 @@ export async function fillAndDownloadContractPdf(
   // Flatten so the PDF can’t be modified
   form.flatten();
 
-  // Save and trigger download
-  const pdfBytes = await pdfDoc.save({
+  return pdfDoc.save({
     useObjectStreams: false, // safer for broader compatibility
   });
+}
+
+export async function fillAndDownloadContractPdf(
+  formData: FormData,
+  reservationData: ReservationData,
+  amenagementData: AmenagementData,
+  visibiliteData: VisibiliteData,
+  engagementData: EngagementData,
+  options?: FillOptions
+): Promise<void> {
+  const pdfBytes = await generateContractPdfBytes(
+    formData,
+    reservationData,
+    amenagementData,
+    visibiliteData,
+    engagementData,
+    options
+  );
+
   const blob = new Blob([pdfBytes], { type: 'application/pdf' });
   const url = URL.createObjectURL(blob);
 
   const link = document.createElement('a');
   link.href = url;
-  link.download = `contrat-${sanitizeFilename(formData.raisonSociale || 'exposant')}.pdf`;
+  link.download = getContractPdfFilename(formData);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

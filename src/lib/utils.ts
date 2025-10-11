@@ -124,12 +124,7 @@ export const calculateTotalHT3 = (visibiliteData: VisibiliteData): number => {
     total += visibilitePrices.signaletiqueHautCloisons;
   }
   if (visibiliteData.signalethqueCloisons > 0) {
-    // Nouvelle logique : 185€ pour la première, puis 120€ à partir de 3 cloisons
-    if (visibiliteData.signalethqueCloisons >= 3) {
-      total += visibilitePrices.signalethqueCloisons + (visibiliteData.signalethqueCloisons - 1) * 120;
-    } else {
-      total += visibiliteData.signalethqueCloisons * visibilitePrices.signalethqueCloisons;
-    }
+    total += visibiliteData.signalethqueCloisons * visibilitePrices.signalethqueCloisons;
   }
   if (visibiliteData.signaletiqueEnseigneHaute) {
     total += visibilitePrices.signaletiqueEnseigneHaute;
