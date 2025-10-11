@@ -1,0 +1,149 @@
+import { describe, expect, it, vi } from 'vitest';
+import { submitFormData, type SubmissionPayload } from './api';
+
+const createPayload = (): SubmissionPayload => ({
+  formData: {
+    raisonSociale: 'ACME',
+    adresse: '1 rue Test',
+    codePostal: '75001',
+    ville: 'PARIS',
+    pays: 'FRANCE',
+    tel: '0102030405',
+    siteInternet: '',
+    siret: '',
+    tvaIntra: '',
+    membreAssociation: false,
+    exposant2024: false,
+    activites: {
+      industrie: false,
+      transportLogistique: false,
+      btpConstructionLogement: false,
+      environnementEnergie: false,
+      servicesEntreprises: false,
+      imageNouvellesTechnologies: false,
+      tourismeBienEtre: false,
+      autre: false,
+    },
+    autreActivite: '',
+    facturationAdresse: '',
+    facturationCP: '',
+    facturationVille: '',
+    facturationPays: '',
+    contactComptaNom: '',
+    contactComptaTel: '',
+    contactComptaMail: '',
+    responsableNom: '',
+    responsablePrenom: '',
+    responsableTel: '',
+    responsableMail: '',
+    respOpNom: '',
+    respOpPrenom: '',
+    respOpTel: '',
+    respOpMail: '',
+    enseigne: '',
+  },
+  reservationData: {
+    standType: 'equipped',
+    standSize: '12',
+    standAngles: 0,
+    electricityUpgrade: 'none',
+    exteriorSpace: false,
+    exteriorSurface: '',
+    gardenCottage: false,
+    microStand: false,
+    coExposants: [],
+  },
+  amenagementData: {
+    reservePorteMelamine: 0,
+    moquetteDifferente: 0,
+    moquetteCouleur: '',
+    velumStand: 0,
+    cloisonBoisGainee: 0,
+    reservePorteBois: 0,
+    bandeauSignaletique: 0,
+    comptoir: 0,
+    tabouret: 0,
+    mangeDebout: 0,
+    chaise: 0,
+    table120x60: 0,
+    mange3Tabourets: 0,
+    ecran52: 0,
+    refrigerateur140: 0,
+    refrigerateur240: 0,
+    presentoirA4: 0,
+    blocPrises: 0,
+    fauteuil: 0,
+    tableBasse: 0,
+    gueridonHaut: 0,
+    poufCube: 0,
+    poufCouleur: '',
+    colonneVitrine: 0,
+    comptoirVitrine: 0,
+    porteManteux: 0,
+    planteBambou: 0,
+    planteKentia: 0,
+    scanBadges: false,
+    passSoiree: 0,
+  },
+  visibiliteData: {
+    packSignaletiqueComplet: false,
+    signaletiqueComptoir: false,
+    signaletiqueHautCloisons: false,
+    signalethqueCloisons: 0,
+    signaletiqueEnseigneHaute: false,
+    demiPageCatalogue: false,
+    pageCompleeteCatalogue: false,
+    deuxiemeCouverture: false,
+    quatriemeCouverture: false,
+    logoplanSalon: false,
+    documentationSacVisiteur: false,
+    distributionHotesse: false,
+  },
+  engagementData: {
+    modeReglement: 'acompte',
+    accepteReglement: true,
+    dateSignature: '',
+    cachetSignature: '',
+  },
+  totals: {
+    totalHT1: 0,
+    totalHT2: 0,
+    totalHT3: 0,
+    totalHT: 0,
+    tva: 0,
+    totalTTC: 0,
+  },
+  submittedAt: new Date().toISOString(),
+});
+
+describe('submitFormData', () => {
+  it('sends payload to submissions endpoint', async () => {
+    const payload = createPayload();
+    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => ({}),
+    } as Response);
+
+    await submitFormData(payload);
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      `${window.location.origin}/api/submissions`,
+      expect.objectContaining({
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      })
+    );
+  });
+
+  it('throws when API responds with error message', async () => {
+    const payload = createPayload();
+    vi.spyOn(global, 'fetch').mockResolvedValue({
+      ok: false,
+      status: 400,
+      json: async () => ({ error: 'Données invalides' }),
+    } as Response);
+
+    await expect(submitFormData(payload)).rejects.toThrow('Données invalides');
+  });
+});

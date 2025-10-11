@@ -57,19 +57,30 @@
     "zod": "^4.1.11"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.5.0",
+    "@testing-library/react": "^16.0.1",
+    "@testing-library/user-event": "^14.5.2",
     "@types/jszip": "^3.4.0",
     "@types/node": "^20.10.0",
+    "@types/supertest": "^2.0.16",
     "@types/react": "^19.1.13",
     "@vitejs/plugin-react-swc": "^3.10.2",
+    "@vitest/coverage-v8": "^2.1.5",
+    "jsdom": "^24.0.0",
+    "supertest": "^7.1.0",
     "tsx": "^4.20.6",
-    "vite": "6.3.5"
+    "vite": "6.3.5",
+    "vitest": "^2.1.5"
   },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "start": "node server/index.js",
     "validate-pdf": "tsx scripts/validatePdfMock.ts",
-    "test-mocks": "tsx scripts/testMocks.ts"
+    "test-mocks": "tsx scripts/testMocks.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "type": "module"
 }

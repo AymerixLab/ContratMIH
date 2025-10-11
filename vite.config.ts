@@ -65,4 +65,30 @@
       port: 3000,
       open: true,
     },
+    test: {
+      globals: true,
+      environment: 'jsdom',
+      setupFiles: ['./src/setupTests.ts'],
+      css: true,
+      coverage: {
+        provider: 'v8',
+        reporter: ['text', 'lcov', 'html'],
+        reportsDirectory: 'coverage',
+        thresholds: {
+          lines: 60,
+          functions: 60,
+          branches: 50,
+          statements: 60,
+        },
+        include: [
+          'src/App.tsx',
+          'src/hooks/useFormData.ts',
+          'src/lib/utils.ts',
+          'src/lib/api.ts',
+          'server/**/*.js'
+        ],
+        exclude: ['server/index.js', 'server/db.js']
+      },
+      environmentMatchGlobs: [['server/**/*.test.ts', 'node']]
+    },
   });
