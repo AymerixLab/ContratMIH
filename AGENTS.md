@@ -7,6 +7,7 @@
 - `src/components/pages/*`: Screen-level pages (PascalCase files, e.g., `IdentityPage.tsx`).
 - `src/components/ui/*`: Reusable UI primitives (lowercase/hyphenated files exporting PascalCase components).
 - `src/lib/*`: Types, constants, utilities, and document helpers.
+- `src/lib/pdfFieldMap.ts`: Maps form data to PDF fields; keep mappings conditional so only selected options populate the document totals.
 - `src/styles/globals.css` and `src/index.css`: Global styles and tokens.
 - `src/assets/*`: Static images used by components.
 

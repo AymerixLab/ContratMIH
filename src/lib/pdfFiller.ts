@@ -171,7 +171,7 @@ export async function generateContractPdfBytes(
   // Compute totals for explicit mapping
   const ht1 = calculateTotalHT1(reservationData);
   const ht2 = calculateTotalHT2(amenagementData);
-  const ht3 = calculateTotalHT3(visibiliteData);
+  const ht3 = calculateTotalHT3(visibiliteData, reservationData);
   const ht = ht1 + ht2 + ht3;
   const tva = ht * 0.2;
   const ttc = ht + tva;

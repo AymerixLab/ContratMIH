@@ -66,8 +66,8 @@ export default function App() {
   }, [amenagementData]);
 
   useEffect(() => {
-    setTotalHT3(calculateTotalHT3(visibiliteData));
-  }, [visibiliteData]);
+    setTotalHT3(calculateTotalHT3(visibiliteData, reservationData));
+  }, [visibiliteData, reservationData]);
 
   // Calculs finaux
   const totalHT = totalHT1 + totalHT2 + totalHT3;

@@ -74,20 +74,25 @@ export const PDF_FIELD_MAP: Record<string, PdfFieldMapping> = {
   // Réservation – stands
   'std_equipe_surface': { type: 'text', get: ({ reservationData, mockAll }) => reservationData.standType === 'equipped' ? reservationData.standSize : (mockAll ? (reservationData.standSize || '18') : '') },
   'std_equipe_prix_ht': { type: 'text', get: ({ reservationData, mockAll }) => {
-    const size = parseInt(reservationData.standSize || '0') || (mockAll ? 18 : 0);
-    return size ? num(size * standPrices.equipped) : '';
+    const size = reservationData.standType === 'equipped' ? parseInt(reservationData.standSize || '0') : 0;
+    const fallback = mockAll ? (parseInt(reservationData.standSize || '0') || 18) : 0;
+    const effectiveSize = size || fallback;
+    return effectiveSize > 0 ? num(effectiveSize * standPrices.equipped) : '';
   } },
   'std_nu_surface_qte': { type: 'text', get: ({ reservationData, mockAll }) => reservationData.standType === 'bare' ? reservationData.standSize : (mockAll ? (reservationData.standSize || '18') : '') },
   'std_nu_prix_ht': { type: 'text', get: ({ reservationData, mockAll }) => {
-    const size = parseInt(reservationData.standSize || '0') || (mockAll ? 18 : 0);
-    return size ? num(size * standPrices.bare) : '';
+    const size = reservationData.standType === 'bare' ? parseInt(reservationData.standSize || '0') : 0;
+    const fallback = mockAll ? (parseInt(reservationData.standSize || '0') || 18) : 0;
+    const effectiveSize = size || fallback;
+    return effectiveSize > 0 ? num(effectiveSize * standPrices.bare) : '';
   } },
   'std_expo_surface_12': { type: 'checkbox', get: ({ reservationData, mockAll }) => (reservationData.standType === 'ready' && reservationData.standSize === '12') || (mockAll && (reservationData.standSize || '18') === '12') },
   'std_expo_surface_15': { type: 'checkbox', get: ({ reservationData, mockAll }) => (reservationData.standType === 'ready' && reservationData.standSize === '15') || (mockAll && (reservationData.standSize || '18') === '15') },
   'std_expo_surface_18': { type: 'checkbox', get: ({ reservationData, mockAll }) => (reservationData.standType === 'ready' && reservationData.standSize === '18') || (mockAll && (reservationData.standSize || '18') === '18') },
   'std_expo_prix_ht': { type: 'text', get: ({ reservationData, mockAll }) => {
-    const size = reservationData.standType === 'ready' ? reservationData.standSize : (mockAll ? (reservationData.standSize || '18') : undefined);
-    return size ? num(readyToExposePrices[size] || 0) : '';
+    const size = reservationData.standType === 'ready' ? reservationData.standSize : undefined;
+    const selectedSize = size || (mockAll ? (reservationData.standSize || '18') : undefined);
+    return selectedSize ? num(readyToExposePrices[selectedSize] || 0) : '';
   } },
   'std_equipe_angle_qte': { type: 'text', get: ({ reservationData, mockAll }) => {
     const q = reservationData.standType === 'equipped' ? reservationData.standAngles : (mockAll ? (reservationData.standAngles || 2) : 0);
@@ -314,9 +319,17 @@ export const PDF_FIELD_MAP: Record<string, PdfFieldMapping> = {
   } },
 
   // Visibilité & communication
-  'signa_pck_qte': { type: 'text', get: ({ visibiliteData }) => visibiliteData.packSignaletiqueComplet ? '1' : '' },
+  'signa_pck_qte': { type: 'text', get: ({ visibiliteData, reservationData }) => {
+    if (!visibiliteData.packSignaletiqueComplet) return '';
+    const standSize = parseInt(reservationData.standSize || '0');
+    return standSize > 0 ? String(standSize) : '';
+  } },
   'signa_comptoir_qte': { type: 'text', get: ({ visibiliteData }) => visibiliteData.signaletiqueComptoir ? '1' : '' },
-  'signa_haut_qte': { type: 'text', get: ({ visibiliteData }) => visibiliteData.signaletiqueHautCloisons ? '1' : '' },
+  'signa_haut_qte': { type: 'text', get: ({ visibiliteData, reservationData }) => {
+    if (!visibiliteData.signaletiqueHautCloisons) return '';
+    const standSize = parseInt(reservationData.standSize || '0');
+    return standSize > 0 ? String(standSize) : '';
+  } },
   'signa_complete_qte': { type: 'text', get: ({ visibiliteData }) => visibiliteData.signalethqueCloisons ? String(visibiliteData.signalethqueCloisons) : '' },
   'signa_enseigne_haute_qte': { type: 'text', get: ({ visibiliteData }) => visibiliteData.signaletiqueEnseigneHaute ? '1' : '' },
   'signa_pck_prix_ht': { type: 'text', get: ({ visibiliteData, reservationData }) => {
@@ -362,6 +375,6 @@ export const PDF_FIELD_MAP: Record<string, PdfFieldMapping> = {
   'comm_sac': { type: 'text', get: ({ visibiliteData }) => visibiliteData.documentationSacVisiteur ? num(visibilitePrices.documentationSacVisiteur) : '' },
   'comm_hotesse': { type: 'text', get: ({ visibiliteData }) => visibiliteData.distributionHotesse ? num(visibilitePrices.distributionHotesse) : '' },
   'comm_papier': { type: 'text', get: () => '' },
-  // total_ht_4: champ supplémentaire dans le PDF – par défaut 0,00
-  'total_ht_4': { type: 'text', get: () => num(0) },
+  // total_ht_4: section non utilisée – laisser vide
+  'total_ht_4': { type: 'text', get: () => '' },
 };
