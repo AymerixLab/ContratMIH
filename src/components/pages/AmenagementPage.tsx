@@ -199,6 +199,12 @@ export function AmenagementPage({
                 description="Pourtour stand"
               />
 
+              <QuantityField
+                field="railSpots"
+                label="Rail de 3 spots supplémentaires"
+                price={amenagementPrices.railSpots}
+              />
+
               {/* Moquette avec sélecteur de couleur */}
               <div className="p-4 border rounded-lg hover:bg-gray-50 transition-colors" style={{ borderColor: "#e5e7eb", borderRadius: "8px" }}>
                 <div className="flex justify-between items-start mb-3">

@@ -148,6 +148,7 @@ export function calculateTotals(
     'Cloison bois gainée': { qty: amenagementData.cloisonBoisGainee, price: amenagementPrices.cloisonBoisGainee },
     'Réserve bois': { qty: amenagementData.reservePorteBois, price: amenagementPrices.reservePorteBois },
     'Bandeau signalétique': { qty: amenagementData.bandeauSignaletique, price: amenagementPrices.bandeauSignaletique },
+    'Rail de 3 spots supplémentaires': { qty: amenagementData.railSpots, price: amenagementPrices.railSpots },
   };
 
   Object.entries(equipements).forEach(([name, { qty, price }]) => {
@@ -216,7 +217,16 @@ export function calculateTotals(
   };
 
   if (visibiliteData.packSignaletiqueComplet) {
-    addSection4('Pack signalétique complet', visibilitePrices.packSignaletiqueComplet);
+    const surface = reservationData.standSize ? parseInt(reservationData.standSize, 10) || 0 : 0;
+    const amount = surface > 0
+      ? surface * visibilitePrices.packSignaletiqueComplet
+      : visibilitePrices.packSignaletiqueComplet;
+    addSection4(
+      surface > 0
+        ? `Pack signalétique complet (${surface} m² × ${visibilitePrices.packSignaletiqueComplet} €)`
+        : 'Pack signalétique complet (125 € / m²)',
+      amount
+    );
   }
 
   if (visibiliteData.signaletiqueComptoir) {
@@ -224,13 +234,22 @@ export function calculateTotals(
   }
 
   if (visibiliteData.signaletiqueHautCloisons) {
-    addSection4('Signalétique haut cloisons', visibilitePrices.signaletiqueHautCloisons);
+    const surface = reservationData.standSize ? parseInt(reservationData.standSize, 10) || 0 : 0;
+    const amount = surface > 0
+      ? surface * visibilitePrices.signaletiqueHautCloisons
+      : visibilitePrices.signaletiqueHautCloisons;
+    addSection4(
+      surface > 0
+        ? `Signalétique haut cloisons (${surface} m² × ${visibilitePrices.signaletiqueHautCloisons} €)`
+        : 'Signalétique haut cloisons (50 € / m²)',
+      amount
+    );
   }
 
   if (visibiliteData.signalethqueCloisons > 0) {
     const qty = visibiliteData.signalethqueCloisons;
     const cloisonCost = qty * visibilitePrices.signalethqueCloisons;
-    addSection4('Signalétique cloison complète', cloisonCost);
+    addSection4(`Signalétique cloison complète (${qty} × ${visibilitePrices.signalethqueCloisons} €)`, cloisonCost);
   }
 
   if (visibiliteData.signaletiqueEnseigneHaute) {
@@ -243,8 +262,8 @@ export function calculateTotals(
     'Deuxième couverture': { active: visibiliteData.deuxiemeCouverture, price: visibilitePrices.deuxiemeCouverture },
     'Quatrième couverture': { active: visibiliteData.quatriemeCouverture, price: visibilitePrices.quatriemeCouverture },
     'Logo plan salon': { active: visibiliteData.logoplanSalon, price: visibilitePrices.logoplanSalon },
-    'Documentation sac visiteur': { active: visibiliteData.documentationSacVisiteur, price: visibilitePrices.documentationSacVisiteur },
-    'Distribution hôtesse': { active: visibiliteData.distributionHotesse, price: visibilitePrices.distributionHotesse },
+    'Documentation sac visiteur (3 000 sacs – 4 entreprises)': { active: visibiliteData.documentationSacVisiteur, price: visibilitePrices.documentationSacVisiteur },
+    'Distribution hôtesse (2 jours)': { active: visibiliteData.distributionHotesse, price: visibilitePrices.distributionHotesse },
   };
 
   Object.entries(communication).forEach(([name, { active, price }]) => {

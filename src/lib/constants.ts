@@ -122,7 +122,7 @@ export const visibilitePrices = {
   quatriemeCouverture: 2300,          // Quatrième de couverture catalogue
   logoplanSalon: 550,                 // Logo sur plan salon
   documentationSacVisiteur: 900,      // Documentation dans sac visiteur (3000 sacs, 4 entreprises)
-  distributionHotesse: 700            // Distribution par hôtesse - 700 €/jour
+  distributionHotesse: 1400           // Distribution par hôtesse - 2 jours obligatoires (700 €/jour)
 };
 
 // DEPRECATED - Garder pour compatibilité avec le code existant

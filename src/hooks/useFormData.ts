@@ -64,6 +64,7 @@ export function useFormData() {
     cloisonBoisGainee: 0,
     reservePorteBois: 0,
     bandeauSignaletique: 0,
+    railSpots: 0,
     
     // MOBILIER
     comptoir: 0,
@@ -561,6 +562,7 @@ export function useFormData() {
       cloisonBoisGainee: 0,
       reservePorteBois: 0,
       bandeauSignaletique: 0,
+      railSpots: 0,
       
       // MOBILIER
       comptoir: 0,

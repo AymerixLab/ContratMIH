@@ -73,6 +73,7 @@ export interface AmenagementData {
   cloisonBoisGainee: number;           // Cloison bois gainée tissu - 50€/ml
   reservePorteBois: number;            // Réserve d'1m² avec porte (cloisons bois) - 260€
   bandeauSignaletique: number;         // Bandeau signalétique - 35€/ml
+  railSpots: number;                   // Rail de 3 spots supplémentaires - 45€/unité
 
   // MOBILIER
   comptoir: number;                    // Comptoir - 165€

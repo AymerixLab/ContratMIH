@@ -1,9 +1,8 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CurrentPage } from './lib/types';
 import { calculateTotals } from './lib/calculateTotals';
 import { useFormData } from './hooks/useFormData';
-import { fillAndDownloadContractPdf } from './lib/pdfFiller';
 import { generateContractZipBlob, downloadZipFromBlob, ZipAsset } from './lib/documentGenerator';
 import { submitFormData, uploadSubmissionDocument } from './lib/api';
 import { Header } from './components/shared/Header';
@@ -15,7 +14,6 @@ import { ComplementairesPage } from './components/pages/ComplementairesPage';
 import { VisibilitePage } from './components/pages/VisibilitePage';
 import { EngagementPage } from './components/pages/EngagementPage';
 import { ThanksPage } from './components/pages/ThanksPage';
-import { mockFormData, mockReservationData, mockAmenagementData, mockVisibiliteData, mockEngagementData } from './lib/mockData';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<CurrentPage>('identity');
@@ -63,25 +61,6 @@ export default function App() {
   const totalHT = totalsBreakdown.ht;
   const tva = totalsBreakdown.tva;
   const totalTTC = totalsBreakdown.ttc;
-
-  // Dev/test: URL ?pdfMock=1 génère un PDF rempli avec des données mock
-  useEffect(() => {
-    if ((import.meta as any).env?.DEV) {
-      const params = new URLSearchParams(window.location.search);
-      if (params.has('pdfMock')) {
-        fillAndDownloadContractPdf(
-          mockFormData,
-          mockReservationData,
-          mockAmenagementData,
-          mockVisibiliteData,
-          mockEngagementData,
-          { mockAll: true }
-        ).catch((e) => console.error('PDF mock generation failed', e));
-      } else if (params.has('pdfFieldsCsv')) {
-        import('./lib/pdfFiller').then(m => m.downloadContractPdfFieldsCsv()).catch((e) => console.error(e));
-      }
-    }
-  }, []);
 
   const handleComplete = async () => {
     const submittedAt = new Date().toISOString();

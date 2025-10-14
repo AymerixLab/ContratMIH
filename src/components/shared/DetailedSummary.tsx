@@ -115,6 +115,15 @@ export function DetailedSummary({
       });
     }
 
+    if (amenagementData.railSpots > 0) {
+      amenagements.push({
+        name: 'Rail de 3 spots supplémentaires',
+        quantity: amenagementData.railSpots,
+        price: amenagementPrices.railSpots,
+        total: amenagementData.railSpots * amenagementPrices.railSpots
+      });
+    }
+
     // Mobilier
     const mobilierItems = [
       { field: 'comptoir', name: 'Comptoir' },
@@ -186,11 +195,18 @@ export function DetailedSummary({
   // Fonction helper pour récupérer les options de visibilité sélectionnées
   const getSelectedVisibilite = () => {
     const selected = [];
+    const standSurface = reservationData.standSize ? parseInt(reservationData.standSize, 10) || 0 : 0;
 
     if (visibiliteData.packSignaletiqueComplet) {
+      const total = standSurface > 0
+        ? standSurface * visibilitePrices.packSignaletiqueComplet
+        : visibilitePrices.packSignaletiqueComplet;
+
       selected.push({
-        name: 'Pack signalétique complet',
-        price: visibilitePrices.packSignaletiqueComplet
+        name: standSurface > 0
+          ? `Pack signalétique complet (${standSurface} m² × ${visibilitePrices.packSignaletiqueComplet} €)`
+          : 'Pack signalétique complet (125 € / m²)',
+        price: total
       });
     }
 
@@ -202,9 +218,15 @@ export function DetailedSummary({
     }
 
     if (visibiliteData.signaletiqueHautCloisons) {
+      const total = standSurface > 0
+        ? standSurface * visibilitePrices.signaletiqueHautCloisons
+        : visibilitePrices.signaletiqueHautCloisons;
+
       selected.push({
-        name: 'Signalétique haut de cloisons',
-        price: visibilitePrices.signaletiqueHautCloisons
+        name: standSurface > 0
+          ? `Signalétique haut de cloisons (${standSurface} m² × ${visibilitePrices.signaletiqueHautCloisons} €)`
+          : 'Signalétique haut de cloisons (50 € / m²)',
+        price: total
       });
     }
 
@@ -212,7 +234,7 @@ export function DetailedSummary({
       const quantity = visibiliteData.signalethqueCloisons;
       const price = quantity * visibilitePrices.signalethqueCloisons;
       selected.push({
-        name: `Signalétique cloison complète (${quantity} cloison${quantity > 1 ? 's' : ''})`,
+        name: `Signalétique cloison complète (${quantity} cloison${quantity > 1 ? 's' : ''} × ${visibilitePrices.signalethqueCloisons} €)`,
         price
       });
     }
@@ -261,7 +283,7 @@ export function DetailedSummary({
 
     if (visibiliteData.documentationSacVisiteur) {
       selected.push({
-        name: 'Documentation dans le sac visiteur',
+        name: 'Documentation dans le sac visiteur (3 000 sacs – 4 entreprises)',
         price: visibilitePrices.documentationSacVisiteur
       });
     }

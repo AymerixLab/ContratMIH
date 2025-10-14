@@ -54,14 +54,13 @@ export function VisibilitePage({
     amenagementData.comptoir > 0 || amenagementData.comptoirVitrine > 0
   ) : false;
 
-  // Calculer le maximum de cloisons basé sur la surface du stand (approximation)
-  const maxCloisons = reservationData?.standSize ? Math.min(parseInt(reservationData.standSize), 6) : 6;
+  const standSurface = reservationData?.standSize ? parseInt(reservationData.standSize, 10) || 0 : 0;
+  const packSignaletiqueTotal = standSurface > 0 ? standSurface * visibilitePrices.packSignaletiqueComplet : 0;
+  const signaletiqueHautTotal = standSurface > 0 ? standSurface * visibilitePrices.signaletiqueHautCloisons : 0;
 
   const handleCloisonChange = (value: string) => {
-    const numValue = parseInt(value) || 0;
-    if (numValue <= maxCloisons) {
-      onVisibiliteChange('signalethqueCloisons', numValue);
-    }
+    const numValue = Math.max(0, parseInt(value, 10) || 0);
+    onVisibiliteChange('signalethqueCloisons', numValue);
   };
 
   // Gestionnaires de clic pour les cartes
@@ -143,8 +142,13 @@ export function VisibilitePage({
                   Enseigne Haute, stickage haut de cloisons, stickage pourtour stand au sol, stickage comptoir
                 </div>
                 <p className="font-bold text-lg" style={{ color: COLORS.primary }}>
-                  {visibilitePrices.packSignaletiqueComplet} €
+                  {visibilitePrices.packSignaletiqueComplet} € / m²
                 </p>
+                {standSurface > 0 && (
+                  <p className="text-xs text-gray-600 font-[Poppins] mt-1">
+                    Total {packSignaletiqueTotal.toLocaleString('fr-FR')} € pour {standSurface} m²
+                  </p>
+                )}
               </div>
 
               {/* Signalétique comptoir */}
@@ -226,8 +230,13 @@ export function VisibilitePage({
                   Visuel unique (type logo) sur les 6 cloisons, format L0,95m x H0,50m
                 </div>
                 <p className="font-bold text-lg" style={{ color: COLORS.primary }}>
-                  {visibilitePrices.signaletiqueHautCloisons} €
+                  {visibilitePrices.signaletiqueHautCloisons} € / m²
                 </p>
+                {standSurface > 0 && (
+                  <p className="text-xs text-gray-600 font-[Poppins] mt-1">
+                    Total {signaletiqueHautTotal.toLocaleString('fr-FR')} € pour {standSurface} m²
+                  </p>
+                )}
               </div>
 
               {/* Signalétique cloison complète */}
@@ -250,7 +259,6 @@ export function VisibilitePage({
                     <Input 
                       type="number"
                       min="0"
-                      max={maxCloisons}
                       value={visibiliteData.signalethqueCloisons}
                       onChange={(e) => handleCloisonChange(e.target.value)}
                       className="w-16 h-8 text-center font-[Poppins] border-[#3DB5A0] focus:ring-[#3DB5A0]"
@@ -500,10 +508,10 @@ export function VisibilitePage({
                   <div className="flex-1">
                     <Label className="font-[Poppins] font-medium cursor-pointer">Distribution de votre communication par 1 hôtesse à l'entrée du salon</Label>
                     <p className="text-xs text-gray-600 mt-1 font-[Poppins]">
-                      700 €/jour
+                      700 € / jour (2 jours obligatoires)
                     </p>
                     <p className="text-sm font-bold mt-1" style={{ color: COLORS.primary }}>
-                      {visibilitePrices.distributionHotesse} €
+                      {visibilitePrices.distributionHotesse.toLocaleString('fr-FR')} €
                     </p>
                   </div>
                 </div>

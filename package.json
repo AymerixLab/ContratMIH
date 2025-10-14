@@ -77,8 +77,6 @@
     "dev": "vite",
     "build": "vite build",
     "start": "node server/index.js",
-    "validate-pdf": "tsx scripts/validatePdfMock.ts",
-    "test-mocks": "tsx scripts/testMocks.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
