@@ -302,15 +302,20 @@ export async function generateContractZip(
   // Générer et télécharger le ZIP
   const content = await zip.generateAsync({ type: "blob" });
   const url = URL.createObjectURL(content);
-  
+
   const link = document.createElement('a');
   link.href = url;
   const sanitizedBase = sanitizeFilename(formData.raisonSociale || 'exposant');
   link.download = `documents-salon-${sanitizedBase}.zip`;
+  link.style.display = 'none';
   document.body.appendChild(link);
+
   link.click();
-  document.body.removeChild(link);
   
-  // Nettoyer l'URL
-  URL.revokeObjectURL(url);
+  setTimeout(() => {
+    if (document.body.contains(link)) {
+      document.body.removeChild(link);
+    }
+    URL.revokeObjectURL(url);
+  }, 100);
 }
