@@ -2,11 +2,13 @@ import {
   calculateTotalHT1,
   calculateTotalHT2,
   calculateTotalHT3,
+  calculateTotalHT4,
   canProceedFromReservation,
   isCoExpositionAvailable,
   validateIdentityPage,
   getFieldTitle,
 } from './utils';
+import { calculateTotals } from './calculateTotals';
 
 import { ReservationData, AmenagementData, VisibiliteData, FormData } from './types';
 
@@ -129,7 +131,7 @@ describe('utils financial calculations', () => {
     expect(calculateTotalHT1(baseReservation)).toBe(0);
   });
 
-  it('computes HT2 including furniture and options', () => {
+  it('computes HT2 including furniture only', () => {
     const amenagement: AmenagementData = {
       ...baseAmenagement,
       comptoir: 2,
@@ -138,11 +140,21 @@ describe('utils financial calculations', () => {
       passSoiree: 3,
     };
 
-    // 2*165 + 1*40 + 150 + 3*50 = 670
-    expect(calculateTotalHT2(amenagement)).toBe(670);
+    // 2*165 + 1*40 = 370
+    expect(calculateTotalHT2(amenagement)).toBe(370);
   });
 
-  it('computes HT3 based on stand size dependent options', () => {
+  it('computes HT3 with complementary products', () => {
+    const amenagement: AmenagementData = {
+      ...baseAmenagement,
+      scanBadges: true,
+      passSoiree: 2,
+    };
+
+    expect(calculateTotalHT3(amenagement)).toBe(150 + 2 * 50);
+  });
+
+  it('computes HT4 based on stand size dependent visibility options', () => {
     const visibilite: VisibiliteData = {
       ...baseVisibilite,
       packSignaletiqueComplet: true,
@@ -156,9 +168,53 @@ describe('utils financial calculations', () => {
       standSize: '10',
     };
 
-    const total = calculateTotalHT3(visibilite, reservation);
+    const total = calculateTotalHT4(visibilite, reservation);
     // 10*125 + 180 + 2*185 = 1800
     expect(total).toBe(1800);
+  });
+
+  it('aligns calculateTotals with individual section helpers', () => {
+    const reservation: ReservationData = {
+      ...baseReservation,
+      standType: 'equipped',
+      standSize: '12',
+      standAngles: 1,
+      electricityUpgrade: '4kw',
+      exteriorSpace: true,
+      exteriorSurface: '20',
+      gardenCottage: true,
+      microStand: true,
+      coExposants: [
+        { id: '1', nomEntreprise: 'Co1', nomResponsable: '', prenomResponsable: '', telResponsable: '', mailResponsable: '' },
+        { id: '2', nomEntreprise: 'Co2', nomResponsable: '', prenomResponsable: '', telResponsable: '', mailResponsable: '' },
+      ],
+    };
+
+    const amenagement: AmenagementData = {
+      ...baseAmenagement,
+      reservePorteMelamine: 1,
+      moquetteDifferente: 10,
+      velumStand: 5,
+      comptoir: 2,
+      tabouret: 3,
+      scanBadges: true,
+      passSoiree: 4,
+    };
+
+    const visibilite: VisibiliteData = {
+      ...baseVisibilite,
+      packSignaletiqueComplet: true,
+      signaletiqueComptoir: true,
+      signalethqueCloisons: 1,
+      logoplanSalon: true,
+    };
+
+    const totals = calculateTotals(reservation, amenagement, visibilite);
+
+    expect(totals.ht1).toBeCloseTo(calculateTotalHT1(reservation));
+    expect(totals.ht2).toBeCloseTo(calculateTotalHT2(amenagement));
+    expect(totals.ht3).toBeCloseTo(calculateTotalHT3(amenagement));
+    expect(totals.ht4).toBeCloseTo(calculateTotalHT4(visibilite, reservation));
   });
 });
 

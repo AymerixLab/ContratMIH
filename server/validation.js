@@ -130,6 +130,7 @@ const TotalsSchema = z.object({
   totalHT1: z.number().min(0),
   totalHT2: z.number().min(0),
   totalHT3: z.number().min(0),
+  totalHT4: z.number().min(0),
   totalHT: z.number().min(0),
   tva: z.number().min(0),
   totalTTC: z.number().min(0),

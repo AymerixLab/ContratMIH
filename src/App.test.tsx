@@ -57,6 +57,7 @@ vi.mock('./components/pages/VisibilitePage', () => ({
         <button onClick={setVisibilite}>visibilite-set</button>
         <button onClick={props.onNext}>visibilite-next</button>
         <div data-testid="total-ht3">{props.totalHT3}</div>
+        <div data-testid="total-ht4">{props.totalHT4}</div>
       </div>
     );
   },
@@ -111,11 +112,14 @@ describe('App happy path', () => {
     await user.click(await screen.findByText('reservation-next'));
 
     await user.click(await screen.findByText('amenagement-set'));
-    await waitFor(() => expect(screen.getByTestId('total-ht2').textContent).toBe('480'));
+    await waitFor(() => expect(screen.getByTestId('total-ht2').textContent).toBe('330'));
     await user.click(await screen.findByText('amenagement-next'));
 
     await user.click(await screen.findByText('visibilite-set'));
-    await waitFor(() => expect(screen.getByTestId('total-ht3').textContent).toBe('1680'));
+    await waitFor(() => {
+      expect(screen.getByTestId('total-ht3').textContent).toBe('150');
+      expect(screen.getByTestId('total-ht4').textContent).toBe('1680');
+    });
     await user.click(await screen.findByText('visibilite-next'));
 
     await waitFor(() => {
@@ -133,16 +137,17 @@ describe('App happy path', () => {
     const payload = submitMock.mock.calls[0][0];
     expect(payload.totals).toEqual({
       totalHT1: 4045,
-      totalHT2: 480,
-      totalHT3: 1680,
+      totalHT2: 330,
+      totalHT3: 150,
+      totalHT4: 1680,
       totalHT: 6205,
       tva: 1241,
       totalTTC: 7446,
     });
 
     const zipArgs = zipMock.mock.calls[0];
-    const totalsSlice = zipArgs.slice(-6);
-    expect(totalsSlice).toEqual([4045, 480, 1680, 6205, 1241, 7446]);
+    const totalsSlice = zipArgs.slice(-7);
+    expect(totalsSlice).toEqual([4045, 330, 150, 1680, 6205, 1241, 7446]);
 
     expect(await screen.findByText('thanks-page')).toBeInTheDocument();
   });

@@ -103,17 +103,21 @@ export const calculateTotalHT2 = (amenagementData: AmenagementData): number => {
   total += amenagementData.porteManteux * amenagementPrices.porteManteux;
   total += amenagementData.planteBambou * amenagementPrices.planteBambou;
   total += amenagementData.planteKentia * amenagementPrices.planteKentia;
-  
-  // PRODUITS COMPLÉMENTAIRES
+  return total;
+};
+
+export const calculateTotalHT3 = (amenagementData: AmenagementData): number => {
+  let total = 0;
+
   if (amenagementData.scanBadges) {
     total += amenagementPrices.scanBadges;
   }
   total += amenagementData.passSoiree * amenagementPrices.passSoiree;
-  
+
   return total;
 };
 
-export const calculateTotalHT3 = (visibiliteData: VisibiliteData, reservationData?: ReservationData): number => {
+export const calculateTotalHT4 = (visibiliteData: VisibiliteData, reservationData?: ReservationData): number => {
   let total = 0;
   const standSize = parseInt(reservationData?.standSize || '0', 10) || 0;
   

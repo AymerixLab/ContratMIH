@@ -5,6 +5,8 @@ import {
   electricityPrices,
   exteriorSpacePrice,
   gardenCottagePrice,
+  microStandPrice,
+  coExpositionPrice,
   amenagementPrices,
   visibilitePrices,
   readyToExposePrices
@@ -27,6 +29,7 @@ export interface TotalsBreakdown {
     section1: { [key: string]: number };
     section2: { [key: string]: number };
     section3: { [key: string]: number };
+    section4: { [key: string]: number };
   };
 }
 
@@ -41,7 +44,8 @@ export function calculateTotals(
   const details: TotalsBreakdown['details'] = {
     section1: {},
     section2: {},
-    section3: {}
+    section3: {},
+    section4: {}
   };
 
   // ========================================
@@ -106,6 +110,18 @@ export function calculateTotals(
     ht1 += gardenCottagePrice;
   }
 
+  if (reservationData.microStand) {
+    details.section1['Micro-stand équipé 4m²'] = microStandPrice;
+    ht1 += microStandPrice;
+  }
+
+  if (reservationData.coExposants && reservationData.coExposants.length > 0) {
+    const coExpoCount = reservationData.coExposants.length;
+    const coExpoCost = coExpoCount * coExpositionPrice;
+    details.section1[`Co-exposants (${coExpoCount})`] = coExpoCost;
+    ht1 += coExpoCost;
+  }
+
   // ========================================
   // SECTION 2: AMÉNAGEMENTS
   // ========================================
@@ -162,56 +178,57 @@ export function calculateTotals(
   });
 
   // ========================================
-  // SECTION 3: PRODUITS COMPLÉMENTAIRES + VISIBILITÉ
+  // SECTION 3: PRODUITS COMPLÉMENTAIRES
   // ========================================
   let ht3 = 0;
 
-  // Scan badges
   if (amenagementData.scanBadges) {
-    details.section3['Scan badges'] = amenagementPrices.scanBadges;
+    details.section3['Scan badges visiteurs'] = amenagementPrices.scanBadges;
     ht3 += amenagementPrices.scanBadges;
   }
 
-  // Pass soirée
   if (amenagementData.passSoiree > 0) {
     const passCost = amenagementData.passSoiree * amenagementPrices.passSoiree;
-    details.section3['Pass soirée'] = passCost;
+    details.section3['Pass soirée complémentaire'] = passCost;
     ht3 += passCost;
   }
 
-  // Signalétique
+  // ========================================
+  // SECTION 4: VISIBILITÉ & COMMUNICATION
+  // ========================================
+  let ht4 = 0;
+
   if (visibiliteData.packSignaletiqueComplet) {
     const standSize = parseInt(reservationData.standSize || '0');
     const packCost = standSize > 0 ? standSize * visibilitePrices.packSignaletiqueComplet : 0;
-    details.section3['Pack signalétique complet'] = packCost;
-    ht3 += packCost;
+    details.section4['Pack signalétique complet'] = packCost;
+    ht4 += packCost;
   }
 
   if (visibiliteData.signaletiqueComptoir) {
-    details.section3['Signalétique comptoir'] = visibilitePrices.signaletiqueComptoir;
-    ht3 += visibilitePrices.signaletiqueComptoir;
+    details.section4['Signalétique comptoir'] = visibilitePrices.signaletiqueComptoir;
+    ht4 += visibilitePrices.signaletiqueComptoir;
   }
 
   if (visibiliteData.signaletiqueHautCloisons) {
     const standSize = parseInt(reservationData.standSize || '0');
     const hautCost = standSize > 0 ? standSize * visibilitePrices.signaletiqueHautCloisons : 0;
-    details.section3['Signalétique haut cloisons'] = hautCost;
-    ht3 += hautCost;
+    details.section4['Signalétique haut cloisons'] = hautCost;
+    ht4 += hautCost;
   }
 
   if (visibiliteData.signalethqueCloisons > 0) {
     const qty = visibiliteData.signalethqueCloisons;
     const cloisonCost = qty * visibilitePrices.signalethqueCloisons;
-    details.section3['Signalétique cloison complète'] = cloisonCost;
-    ht3 += cloisonCost;
+    details.section4['Signalétique cloison complète'] = cloisonCost;
+    ht4 += cloisonCost;
   }
 
   if (visibiliteData.signaletiqueEnseigneHaute) {
-    details.section3['Signalétique enseigne haute'] = visibilitePrices.signaletiqueEnseigneHaute;
-    ht3 += visibilitePrices.signaletiqueEnseigneHaute;
+    details.section4['Signalétique enseigne haute'] = visibilitePrices.signaletiqueEnseigneHaute;
+    ht4 += visibilitePrices.signaletiqueEnseigneHaute;
   }
 
-  // Communication
   const communication: { [key: string]: { active: boolean; price: number } } = {
     '1/2 page catalogue': { active: visibiliteData.demiPageCatalogue, price: visibilitePrices.demiPageCatalogue },
     'Page complète catalogue': { active: visibiliteData.pageCompleeteCatalogue, price: visibilitePrices.pageCompleeteCatalogue },
@@ -224,15 +241,14 @@ export function calculateTotals(
 
   Object.entries(communication).forEach(([name, { active, price }]) => {
     if (active) {
-      details.section3[name] = price;
-      ht3 += price;
+      details.section4[name] = price;
+      ht4 += price;
     }
   });
 
   // ========================================
   // TOTAUX FINAUX
   // ========================================
-  const ht4 = 0; // Section 4 vide par défaut
   const ht = ht1 + ht2 + ht3 + ht4;
   const tva = ht * 0.20;
   const ttc = ht + tva;
@@ -269,11 +285,17 @@ export function displayTotals(totals: TotalsBreakdown): void {
   });
   console.log(`  ${'TOTAL HT 02'.padEnd(40)} ${totals.ht2.toFixed(2)}€`);
 
-  console.log('\n📋 Section 3 - Produits complémentaires & Visibilité:');
+  console.log('\n📋 Section 3 - Produits complémentaires:');
   Object.entries(totals.details.section3).forEach(([item, value]) => {
     console.log(`  ${item.padEnd(40)} ${value.toFixed(2)}€`);
   });
   console.log(`  ${'TOTAL HT 03'.padEnd(40)} ${totals.ht3.toFixed(2)}€`);
+
+  console.log('\n📋 Section 4 - Visibilité & communication:');
+  Object.entries(totals.details.section4).forEach(([item, value]) => {
+    console.log(`  ${item.padEnd(40)} ${value.toFixed(2)}€`);
+  });
+  console.log(`  ${'TOTAL HT 04'.padEnd(40)} ${totals.ht4.toFixed(2)}€`);
 
   console.log('\n' + '─'.repeat(80));
   console.log(`  ${'TOTAL HT'.padEnd(40)} ${totals.ht.toFixed(2)}€`);

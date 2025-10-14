@@ -2,7 +2,7 @@ import { PDFDocument, StandardFonts, PDFTextField, PDFCheckBox, PDFRadioGroup } 
 import { FormData, ReservationData, AmenagementData, VisibiliteData, EngagementData } from './types';
 import { generateStandTypeName } from './documentHelpers';
 import { PDF_FIELD_MAP, MappingCtx } from './pdfFieldMap';
-import { calculateTotalHT1, calculateTotalHT2, calculateTotalHT3 } from './utils';
+import { calculateTotals } from './calculateTotals';
 
 // Resolve the packaged asset URL via Vite
 const CONTRACT_TEMPLATE_URL = new URL('../assets/Contrat de participation 2025 form.pdf', import.meta.url).href;
@@ -169,12 +169,7 @@ export async function generateContractPdfBytes(
   form.updateFieldAppearances(font);
 
   // Compute totals for explicit mapping
-  const ht1 = calculateTotalHT1(reservationData);
-  const ht2 = calculateTotalHT2(amenagementData);
-  const ht3 = calculateTotalHT3(visibiliteData, reservationData);
-  const ht = ht1 + ht2 + ht3;
-  const tva = ht * 0.2;
-  const ttc = ht + tva;
+  const totals = calculateTotals(reservationData, amenagementData, visibiliteData);
 
   const ctx: MappingCtx = {
     formData,
@@ -182,7 +177,7 @@ export async function generateContractPdfBytes(
     amenagementData,
     visibiliteData,
     engagementData,
-    totals: { ht1, ht2, ht3, ht, tva, ttc },
+    totals,
     mockAll: options?.mockAll === true,
   };
 

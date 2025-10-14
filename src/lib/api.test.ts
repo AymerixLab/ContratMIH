@@ -109,6 +109,7 @@ const createPayload = (): SubmissionPayload => ({
     totalHT1: 0,
     totalHT2: 0,
     totalHT3: 0,
+    totalHT4: 0,
     totalHT: 0,
     tva: 0,
     totalTTC: 0,

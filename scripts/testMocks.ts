@@ -59,7 +59,8 @@ console.log('─'.repeat(80));
 const comparison = [
   { label: 'HT 01 - Réservation', full: totalsFull.ht1, random: totalsRandom.ht1 },
   { label: 'HT 02 - Aménagements', full: totalsFull.ht2, random: totalsRandom.ht2 },
-  { label: 'HT 03 - Visibilité', full: totalsFull.ht3, random: totalsRandom.ht3 },
+  { label: 'HT 03 - Produits complémentaires', full: totalsFull.ht3, random: totalsRandom.ht3 },
+  { label: 'HT 04 - Visibilité & communication', full: totalsFull.ht4, random: totalsRandom.ht4 },
   { label: 'TOTAL HT', full: totalsFull.ht, random: totalsRandom.ht },
   { label: 'TVA 20%', full: totalsFull.tva, random: totalsRandom.tva },
   { label: 'TOTAL TTC', full: totalsFull.ttc, random: totalsRandom.ttc },
@@ -89,25 +90,29 @@ const statsFull = {
   nbItemsSection1: Object.keys(totalsFull.details.section1).length,
   nbItemsSection2: Object.keys(totalsFull.details.section2).length,
   nbItemsSection3: Object.keys(totalsFull.details.section3).length,
+  nbItemsSection4: Object.keys(totalsFull.details.section4).length,
 };
 
 const statsRandom = {
   nbItemsSection1: Object.keys(totalsRandom.details.section1).length,
   nbItemsSection2: Object.keys(totalsRandom.details.section2).length,
   nbItemsSection3: Object.keys(totalsRandom.details.section3).length,
+  nbItemsSection4: Object.keys(totalsRandom.details.section4).length,
 };
 
 console.log(`Configuration FULL:`);
 console.log(`  - Section 1: ${statsFull.nbItemsSection1} items`);
 console.log(`  - Section 2: ${statsFull.nbItemsSection2} items`);
 console.log(`  - Section 3: ${statsFull.nbItemsSection3} items`);
-console.log(`  - Total: ${statsFull.nbItemsSection1 + statsFull.nbItemsSection2 + statsFull.nbItemsSection3} items`);
+console.log(`  - Section 4: ${statsFull.nbItemsSection4} items`);
+console.log(`  - Total: ${statsFull.nbItemsSection1 + statsFull.nbItemsSection2 + statsFull.nbItemsSection3 + statsFull.nbItemsSection4} items`);
 
 console.log(`\nConfiguration RANDOM:`);
 console.log(`  - Section 1: ${statsRandom.nbItemsSection1} items`);
 console.log(`  - Section 2: ${statsRandom.nbItemsSection2} items`);
 console.log(`  - Section 3: ${statsRandom.nbItemsSection3} items`);
-console.log(`  - Total: ${statsRandom.nbItemsSection1 + statsRandom.nbItemsSection2 + statsRandom.nbItemsSection3} items`);
+console.log(`  - Section 4: ${statsRandom.nbItemsSection4} items`);
+console.log(`  - Total: ${statsRandom.nbItemsSection1 + statsRandom.nbItemsSection2 + statsRandom.nbItemsSection3 + statsRandom.nbItemsSection4} items`);
 
 // ==========================================
 // RECOMMANDATIONS
@@ -124,7 +129,7 @@ console.log(`
 2️⃣  MOCK RANDOM (mockDataRandom.ts):
    → Utilisez pour: Tests de scénarios réels, démos, screenshots
    → Montant: ${totalsRandom.ttc.toFixed(2)}€ TTC
-   → Couverture: ~${Math.round((statsRandom.nbItemsSection1 + statsRandom.nbItemsSection2 + statsRandom.nbItemsSection3) / (statsFull.nbItemsSection1 + statsFull.nbItemsSection2 + statsFull.nbItemsSection3) * 100)}% des fonctionnalités
+   → Couverture: ~${Math.round((statsRandom.nbItemsSection1 + statsRandom.nbItemsSection2 + statsRandom.nbItemsSection3 + statsRandom.nbItemsSection4) / (statsFull.nbItemsSection1 + statsFull.nbItemsSection2 + statsFull.nbItemsSection3 + statsFull.nbItemsSection4) * 100)}% des fonctionnalités
 
 3️⃣  MOCK ACTUEL (mockData.ts):
    → À REMPLACER par un des deux ci-dessus

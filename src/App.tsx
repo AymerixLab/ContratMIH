@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CurrentPage } from './lib/types';
-import { calculateTotalHT1, calculateTotalHT2, calculateTotalHT3 } from './lib/utils';
+import { calculateTotals } from './lib/calculateTotals';
 import { useFormData } from './hooks/useFormData';
 import { fillAndDownloadContractPdf } from './lib/pdfFiller';
 import { generateContractZip } from './lib/documentGenerator';
@@ -18,9 +18,6 @@ import { mockFormData, mockReservationData, mockAmenagementData, mockVisibiliteD
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<CurrentPage>('identity');
-  const [totalHT1, setTotalHT1] = useState(0);
-  const [totalHT2, setTotalHT2] = useState(0);
-  const [totalHT3, setTotalHT3] = useState(0);
   const [savedIdentityData, setSavedIdentityData] = useState(null);
   
   const {
@@ -56,23 +53,14 @@ export default function App() {
     isPhoneValid
   } = useFormData();
 
-  // Calcul automatique des totaux
-  useEffect(() => {
-    setTotalHT1(calculateTotalHT1(reservationData));
-  }, [reservationData]);
-
-  useEffect(() => {
-    setTotalHT2(calculateTotalHT2(amenagementData));
-  }, [amenagementData]);
-
-  useEffect(() => {
-    setTotalHT3(calculateTotalHT3(visibiliteData, reservationData));
-  }, [visibiliteData, reservationData]);
-
-  // Calculs finaux
-  const totalHT = totalHT1 + totalHT2 + totalHT3;
-  const tva = totalHT * 0.20;
-  const totalTTC = totalHT + tva;
+  const totalsBreakdown = useMemo(() => calculateTotals(reservationData, amenagementData, visibiliteData), [reservationData, amenagementData, visibiliteData]);
+  const totalHT1 = totalsBreakdown.ht1;
+  const totalHT2 = totalsBreakdown.ht2;
+  const totalHT3 = totalsBreakdown.ht3;
+  const totalHT4 = totalsBreakdown.ht4;
+  const totalHT = totalsBreakdown.ht;
+  const tva = totalsBreakdown.tva;
+  const totalTTC = totalsBreakdown.ttc;
 
   // Dev/test: URL ?pdfMock=1 génère un PDF rempli avec des données mock
   useEffect(() => {
@@ -99,6 +87,7 @@ export default function App() {
       totalHT1,
       totalHT2,
       totalHT3,
+      totalHT4,
       totalHT,
       tva,
       totalTTC,
@@ -131,6 +120,7 @@ export default function App() {
         totalHT1,
         totalHT2,
         totalHT3,
+        totalHT4,
         totalHT,
         tva,
         totalTTC
@@ -236,6 +226,7 @@ export default function App() {
             totalHT1={totalHT1}
             totalHT2={totalHT2}
             totalHT3={totalHT3}
+            totalHT4={totalHT4}
             onBack={() => setCurrentPage('amenagements')}
             onNext={() => setCurrentPage('engagement')}
           />
@@ -252,6 +243,7 @@ export default function App() {
             totalHT1={totalHT1}
             totalHT2={totalHT2}
             totalHT3={totalHT3}
+            totalHT4={totalHT4}
             totalHT={totalHT}
             tva={tva}
             totalTTC={totalTTC}
@@ -270,6 +262,7 @@ export default function App() {
             totalHT1={totalHT1}
             totalHT2={totalHT2}
             totalHT3={totalHT3}
+            totalHT4={totalHT4}
             totalHT={totalHT}
             tva={tva}
             totalTTC={totalTTC}

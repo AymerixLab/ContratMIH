@@ -19,6 +19,7 @@ interface EngagementPageProps {
   totalHT1: number;
   totalHT2: number;
   totalHT3: number;
+  totalHT4: number;
   totalHT: number;
   tva: number;
   totalTTC: number;
@@ -38,6 +39,7 @@ export function EngagementPage({
   totalHT1,
   totalHT2,
   totalHT3,
+  totalHT4,
   totalHT,
   tva,
   totalTTC,
@@ -46,7 +48,9 @@ export function EngagementPage({
 }: EngagementPageProps) {
   const [showRegulationModal, setShowRegulationModal] = useState(false);
   const [hasScrolledRegulation, setHasScrolledRegulation] = useState(false);
+  const [manualAcknowledgement, setManualAcknowledgement] = useState(false);
   const regulationContainerRef = useRef<HTMLDivElement | null>(null);
+  const regulationSentinelRef = useRef<HTMLDivElement | null>(null);
   
   // Générer automatiquement la date et l'heure du jour
   useEffect(() => {
@@ -66,10 +70,43 @@ export function EngagementPage({
   useEffect(() => {
     if (showRegulationModal) {
       setHasScrolledRegulation(false);
+      setManualAcknowledgement(false);
       if (regulationContainerRef.current) {
         regulationContainerRef.current.scrollTop = 0;
       }
     }
+  }, [showRegulationModal]);
+
+  useEffect(() => {
+    if (!showRegulationModal) return;
+
+    const container = regulationContainerRef.current;
+    const sentinel = regulationSentinelRef.current;
+
+    if (!container || !sentinel) return;
+
+    if (container.scrollHeight <= container.clientHeight) {
+      setHasScrolledRegulation(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setHasScrolledRegulation(true);
+        }
+      },
+      {
+        root: container,
+        threshold: 0.99
+      }
+    );
+
+    observer.observe(sentinel);
+
+    return () => {
+      observer.disconnect();
+    };
   }, [showRegulationModal]);
 
   const handleBack = () => {
@@ -96,9 +133,14 @@ export function EngagementPage({
 
   const handleRegulationScroll = (event: UIEvent<HTMLDivElement>) => {
     const target = event.currentTarget;
-    const reachedBottom = target.scrollTop + target.clientHeight >= target.scrollHeight - 12;
+    if (target.scrollHeight <= target.clientHeight) {
+      setHasScrolledRegulation(true);
+      return;
+    }
 
-    if (reachedBottom) {
+    const distanceToBottom = target.scrollHeight - (target.scrollTop + target.clientHeight);
+
+    if (distanceToBottom <= 16) {
       setHasScrolledRegulation(true);
     }
   };
@@ -111,12 +153,17 @@ export function EngagementPage({
   const handleDismissModal = () => {
     setShowRegulationModal(false);
     setHasScrolledRegulation(false);
+    setManualAcknowledgement(false);
   };
 
   const handleModalOpenChange = (open: boolean) => {
     if (!open) {
       handleDismissModal();
     }
+  };
+
+  const handleManualAcknowledgementChange = (checked: boolean | 'indeterminate') => {
+    setManualAcknowledgement(checked === true);
   };
 
   return (
@@ -154,8 +201,12 @@ export function EngagementPage({
                 <span className="font-semibold">{totalHT2.toLocaleString('fr-FR')} €</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b">
-                <span className="font-[Poppins]">Visibilité & Communication (HT 3)</span>
+                <span className="font-[Poppins]">Produits complémentaires (HT 3)</span>
                 <span className="font-semibold">{totalHT3.toLocaleString('fr-FR')} €</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b">
+                <span className="font-[Poppins]">Visibilité & Communication (HT 4)</span>
+                <span className="font-semibold">{totalHT4.toLocaleString('fr-FR')} €</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-gray-400">
                 <span className="font-[Poppins] font-semibold">TOTAL HT</span>
@@ -239,15 +290,27 @@ export function EngagementPage({
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-4">
-              <div className="flex items-start space-x-3">
+              <div className="flex items-start gap-3">
                 <Checkbox 
                   id="accepteReglement"
                   checked={engagementData.accepteReglement}
                   onCheckedChange={handleAcceptanceChange}
                   className="data-[state=checked]:bg-[#3DB5A0] data-[state=checked]:border-[#3DB5A0] mt-1"
                 />
-                <Label htmlFor="accepteReglement" className="font-[Poppins] leading-relaxed">
-                  J'accepte que mes informations saisies soient conservées à des fins de suivi. Je certifie l'exactitude des informations fournies. Mon inscription sera définitive une fois les documents téléchargés tamponnés et signés au nom du responsable de mon entreprise à l'adresse suivante : <a href="mailto:mih@agence-porteduhainaut.fr" className="font-semibold underline" style={{ color: COLORS.primary }}>mih@agence-porteduhainaut.fr</a>
+                <Label
+                  htmlFor="accepteReglement"
+                  className="font-[Poppins] leading-relaxed items-start gap-1 flex-wrap"
+                >
+                  <span>
+                    J'accepte que mes informations saisies soient conservées à des fins de suivi. Je certifie l'exactitude des informations fournies. Mon inscription sera définitive une fois les documents téléchargés tamponnés et signés au nom du responsable de mon entreprise à l'adresse suivante :
+                  </span>
+                  <a
+                    href="mailto:mih@agence-porteduhainaut.fr"
+                    className="font-semibold underline"
+                    style={{ color: COLORS.primary }}
+                  >
+                    mih@agence-porteduhainaut.fr
+                  </a>
                 </Label>
               </div>
             </div>
@@ -340,12 +403,33 @@ export function EngagementPage({
               className="h-[1200px] w-full"
               title="Règlement du Salon"
             />
+            <div ref={regulationSentinelRef} aria-hidden className="h-1 w-full" />
+          </div>
+          <a
+            href={REGULATION_PDF_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-4 inline-block text-sm font-semibold underline"
+            style={{ color: COLORS.secondary }}
+          >
+            Télécharger le règlement au format PDF
+          </a>
+          <div className="mt-4 flex items-start gap-3 rounded-md border border-gray-200 bg-gray-50 p-3">
+            <Checkbox
+              id="manualAcknowledgement"
+              checked={manualAcknowledgement}
+              onCheckedChange={handleManualAcknowledgementChange}
+              className="data-[state=checked]:bg-[#3DB5A0] data-[state=checked]:border-[#3DB5A0] mt-1"
+            />
+            <Label htmlFor="manualAcknowledgement" className="text-sm leading-relaxed">
+              Je confirme avoir pris connaissance du règlement du Salon Made in Hainaut. En cas de difficulté pour faire défiler le document, ouvrez-le via le lien de téléchargement ci-dessus puis cochez cette case.
+            </Label>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={handleDismissModal}>
               J'ai besoin de plus de temps
             </Button>
-            <Button onClick={handleConfirmAcceptance} disabled={!hasScrolledRegulation}>
+            <Button onClick={handleConfirmAcceptance} disabled={!hasScrolledRegulation && !manualAcknowledgement}>
               J'ai lu et j'accepte le règlement
             </Button>
           </DialogFooter>

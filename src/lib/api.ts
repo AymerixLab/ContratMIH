@@ -4,6 +4,7 @@ export interface SubmissionTotals {
   totalHT1: number;
   totalHT2: number;
   totalHT3: number;
+  totalHT4: number;
   totalHT: number;
   tva: number;
   totalTTC: number;

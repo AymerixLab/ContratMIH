@@ -15,6 +15,7 @@ interface ThanksPageProps {
   totalHT1: number;
   totalHT2: number;
   totalHT3: number;
+  totalHT4: number;
   totalHT: number;
   tva: number;
   totalTTC: number;
@@ -30,6 +31,7 @@ export function ThanksPage({
   totalHT1,
   totalHT2,
   totalHT3,
+  totalHT4,
   totalHT,
   tva,
   totalTTC,
@@ -50,6 +52,7 @@ export function ThanksPage({
         totalHT1,
         totalHT2,
         totalHT3,
+        totalHT4,
         totalHT,
         tva,
         totalTTC
@@ -116,8 +119,12 @@ export function ThanksPage({
                   <span>{totalHT2.toLocaleString('fr-FR')} € HT</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Visibilité & Communication :</span>
+                  <span>Produits complémentaires :</span>
                   <span>{totalHT3.toLocaleString('fr-FR')} € HT</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Visibilité & Communication :</span>
+                  <span>{totalHT4.toLocaleString('fr-FR')} € HT</span>
                 </div>
                 <div className="flex justify-between">
                   <span>TVA (20%) :</span>

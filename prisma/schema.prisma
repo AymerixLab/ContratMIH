@@ -131,6 +131,7 @@ model Submission {
   totalHtSection1          Decimal  @map("total_ht_section1") @db.Decimal(12, 2)
   totalHtSection2          Decimal  @map("total_ht_section2") @db.Decimal(12, 2)
   totalHtSection3          Decimal  @map("total_ht_section3") @db.Decimal(12, 2)
+  totalHtSection4          Decimal  @map("total_ht_section4") @db.Decimal(12, 2)
   totalHt                  Decimal  @map("total_ht") @db.Decimal(12, 2)
   totalTva                 Decimal  @map("total_tva") @db.Decimal(12, 2)
   totalTtc                 Decimal  @map("total_ttc") @db.Decimal(12, 2)

@@ -22,6 +22,7 @@ interface VisibilitePageProps {
   totalHT1: number;
   totalHT2: number;
   totalHT3: number;
+  totalHT4: number;
   onBack: () => void;
   onNext: () => void;
 }
@@ -34,6 +35,7 @@ export function VisibilitePage({
   totalHT1,
   totalHT2,
   totalHT3,
+  totalHT4,
   onBack,
   onNext
 }: VisibilitePageProps) {
@@ -554,7 +556,7 @@ export function VisibilitePage({
         </Card>
 
         {/* Totaux */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div 
             className="p-6 text-center"
             style={{ 
@@ -584,13 +586,26 @@ export function VisibilitePage({
           <div 
             className="p-6 text-center"
             style={{ 
-              backgroundColor: COLORS.primary, 
+              backgroundColor: COLORS.secondary, 
               color: 'white',
               borderRadius: "12px"
             }}
           >
             <h2 className="text-xl font-bold font-[Poppins]">
               TOTAL HT 3 : {totalHT3.toLocaleString('fr-FR')} €
+            </h2>
+            <p className="text-sm opacity-90">Produits complémentaires</p>
+          </div>
+          <div 
+            className="p-6 text-center"
+            style={{ 
+              backgroundColor: COLORS.primary, 
+              color: 'white',
+              borderRadius: "12px"
+            }}
+          >
+            <h2 className="text-xl font-bold font-[Poppins]">
+              TOTAL HT 4 : {totalHT4.toLocaleString('fr-FR')} €
             </h2>
             <p className="text-sm opacity-90">Visibilité & Communication</p>
           </div>

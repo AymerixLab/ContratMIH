@@ -18,6 +18,7 @@ export function generateDevisHTML(
   totalHT1: number,
   totalHT2: number,
   totalHT3: number,
+  totalHT4: number,
   totalHT: number,
   tva: number,
   totalTTC: number
@@ -103,6 +104,7 @@ export function generateContractHTML(
   totalHT1: number,
   totalHT2: number,
   totalHT3: number,
+  totalHT4: number,
   totalHT: number,
   tva: number,
   totalTTC: number
@@ -210,8 +212,12 @@ export function generateContractHTML(
                         <div style="font-size: 16px; font-weight: bold;">${totalHT2.toLocaleString('fr-FR')} €</div>
                     </div>
                     <div class="total-box">
-                        <div style="font-size: 12px; opacity: 0.8;">HT 3 - Visibilité</div>
+                        <div style="font-size: 12px; opacity: 0.8;">HT 3 - Produits complémentaires</div>
                         <div style="font-size: 16px; font-weight: bold;">${totalHT3.toLocaleString('fr-FR')} €</div>
+                    </div>
+                    <div class="total-box">
+                        <div style="font-size: 12px; opacity: 0.8;">HT 4 - Visibilité & Communication</div>
+                        <div style="font-size: 16px; font-weight: bold;">${totalHT4.toLocaleString('fr-FR')} €</div>
                     </div>
                     <div class="total-box">
                         <div style="font-size: 12px; opacity: 0.8;">TOTAL HT</div>
@@ -262,6 +268,7 @@ export async function generateContractZip(
   totalHT1: number,
   totalHT2: number,
   totalHT3: number,
+  totalHT4: number,
   totalHT: number,
   tva: number,
   totalTTC: number
@@ -271,12 +278,12 @@ export async function generateContractZip(
   // Générer le contenu HTML
   const devisHTML = generateDevisHTML(
     formData, reservationData, amenagementData, visibiliteData,
-    totalHT1, totalHT2, totalHT3, totalHT, tva, totalTTC
+    totalHT1, totalHT2, totalHT3, totalHT4, totalHT, tva, totalTTC
   );
   
   const contractHTML = generateContractHTML(
     formData, reservationData, amenagementData, visibiliteData, engagementData,
-    totalHT1, totalHT2, totalHT3, totalHT, tva, totalTTC
+    totalHT1, totalHT2, totalHT3, totalHT4, totalHT, tva, totalTTC
   );
 
   const contractPdfBytes = await generateContractPdfBytes(

@@ -178,6 +178,7 @@ export function createApp(prismaClient, options = {}) {
             totalHtSection1: toMoney(totals.totalHT1),
             totalHtSection2: toMoney(totals.totalHT2),
             totalHtSection3: toMoney(totals.totalHT3),
+            totalHtSection4: toMoney(totals.totalHT4),
             totalHt: toMoney(totals.totalHT),
             totalTva: toMoney(totals.tva),
             totalTtc: toMoney(totals.totalTTC),

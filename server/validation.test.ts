@@ -116,8 +116,9 @@ const createValidPayload = () => ({
   },
   totals: {
     totalHT1: 4045,
-    totalHT2: 480,
-    totalHT3: 1680,
+    totalHT2: 330,
+    totalHT3: 150,
+    totalHT4: 1680,
     totalHT: 6205,
     tva: 1241,
     totalTTC: 7446,

@@ -13,6 +13,7 @@ export interface MappingCtx {
     ht1: number;
     ht2: number;
     ht3: number;
+    ht4: number;
     ht: number;
     tva: number;
     ttc: number;
@@ -368,6 +369,7 @@ export const PDF_FIELD_MAP: Record<string, PdfFieldMapping> = {
   'total_ht_1': { type: 'text', get: ({ totals }) => num(totals.ht1) },
   'total_ht_2': { type: 'text', get: ({ totals }) => num(totals.ht2) },
   'total_ht_3': { type: 'text', get: ({ totals }) => num(totals.ht3) },
+  'total_ht_4': { type: 'text', get: ({ totals }) => num(totals.ht4) },
   'total_ht': { type: 'text', get: ({ totals }) => num(totals.ht) },
   'total_tva': { type: 'text', get: ({ totals }) => num(totals.tva) },
   'total_ttc': { type: 'text', get: ({ totals }) => num(totals.ttc) },
@@ -389,6 +391,4 @@ export const PDF_FIELD_MAP: Record<string, PdfFieldMapping> = {
   'comm_sac': { type: 'text', get: ({ visibiliteData }) => visibiliteData.documentationSacVisiteur ? num(visibilitePrices.documentationSacVisiteur) : '' },
   'comm_hotesse': { type: 'text', get: ({ visibiliteData }) => visibiliteData.distributionHotesse ? num(visibilitePrices.distributionHotesse) : '' },
   'comm_papier': { type: 'text', get: () => '' },
-  // total_ht_4: section non utilisée – laisser vide
-  'total_ht_4': { type: 'text', get: () => '' },
 };
