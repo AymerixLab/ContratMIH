@@ -70,6 +70,8 @@ services:
     depends_on:
       - db
     restart: unless-stopped
+    volumes:
+      - ./uploads:/app/uploads
     labels:
       - "traefik.enable=true"
 
