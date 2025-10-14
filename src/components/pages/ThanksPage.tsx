@@ -3,7 +3,7 @@ import { Button } from '../ui/button';
 import { Card, CardContent } from '../ui/card';
 import { COLORS } from '../../lib/constants';
 import { FormData, ReservationData, AmenagementData, VisibiliteData, EngagementData } from '../../lib/types';
-import { generateContractZip } from '../../lib/documentGenerator';
+import { ZipAsset, downloadZipFromBlob } from '../../lib/documentGenerator';
 import { DetailedSummary } from '../shared/DetailedSummary';
 
 interface ThanksPageProps {
@@ -19,6 +19,7 @@ interface ThanksPageProps {
   totalHT: number;
   tva: number;
   totalTTC: number;
+  zipAsset: ZipAsset | null;
   onRestartFromReservation?: () => void;
 }
 
@@ -35,28 +36,20 @@ export function ThanksPage({
   totalHT,
   tva,
   totalTTC,
+  zipAsset,
   onRestartFromReservation
 }: ThanksPageProps) {
   const [isDownloading, setIsDownloading] = useState(false);
 
   const handleDownload = async () => {
+    if (!zipAsset) {
+      alert('Les documents ne sont pas disponibles pour le moment. Veuillez rafraîchir la page.');
+      return;
+    }
+
     try {
       setIsDownloading(true);
-      // Remplit le PDF du contrat et lance le téléchargement (PDF aplati)
-      await generateContractZip(
-        formData,
-        reservationData,
-        amenagementData,
-        visibiliteData,
-        engagementData,
-        totalHT1,
-        totalHT2,
-        totalHT3,
-        totalHT4,
-        totalHT,
-        tva,
-        totalTTC
-      );
+      downloadZipFromBlob(zipAsset.blob, zipAsset.filename);
     } catch (error) {
       console.error('Erreur lors du téléchargement:', error);
       alert('Erreur lors du téléchargement. Veuillez réessayer.');
@@ -151,7 +144,7 @@ export function ThanksPage({
                   focusRingColor: COLORS.secondary
                 }}
                 onClick={handleDownload}
-                disabled={isDownloading}
+                disabled={isDownloading || !zipAsset}
               >
                 {isDownloading ? (
                   <>

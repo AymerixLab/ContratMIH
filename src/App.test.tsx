@@ -77,7 +77,7 @@ vi.mock('./components/pages/EngagementPage', () => ({
 }));
 
 vi.mock('./components/pages/ThanksPage', () => ({
-  ThanksPage: () => <div>thanks-page</div>,
+  ThanksPage: (_props: any) => <div>thanks-page</div>,
 }));
 
 vi.mock('./lib/pdfFiller', () => ({
@@ -85,23 +85,29 @@ vi.mock('./lib/pdfFiller', () => ({
   downloadContractPdfFieldsCsv: vi.fn(),
 }));
 
+const mockedZipAsset = { blob: new Blob(), filename: 'documents.zip' };
+
 vi.mock('./lib/documentGenerator', () => ({
-  generateContractZip: vi.fn(() => Promise.resolve()),
+  generateContractZipBlob: vi.fn(() => Promise.resolve(mockedZipAsset)),
+  downloadZipFromBlob: vi.fn(),
 }));
 
 vi.mock('./lib/api', () => ({
-  submitFormData: vi.fn(() => Promise.resolve()),
+  submitFormData: vi.fn(() => Promise.resolve({ id: 'submission-1' })),
+  uploadSubmissionDocument: vi.fn(() => Promise.resolve({ id: 'doc-1' })),
 }));
 
 import App from './App';
-import { generateContractZip } from './lib/documentGenerator';
-import { submitFormData } from './lib/api';
+import { downloadZipFromBlob, generateContractZipBlob } from './lib/documentGenerator';
+import { submitFormData, uploadSubmissionDocument } from './lib/api';
 
 describe('App happy path', () => {
   it('walks through steps and submits totals without regression', async () => {
     const user = userEvent.setup();
     const submitMock = vi.mocked(submitFormData);
-    const zipMock = vi.mocked(generateContractZip);
+    const zipMock = vi.mocked(generateContractZipBlob);
+    const downloadMock = vi.mocked(downloadZipFromBlob);
+    const uploadMock = vi.mocked(uploadSubmissionDocument);
 
     render(<App />);
 
@@ -112,20 +118,20 @@ describe('App happy path', () => {
     await user.click(await screen.findByText('reservation-next'));
 
     await user.click(await screen.findByText('amenagement-set'));
-    await waitFor(() => expect(screen.getByTestId('total-ht2').textContent).toBe('330'));
+    await waitFor(() => expect(screen.getByTestId('total-ht2').textContent).toBe('480'));
     await user.click(await screen.findByText('amenagement-next'));
 
     await user.click(await screen.findByText('visibilite-set'));
     await waitFor(() => {
-      expect(screen.getByTestId('total-ht3').textContent).toBe('150');
-      expect(screen.getByTestId('total-ht4').textContent).toBe('1680');
+      expect(screen.getByTestId('total-ht3').textContent).toBe('0');
+      expect(screen.getByTestId('total-ht4').textContent).toBe('305');
     });
     await user.click(await screen.findByText('visibilite-next'));
 
     await waitFor(() => {
-      expect(screen.getByTestId('total-ht').textContent).toBe('6205');
-      expect(screen.getByTestId('total-tva').textContent).toBe('1241');
-      expect(screen.getByTestId('total-ttc').textContent).toBe('7446');
+      expect(screen.getByTestId('total-ht').textContent).toBe('4830');
+      expect(screen.getByTestId('total-tva').textContent).toBe('966');
+      expect(screen.getByTestId('total-ttc').textContent).toBe('5796');
     });
 
     await user.click(screen.getByText('accept-rules'));
@@ -133,21 +139,23 @@ describe('App happy path', () => {
 
     await waitFor(() => expect(submitMock).toHaveBeenCalledTimes(1));
     await waitFor(() => expect(zipMock).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(downloadMock).toHaveBeenCalledWith(mockedZipAsset.blob, mockedZipAsset.filename));
+    await waitFor(() => expect(uploadMock).toHaveBeenCalledWith('submission-1', mockedZipAsset.blob, mockedZipAsset.filename));
 
     const payload = submitMock.mock.calls[0][0];
     expect(payload.totals).toEqual({
       totalHT1: 4045,
-      totalHT2: 330,
-      totalHT3: 150,
-      totalHT4: 1680,
-      totalHT: 6205,
-      tva: 1241,
-      totalTTC: 7446,
+      totalHT2: 480,
+      totalHT3: 0,
+      totalHT4: 305,
+      totalHT: 4830,
+      tva: 966,
+      totalTTC: 5796,
     });
 
     const zipArgs = zipMock.mock.calls[0];
     const totalsSlice = zipArgs.slice(-7);
-    expect(totalsSlice).toEqual([4045, 330, 150, 1680, 6205, 1241, 7446]);
+    expect(totalsSlice).toEqual([4045, 480, 0, 305, 4830, 966, 5796]);
 
     expect(await screen.findByText('thanks-page')).toBeInTheDocument();
   });

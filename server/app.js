@@ -1,6 +1,8 @@
 import express from 'express';
 import path from 'path';
 import cors from 'cors';
+import multer from 'multer';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { SubmissionSchema } from './validation.js';
 
@@ -43,6 +45,31 @@ export function createApp(prismaClient, options = {}) {
     corsOrigin = process.env.CORS_ORIGIN,
     serveStatic = true,
   } = options;
+
+  const uploadsDir = path.join(__dirname, '..', 'uploads');
+  fs.mkdirSync(uploadsDir, { recursive: true });
+
+  const storage = multer.diskStorage({
+    destination: (req, _file, cb) => {
+      const submissionId = req.params?.submissionId;
+      const submissionDir = submissionId
+        ? path.join(uploadsDir, submissionId)
+        : uploadsDir;
+      try {
+        fs.mkdirSync(submissionDir, { recursive: true });
+      } catch (error) {
+        return cb(error);
+      }
+      cb(null, submissionDir);
+    },
+    filename: (_req, file, cb) => {
+      const timestamp = Date.now();
+      const sanitized = file.originalname.replace(/[^\w.\-]+/g, '_');
+      cb(null, `${timestamp}-${sanitized}`);
+    },
+  });
+
+  const upload = multer({ storage });
 
   const app = express();
   app.use(express.json({ limit: '2mb' }));
@@ -211,6 +238,84 @@ export function createApp(prismaClient, options = {}) {
       return res.status(500).json({ error: 'Erreur interne' });
     }
   });
+
+  app.post(
+    '/api/submissions/:submissionId/documents',
+    upload.single('file'),
+    async (req, res) => {
+      const { submissionId } = req.params;
+      const file = req.file;
+
+      if (!file) {
+        return res.status(400).json({ error: 'Aucun fichier fourni' });
+      }
+
+      try {
+        const submission = await prismaClient.submission.findUnique({
+          where: { id: submissionId },
+        });
+
+        if (!submission) {
+          await fs.promises.unlink(file.path).catch(() => undefined);
+          return res.status(404).json({ error: 'Soumission introuvable' });
+        }
+
+        const relativePath = path.relative(uploadsDir, file.path);
+
+        const document = await prismaClient.document.create({
+          data: {
+            submissionId,
+            filename: file.originalname,
+            filepath: relativePath,
+            mimetype: file.mimetype,
+            size: file.size,
+          },
+        });
+
+        return res.status(201).json({ id: document.id });
+      } catch (error) {
+        console.error('Erreur lors de la sauvegarde du document:', error);
+        await fs.promises.unlink(file.path).catch(() => undefined);
+        return res.status(500).json({ error: 'Erreur interne' });
+      }
+    }
+  );
+
+  app.get(
+    '/api/submissions/:submissionId/documents/:documentId',
+    async (req, res) => {
+      const { submissionId, documentId } = req.params;
+
+      try {
+        const document = await prismaClient.document.findFirst({
+          where: { id: documentId, submissionId },
+        });
+
+        if (!document) {
+          return res.status(404).json({ error: 'Document introuvable' });
+        }
+
+        const absolutePath = path.join(uploadsDir, document.filepath);
+        const normalizedPath = path.normalize(absolutePath);
+
+        if (!normalizedPath.startsWith(uploadsDir)) {
+          return res.status(400).json({ error: 'Chemin de fichier invalide' });
+        }
+
+        return res.download(normalizedPath, document.filename, (err) => {
+          if (err) {
+            console.error('Erreur lors du téléchargement du document:', err);
+            if (!res.headersSent) {
+              res.status(500).json({ error: 'Erreur interne' });
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Erreur lors de la récupération du document:', error);
+        return res.status(500).json({ error: 'Erreur interne' });
+      }
+    }
+  );
 
   if (serveStatic) {
     app.use(express.static(buildDir));

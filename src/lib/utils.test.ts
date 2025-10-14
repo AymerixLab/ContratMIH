@@ -140,8 +140,8 @@ describe('utils financial calculations', () => {
       passSoiree: 3,
     };
 
-    // 2*165 + 1*40 = 370
-    expect(calculateTotalHT2(amenagement)).toBe(370);
+    // (2*165 + 1*40) + 150 + (3*50) = 670
+    expect(calculateTotalHT2(amenagement)).toBe(670);
   });
 
   it('computes HT3 with complementary products', () => {
@@ -151,7 +151,7 @@ describe('utils financial calculations', () => {
       passSoiree: 2,
     };
 
-    expect(calculateTotalHT3(amenagement)).toBe(150 + 2 * 50);
+    expect(calculateTotalHT3(amenagement)).toBe(0);
   });
 
   it('computes HT4 based on stand size dependent visibility options', () => {
@@ -169,8 +169,8 @@ describe('utils financial calculations', () => {
     };
 
     const total = calculateTotalHT4(visibilite, reservation);
-    // 10*125 + 180 + 2*185 = 1800
-    expect(total).toBe(1800);
+    // 125 + 180 + 2*185 = 675
+    expect(total).toBe(675);
   });
 
   it('aligns calculateTotals with individual section helpers', () => {
@@ -215,6 +215,58 @@ describe('utils financial calculations', () => {
     expect(totals.ht2).toBeCloseTo(calculateTotalHT2(amenagement));
     expect(totals.ht3).toBeCloseTo(calculateTotalHT3(amenagement));
     expect(totals.ht4).toBeCloseTo(calculateTotalHT4(visibilite, reservation));
+  });
+
+  it('populates section 1 details with contract-specific reservation lines', () => {
+    const reservation: ReservationData = {
+      ...baseReservation,
+      standType: 'ready',
+      standSize: '18',
+      standAngles: 2,
+      electricityUpgrade: '6kw',
+      exteriorSpace: true,
+      exteriorSurface: '20',
+      gardenCottage: true,
+      microStand: true,
+      coExposants: [
+        { id: 'co-1', nomEntreprise: 'Partner', nomResponsable: '', prenomResponsable: '', telResponsable: '', mailResponsable: '' },
+      ],
+    };
+
+    const totals = calculateTotals(reservation, baseAmenagement, baseVisibilite);
+
+    expect(totals.ht1).toBe(9448);
+    expect(totals.details.section1).toMatchObject({
+      'Pack "Prêt à exposer" 18m²': 5328,
+      'Angles ouverts': 370,
+      'Coffret électrique 6KW': 350,
+      'Espace extérieur 20m²': 1000,
+      'Garden cottage (3m x 3m)': 800,
+      'Micro-stand équipé 4m²': 1200,
+      'Co-exposants (1)': 400,
+    });
+
+    expect(totals.details.section2).toEqual({});
+    expect(totals.details.section3).toEqual({});
+    expect(totals.details.section4).toEqual({});
+  });
+
+  it('places complementary products in section 2 breakdown', () => {
+    const amenagement: AmenagementData = {
+      ...baseAmenagement,
+      scanBadges: true,
+      passSoiree: 2,
+    };
+
+    const totals = calculateTotals(baseReservation, amenagement, baseVisibilite);
+
+    expect(totals.ht2).toBe(250);
+    expect(totals.details.section2).toMatchObject({
+      'Scan badges visiteurs': 150,
+      'Pass soirée complémentaires': 100,
+    });
+    expect(totals.ht3).toBe(0);
+    expect(totals.details.section3).toEqual({});
   });
 });
 

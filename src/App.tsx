@@ -4,8 +4,8 @@ import { CurrentPage } from './lib/types';
 import { calculateTotals } from './lib/calculateTotals';
 import { useFormData } from './hooks/useFormData';
 import { fillAndDownloadContractPdf } from './lib/pdfFiller';
-import { generateContractZip } from './lib/documentGenerator';
-import { submitFormData } from './lib/api';
+import { generateContractZipBlob, downloadZipFromBlob, ZipAsset } from './lib/documentGenerator';
+import { submitFormData, uploadSubmissionDocument } from './lib/api';
 import { Header } from './components/shared/Header';
 import { ProgressIndicator } from './components/shared/ProgressIndicator';
 import { IdentityPage } from './components/pages/IdentityPage';
@@ -19,6 +19,7 @@ import { mockFormData, mockReservationData, mockAmenagementData, mockVisibiliteD
 export default function App() {
   const [currentPage, setCurrentPage] = useState<CurrentPage>('identity');
   const [savedIdentityData, setSavedIdentityData] = useState(null);
+  const [zipAsset, setZipAsset] = useState<ZipAsset | null>(null);
   
   const {
     formData,
@@ -96,8 +97,9 @@ export default function App() {
     // Sauvegarder les données d'identité pour un éventuel retour
     setSavedIdentityData(formData);
 
+    let createdSubmissionId: string | null = null;
     try {
-      await submitFormData({
+      const submissionResponse = await submitFormData({
         formData,
         reservationData,
         amenagementData,
@@ -106,12 +108,14 @@ export default function App() {
         totals,
         submittedAt,
       });
+      createdSubmissionId = submissionResponse.id;
     } catch (error) {
       console.error('Erreur lors de la sauvegarde en base de données:', error);
     }
 
+    let generatedAsset: ZipAsset | null = null;
     try {
-      await generateContractZip(
+      generatedAsset = await generateContractZipBlob(
         formData,
         reservationData,
         amenagementData,
@@ -125,10 +129,18 @@ export default function App() {
         tva,
         totalTTC
       );
+      setZipAsset(generatedAsset);
+      downloadZipFromBlob(generatedAsset.blob, generatedAsset.filename);
     } catch (error) {
       console.error('Erreur lors de la génération du contrat:', error);
     } finally {
       setCurrentPage('thanks');
+    }
+
+    if (createdSubmissionId && generatedAsset) {
+      uploadSubmissionDocument(createdSubmissionId, generatedAsset.blob, generatedAsset.filename).catch((error) => {
+        console.error('Erreur lors de l’envoi des documents:', error);
+      });
     }
   };
 
@@ -138,6 +150,7 @@ export default function App() {
       loadIdentityData(savedIdentityData);
       resetDataFromReservation();
     }
+    setZipAsset(null);
     setCurrentPage('reservation');
   };
 
@@ -266,6 +279,7 @@ export default function App() {
             totalHT={totalHT}
             tva={tva}
             totalTTC={totalTTC}
+            zipAsset={zipAsset}
             onRestartFromReservation={savedIdentityData ? handleRestartFromReservation : undefined}
           />
         );

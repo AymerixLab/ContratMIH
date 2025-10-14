@@ -335,28 +335,20 @@ export const PDF_FIELD_MAP: Record<string, PdfFieldMapping> = {
 
   // Visibilité & communication
   'signa_pck_qte': { type: 'text', get: ({ visibiliteData, reservationData }) => {
-    if (!visibiliteData.packSignaletiqueComplet) return '';
-    const standSize = parseInt(reservationData.standSize || '0');
-    return standSize > 0 ? String(standSize) : '';
+    return visibiliteData.packSignaletiqueComplet ? '1' : '';
   } },
   'signa_comptoir_qte': { type: 'text', get: ({ visibiliteData }) => visibiliteData.signaletiqueComptoir ? '1' : '' },
   'signa_haut_qte': { type: 'text', get: ({ visibiliteData, reservationData }) => {
-    if (!visibiliteData.signaletiqueHautCloisons) return '';
-    const standSize = parseInt(reservationData.standSize || '0');
-    return standSize > 0 ? String(standSize) : '';
+    return visibiliteData.signaletiqueHautCloisons ? '1' : '';
   } },
   'signa_complete_qte': { type: 'text', get: ({ visibiliteData }) => visibiliteData.signalethqueCloisons ? String(visibiliteData.signalethqueCloisons) : '' },
   'signa_enseigne_haute_qte': { type: 'text', get: ({ visibiliteData }) => visibiliteData.signaletiqueEnseigneHaute ? '1' : '' },
   'signa_pck_prix_ht': { type: 'text', get: ({ visibiliteData, reservationData }) => {
-    if (!visibiliteData.packSignaletiqueComplet) return '';
-    const standSize = parseInt(reservationData.standSize || '0');
-    return standSize > 0 ? num(standSize * visibilitePrices.packSignaletiqueComplet) : '';
+    return visibiliteData.packSignaletiqueComplet ? num(visibilitePrices.packSignaletiqueComplet) : '';
   } },
   'signa_comptoir_prix_ht': { type: 'text', get: ({ visibiliteData }) => visibiliteData.signaletiqueComptoir ? num(1 * visibilitePrices.signaletiqueComptoir) : '' },
   'signa_haut_prix_ht': { type: 'text', get: ({ visibiliteData, reservationData }) => {
-    if (!visibiliteData.signaletiqueHautCloisons) return '';
-    const standSize = parseInt(reservationData.standSize || '0');
-    return standSize > 0 ? num(standSize * visibilitePrices.signaletiqueHautCloisons) : '';
+    return visibiliteData.signaletiqueHautCloisons ? num(visibilitePrices.signaletiqueHautCloisons) : '';
   } },
   'signa_complete_prix_ht': { type: 'text', get: ({ visibiliteData }) => {
     const qty = visibiliteData.signalethqueCloisons || 0;

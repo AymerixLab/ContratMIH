@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
-import { submitFormData, type SubmissionPayload } from './api';
+import { submitFormData, uploadSubmissionDocument, type SubmissionPayload } from './api';
+
+const createFormDataStub = () => ({
+  append: vi.fn(),
+});
 
 const createPayload = (): SubmissionPayload => ({
   formData: {
@@ -122,10 +126,10 @@ describe('submitFormData', () => {
     const payload = createPayload();
     const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue({
       ok: true,
-      json: async () => ({}),
+      json: async () => ({ id: 'submission-123' }),
     } as Response);
 
-    await submitFormData(payload);
+    const result = await submitFormData(payload);
 
     expect(fetchSpy).toHaveBeenCalledWith(
       `${window.location.origin}/api/submissions`,
@@ -135,6 +139,8 @@ describe('submitFormData', () => {
         body: JSON.stringify(payload),
       })
     );
+
+    expect(result).toEqual({ id: 'submission-123' });
   });
 
   it('throws when API responds with error message', async () => {
@@ -146,5 +152,59 @@ describe('submitFormData', () => {
     } as Response);
 
     await expect(submitFormData(payload)).rejects.toThrow('Données invalides');
+  });
+
+  it('throws when API returns malformed payload', async () => {
+    const payload = createPayload();
+    vi.spyOn(global, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => ({}),
+    } as Response);
+
+    await expect(submitFormData(payload)).rejects.toThrow('Réponse du serveur invalide');
+  });
+});
+
+describe('uploadSubmissionDocument', () => {
+  it('uploads file with multipart payload', async () => {
+    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => ({ id: 'doc-123' }),
+    } as Response);
+
+    const blob = new Blob(['test'], { type: 'application/zip' });
+    const formDataInstance = createFormDataStub();
+    const formDataFactory = vi.fn(() => formDataInstance as unknown as FormData);
+
+    const result = await uploadSubmissionDocument('submission-123', blob, 'test.zip', {
+      formDataFactory,
+    });
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      `${window.location.origin}/api/submissions/submission-123/documents`,
+      expect.objectContaining({
+        method: 'POST',
+        body: formDataInstance,
+      })
+    );
+
+    expect(formDataFactory).toHaveBeenCalledTimes(1);
+    expect(formDataInstance.append).toHaveBeenCalledWith('file', expect.any(Blob), 'test.zip');
+    expect(result).toEqual({ id: 'doc-123' });
+  });
+
+  it('throws when upload fails', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValue({
+      ok: false,
+      status: 500,
+      json: async () => ({ error: 'Erreur interne' }),
+    } as Response);
+
+    const blob = new Blob(['test'], { type: 'application/zip' });
+    const formDataFactory = () => createFormDataStub() as unknown as FormData;
+
+    await expect(
+      uploadSubmissionDocument('submission-123', blob, 'test.zip', { formDataFactory })
+    ).rejects.toThrow('Erreur interne');
   });
 });

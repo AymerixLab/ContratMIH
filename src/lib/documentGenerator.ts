@@ -1,5 +1,5 @@
 import JSZip from 'jszip';
-import { FormData, ReservationData, AmenagementData, VisibiliteData, EngagementData } from './types';
+import type { FormData as SubmissionFormData, ReservationData, AmenagementData, VisibiliteData, EngagementData } from './types';
 import { generateContractPdfBytes, getContractPdfFilename, sanitizeFilename } from './pdfFiller';
 import { CSS_STYLES, CONTRACT_STYLES } from './documentStyles';
 import { 
@@ -11,7 +11,7 @@ import {
 
 // Fonction pour générer le devis en HTML
 export function generateDevisHTML(
-  formData: FormData,
+  formData: SubmissionFormData,
   reservationData: ReservationData,
   amenagementData: AmenagementData,
   visibiliteData: VisibiliteData,
@@ -96,7 +96,7 @@ export function generateDevisHTML(
 
 // Fonction pour générer le contrat en HTML  
 export function generateContractHTML(
-  formData: FormData,
+  formData: SubmissionFormData,
   reservationData: ReservationData,
   amenagementData: AmenagementData,
   visibiliteData: VisibiliteData,
@@ -258,9 +258,13 @@ export function generateContractHTML(
   `;
 }
 
-// Fonction pour créer et télécharger le ZIP
-export async function generateContractZip(
-  formData: FormData,
+export interface ZipAsset {
+  blob: Blob;
+  filename: string;
+}
+
+export async function generateContractZipBlob(
+  formData: SubmissionFormData,
   reservationData: ReservationData,
   amenagementData: AmenagementData,
   visibiliteData: VisibiliteData,
@@ -272,7 +276,7 @@ export async function generateContractZip(
   totalHT: number,
   tva: number,
   totalTTC: number
-): Promise<void> {
+): Promise<ZipAsset> {
   const zip = new JSZip();
   
   // Générer le contenu HTML
@@ -300,22 +304,61 @@ export async function generateContractZip(
   zip.file(getContractPdfFilename(formData), contractPdfBytes);
   
   // Générer et télécharger le ZIP
-  const content = await zip.generateAsync({ type: "blob" });
-  const url = URL.createObjectURL(content);
+  const content = await zip.generateAsync({ type: 'blob' });
+  const sanitizedBase = sanitizeFilename(formData.raisonSociale || 'exposant');
 
+  return {
+    blob: content,
+    filename: `documents-salon-${sanitizedBase}.zip`,
+  };
+}
+
+export function downloadZipFromBlob(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  const sanitizedBase = sanitizeFilename(formData.raisonSociale || 'exposant');
-  link.download = `documents-salon-${sanitizedBase}.zip`;
+  link.download = filename;
   link.style.display = 'none';
   document.body.appendChild(link);
-
   link.click();
-  
+
   setTimeout(() => {
     if (document.body.contains(link)) {
       document.body.removeChild(link);
     }
     URL.revokeObjectURL(url);
   }, 100);
+}
+
+// Fonction pour créer et télécharger le ZIP (compatibilité)
+export async function generateContractZip(
+  formData: SubmissionFormData,
+  reservationData: ReservationData,
+  amenagementData: AmenagementData,
+  visibiliteData: VisibiliteData,
+  engagementData: EngagementData,
+  totalHT1: number,
+  totalHT2: number,
+  totalHT3: number,
+  totalHT4: number,
+  totalHT: number,
+  tva: number,
+  totalTTC: number
+): Promise<void> {
+  const asset = await generateContractZipBlob(
+    formData,
+    reservationData,
+    amenagementData,
+    visibiliteData,
+    engagementData,
+    totalHT1,
+    totalHT2,
+    totalHT3,
+    totalHT4,
+    totalHT,
+    tva,
+    totalTTC
+  );
+
+  downloadZipFromBlob(asset.blob, asset.filename);
 }

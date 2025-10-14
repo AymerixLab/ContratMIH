@@ -185,7 +185,9 @@ export function ReservationPage({
     } else {
       // Sélectionner le nouveau stand
       onReservationChange("standType", type);
-      onReservationChange("standSize", "");
+      const defaultSize =
+        type === "ready" ? getAvailableSizes(type)[0] ?? "" : "";
+      onReservationChange("standSize", defaultSize);
       onReservationChange("standAngles", 0);
     }
   };

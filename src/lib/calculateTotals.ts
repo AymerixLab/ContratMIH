@@ -48,46 +48,59 @@ export function calculateTotals(
     section4: {}
   };
 
+  const addDetail = (
+    section: keyof TotalsBreakdown['details'],
+    label: string,
+    amount: number
+  ): number => {
+    if (amount <= 0) {
+      return 0;
+    }
+
+    details[section][label] = Math.round(amount * 100) / 100;
+    return amount;
+  };
+
   // ========================================
   // SECTION 1: RÉSERVATION D'ESPACE
   // ========================================
   let ht1 = 0;
 
+  const addSection1 = (label: string, amount: number) => {
+    ht1 += addDetail('section1', label, amount);
+  };
+
   // Stand
   if (reservationData.standType && reservationData.standSize) {
     const size = parseInt(reservationData.standSize);
-    let standCost = 0;
 
     switch (reservationData.standType) {
       case 'equipped':
-        standCost = size * standPrices.equipped;
-        details.section1[`Stand équipé ${size}m²`] = standCost;
+        addSection1(`Stand équipé ${size}m²`, size * standPrices.equipped);
         break;
       case 'bare':
-        standCost = size * standPrices.bare;
-        details.section1[`Stand nu ${size}m²`] = standCost;
+        addSection1(`Stand nu ${size}m²`, size * standPrices.bare);
         break;
       case 'ready':
-        standCost = readyToExposePrices[reservationData.standSize] || 0;
-        details.section1[`Pack prêt à exposer ${size}m²`] = standCost;
+        addSection1(
+          `Pack "Prêt à exposer" ${size}m²`,
+          readyToExposePrices[reservationData.standSize] || 0
+        );
         break;
     }
-
-    ht1 += standCost;
   }
 
   // Angles ouverts
   if (reservationData.standAngles > 0) {
     const anglesCost = reservationData.standAngles * anglePrice;
-    details.section1['Angles ouverts'] = anglesCost;
-    ht1 += anglesCost;
+    addSection1('Angles ouverts', anglesCost);
   }
 
   // Électricité supérieure
   if (reservationData.electricityUpgrade && reservationData.electricityUpgrade !== 'none') {
     const elecCost = electricityPrices[reservationData.electricityUpgrade as keyof typeof electricityPrices] || 0;
-    details.section1[`Coffret électrique ${reservationData.electricityUpgrade}`] = elecCost;
-    ht1 += elecCost;
+    const powerLabel = reservationData.electricityUpgrade.toUpperCase();
+    addSection1(`Coffret électrique ${powerLabel}`, elecCost);
   }
 
   // Espace extérieur
@@ -99,33 +112,33 @@ export function calculateTotals(
 
     if (surface > 0) {
       const extCost = surface * exteriorSpacePrice;
-      details.section1[`Espace extérieur ${surface}m²`] = extCost;
-      ht1 += extCost;
+      addSection1(`Espace extérieur ${surface}m²`, extCost);
     }
   }
 
   // Garden cottage
   if (reservationData.gardenCottage) {
-    details.section1['Garden cottage'] = gardenCottagePrice;
-    ht1 += gardenCottagePrice;
+    addSection1('Garden cottage (3m x 3m)', gardenCottagePrice);
   }
 
   if (reservationData.microStand) {
-    details.section1['Micro-stand équipé 4m²'] = microStandPrice;
-    ht1 += microStandPrice;
+    addSection1('Micro-stand équipé 4m²', microStandPrice);
   }
 
   if (reservationData.coExposants && reservationData.coExposants.length > 0) {
     const coExpoCount = reservationData.coExposants.length;
     const coExpoCost = coExpoCount * coExpositionPrice;
-    details.section1[`Co-exposants (${coExpoCount})`] = coExpoCost;
-    ht1 += coExpoCost;
+    addSection1(`Co-exposants (${coExpoCount})`, coExpoCost);
   }
 
   // ========================================
   // SECTION 2: AMÉNAGEMENTS
   // ========================================
   let ht2 = 0;
+
+  const addSection2 = (label: string, amount: number) => {
+    ht2 += addDetail('section2', label, amount);
+  };
 
   // Équipements stands
   const equipements: { [key: string]: { qty: number; price: number } } = {
@@ -140,8 +153,7 @@ export function calculateTotals(
   Object.entries(equipements).forEach(([name, { qty, price }]) => {
     if (qty > 0) {
       const cost = qty * price;
-      details.section2[name] = cost;
-      ht2 += cost;
+      addSection2(name, cost);
     }
   });
 
@@ -172,61 +184,54 @@ export function calculateTotals(
   Object.entries(mobilier).forEach(([name, { qty, price }]) => {
     if (qty > 0) {
       const cost = qty * price;
-      details.section2[name] = cost;
-      ht2 += cost;
+      addSection2(name, cost);
     }
   });
+
+  // Produits complémentaires déplacés en section 2 (demande client)
+  if (amenagementData.scanBadges) {
+    addSection2('Scan badges visiteurs', amenagementPrices.scanBadges);
+  }
+
+  if (amenagementData.passSoiree > 0) {
+    const passCost = amenagementData.passSoiree * amenagementPrices.passSoiree;
+    addSection2('Pass soirée complémentaires', passCost);
+  }
 
   // ========================================
   // SECTION 3: PRODUITS COMPLÉMENTAIRES
   // ========================================
   let ht3 = 0;
 
-  if (amenagementData.scanBadges) {
-    details.section3['Scan badges visiteurs'] = amenagementPrices.scanBadges;
-    ht3 += amenagementPrices.scanBadges;
-  }
-
-  if (amenagementData.passSoiree > 0) {
-    const passCost = amenagementData.passSoiree * amenagementPrices.passSoiree;
-    details.section3['Pass soirée complémentaire'] = passCost;
-    ht3 += passCost;
-  }
-
   // ========================================
   // SECTION 4: VISIBILITÉ & COMMUNICATION
   // ========================================
   let ht4 = 0;
 
+  const addSection4 = (label: string, amount: number) => {
+    ht4 += addDetail('section4', label, amount);
+  };
+
   if (visibiliteData.packSignaletiqueComplet) {
-    const standSize = parseInt(reservationData.standSize || '0');
-    const packCost = standSize > 0 ? standSize * visibilitePrices.packSignaletiqueComplet : 0;
-    details.section4['Pack signalétique complet'] = packCost;
-    ht4 += packCost;
+    addSection4('Pack signalétique complet', visibilitePrices.packSignaletiqueComplet);
   }
 
   if (visibiliteData.signaletiqueComptoir) {
-    details.section4['Signalétique comptoir'] = visibilitePrices.signaletiqueComptoir;
-    ht4 += visibilitePrices.signaletiqueComptoir;
+    addSection4('Signalétique comptoir', visibilitePrices.signaletiqueComptoir);
   }
 
   if (visibiliteData.signaletiqueHautCloisons) {
-    const standSize = parseInt(reservationData.standSize || '0');
-    const hautCost = standSize > 0 ? standSize * visibilitePrices.signaletiqueHautCloisons : 0;
-    details.section4['Signalétique haut cloisons'] = hautCost;
-    ht4 += hautCost;
+    addSection4('Signalétique haut cloisons', visibilitePrices.signaletiqueHautCloisons);
   }
 
   if (visibiliteData.signalethqueCloisons > 0) {
     const qty = visibiliteData.signalethqueCloisons;
     const cloisonCost = qty * visibilitePrices.signalethqueCloisons;
-    details.section4['Signalétique cloison complète'] = cloisonCost;
-    ht4 += cloisonCost;
+    addSection4('Signalétique cloison complète', cloisonCost);
   }
 
   if (visibiliteData.signaletiqueEnseigneHaute) {
-    details.section4['Signalétique enseigne haute'] = visibilitePrices.signaletiqueEnseigneHaute;
-    ht4 += visibilitePrices.signaletiqueEnseigneHaute;
+    addSection4('Signalétique enseigne haute', visibilitePrices.signaletiqueEnseigneHaute);
   }
 
   const communication: { [key: string]: { active: boolean; price: number } } = {
@@ -241,8 +246,7 @@ export function calculateTotals(
 
   Object.entries(communication).forEach(([name, { active, price }]) => {
     if (active) {
-      details.section4[name] = price;
-      ht4 += price;
+      addSection4(name, price);
     }
   });
 
