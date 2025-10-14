@@ -144,14 +144,14 @@ describe('App happy path', () => {
     await user.click(await screen.findByText('visibilite-set'));
     await waitFor(() => {
       expect(screen.getByTestId('total-ht3').textContent).toBe('150');
-      expect(screen.getByTestId('total-ht4').textContent).toBe('305');
+      expect(screen.getByTestId('total-ht4').textContent).toBe('1680');
     });
     await user.click(await screen.findByText('visibilite-next'));
 
     await waitFor(() => {
-      expect(screen.getByTestId('total-ht').textContent).toBe('4830');
-      expect(screen.getByTestId('total-tva').textContent).toBe('966');
-      expect(screen.getByTestId('total-ttc').textContent).toBe('5796');
+      expect(screen.getByTestId('total-ht').textContent).toBe('6205');
+      expect(screen.getByTestId('total-tva').textContent).toBe('1241');
+      expect(screen.getByTestId('total-ttc').textContent).toBe('7446');
     });
 
     await user.click(screen.getByText('accept-rules'));
@@ -167,15 +167,15 @@ describe('App happy path', () => {
       totalHT1: 4045,
       totalHT2: 330,
       totalHT3: 150,
-      totalHT4: 305,
-      totalHT: 4830,
-      tva: 966,
-      totalTTC: 5796,
+      totalHT4: 1680,
+      totalHT: 6205,
+      tva: 1241,
+      totalTTC: 7446,
     });
 
     const zipArgs = zipMock.mock.calls[0];
     const totalsSlice = zipArgs.slice(-7);
-    expect(totalsSlice).toEqual([4045, 330, 150, 305, 4830, 966, 5796]);
+    expect(totalsSlice).toEqual([4045, 330, 150, 1680, 6205, 1241, 7446]);
 
     expect(await screen.findByText('thanks-page')).toBeInTheDocument();
   });

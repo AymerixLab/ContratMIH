@@ -123,16 +123,21 @@ export const calculateTotalHT3 = (amenagementData: AmenagementData): number => {
 
 export const calculateTotalHT4 = (visibiliteData: VisibiliteData, reservationData?: ReservationData): number => {
   let total = 0;
+  const standSurface = reservationData?.standSize ? parseInt(reservationData.standSize, 10) || 0 : 0;
   
   // HABILLAGE ET VISIBILITÉ DE VOTRE STAND
   if (visibiliteData.packSignaletiqueComplet) {
-    total += visibilitePrices.packSignaletiqueComplet;
+    total += standSurface > 0
+      ? standSurface * visibilitePrices.packSignaletiqueComplet
+      : visibilitePrices.packSignaletiqueComplet;
   }
   if (visibiliteData.signaletiqueComptoir) {
     total += visibilitePrices.signaletiqueComptoir;
   }
   if (visibiliteData.signaletiqueHautCloisons) {
-    total += visibilitePrices.signaletiqueHautCloisons;
+    total += standSurface > 0
+      ? standSurface * visibilitePrices.signaletiqueHautCloisons
+      : visibilitePrices.signaletiqueHautCloisons;
   }
   if (visibiliteData.signalethqueCloisons > 0) {
     total += visibiliteData.signalethqueCloisons * visibilitePrices.signalethqueCloisons;

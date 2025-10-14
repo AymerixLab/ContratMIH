@@ -169,8 +169,8 @@ describe('utils financial calculations', () => {
     };
 
     const total = calculateTotalHT4(visibilite, reservation);
-    // 125 + 180 + 2*185 = 675
-    expect(total).toBe(675);
+    // (10 × 125) + 180 + (2 × 185) = 1 800
+    expect(total).toBe(1800);
   });
 
   it('aligns calculateTotals with individual section helpers', () => {
