@@ -1,12 +1,11 @@
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
-import { Checkbox } from '../ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Plus, Minus } from 'lucide-react';
 import { AmenagementData, ReservationData } from '../../lib/types';
-import { COLORS, amenagementPrices, couleursMoquette, couleursPouf, getPassSoireeInclus } from '../../lib/constants';
+import { COLORS, amenagementPrices, couleursMoquette, couleursPouf } from '../../lib/constants';
 
 interface AmenagementPageProps {
   amenagementData: AmenagementData;
@@ -40,15 +39,8 @@ export function AmenagementPage({
   // Fonction pour changer la quantité avec boutons +/-
   const updateQuantity = (field: string, delta: number) => {
     const currentValue = amenagementData[field as keyof AmenagementData] as number;
-    let newValue = Math.max(0, currentValue + delta);
-    
-    // Limitation spéciale pour les pass soirée (maximum 15 total incluant ceux inclus)
-    if (field === 'passSoiree') {
-      const passInclus = reservationData?.standSize ? getPassSoireeInclus(reservationData.standSize) : 0;
-      const maxPassComplementaires = Math.max(0, 15 - passInclus);
-      newValue = Math.min(newValue, maxPassComplementaires);
-    }
-    
+    const newValue = Math.max(0, currentValue + delta);
+
     onAmenagementChange(field, newValue);
   };
 
@@ -129,17 +121,6 @@ export function AmenagementPage({
   };
 
   // Calcul des pass soirée inclus
-  const passInclus = reservationData?.standSize ? getPassSoireeInclus(reservationData.standSize) : 0;
-  const maxPassComplementaires = Math.max(0, 15 - passInclus);
-  const totalPassSoiree = passInclus + amenagementData.passSoiree;
-
-  // Handler spécial pour les pass soirée avec limitation
-  const handlePassSoireeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value) || 0;
-    const limitedValue = Math.min(value, maxPassComplementaires);
-    onAmenagementChange('passSoiree', limitedValue);
-  };
-
   return (
     <Card className="mb-8 font-[Poppins]" style={{ borderRadius: "12px" }}>
       <CardContent className="p-8">
@@ -523,120 +504,6 @@ export function AmenagementPage({
             </div>
           </CardContent>
         </Card>
-
-        {/* PRODUITS COMPLÉMENTAIRES */}
-        <Card
-          className="mb-6"
-          style={{ 
-            borderColor: COLORS.secondary,
-            borderWidth: "2px",
-            borderRadius: "12px"
-          }}
-        >
-          <CardHeader
-            style={{ 
-              backgroundColor: COLORS.secondary,
-              borderTopLeftRadius: "10px",
-              borderTopRightRadius: "10px"
-            }}
-          >
-            <CardTitle className="text-white font-[Poppins]">
-              PRODUITS COMPLÉMENTAIRES
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6">
-            <div className="space-y-6">
-              {/* Scan badges visiteurs */}
-              <div className="p-4 border rounded-lg bg-green-50 border-green-200" style={{ borderRadius: "8px" }}>
-                <div className="flex items-center space-x-2 mb-2">
-                  <Checkbox 
-                    checked={amenagementData.scanBadges}
-                    onCheckedChange={(checked) => onAmenagementChange('scanBadges', checked)}
-                    className="data-[state=checked]:bg-[#3DB5A0] data-[state=checked]:border-[#3DB5A0]"
-                  />
-                  <Label className="font-[Poppins] font-semibold">SCAN BADGES VISITEURS - {amenagementPrices.scanBadges} € / stand exposant</Label>
-                </div>
-                <p className="text-sm text-gray-700 font-[Poppins]">
-                  Mise à disposition d'une application mobile utilisable sur votre propre téléphone portable pour le scan des badges visiteurs
-                </p>
-              </div>
-
-              {/* Pass soirée */}
-              <div className="p-4 border rounded-lg bg-blue-50 border-blue-200" style={{ borderRadius: "8px" }}>
-                <h4 className="font-semibold mb-2 font-[Poppins] text-blue-800">PASS SOIRÉE - {amenagementPrices.passSoiree} € / unité</h4>
-                <p className="text-sm text-gray-700 mb-3 font-[Poppins]">
-                  Le pass soirée donne accès à la soirée professionnelle qui se déroulera le 21 mai 2026. Chaque exposant bénéficie d'un nombre de pass en rapport à la surface du stand réservé. Il est possible de commander des pass complémentaires directement à partir de ce formulaire, ou ultérieurement sur l'espace exposant dédié.
-                </p>
-                
-                {reservationData?.standSize && (
-                  <div className="mb-4 p-3 bg-blue-100 rounded-md" style={{ borderRadius: "6px" }}>
-                    <p className="text-sm font-semibold text-blue-900 font-[Poppins]">
-                      Votre stand de {reservationData.standSize} m² inclut {passInclus} pass soirée{passInclus > 1 ? 's' : ''} gratuit{passInclus > 1 ? 's' : ''}
-                    </p>
-                  </div>
-                )}
-                
-                <p className="text-sm text-gray-600 mb-3 font-[Poppins]">
-                  <strong>Nombre de pass soirée en fonction de la taille de votre stand :</strong><br />
-                  Stand de 6 m² : 2 pass / Stand de 9 m² : 3 pass / Stand de 12 m² : 4 pass / Stand de 15 m² : 5 pass / Stand de 18 m² et plus : 6 pass
-                </p>
-                
-                <div className="flex items-center space-x-3">
-                  <Label className="font-[Poppins] font-medium">Pass complémentaires</Label>
-                  <div className="flex items-center space-x-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => updateQuantity('passSoiree', -1)}
-                      disabled={amenagementData.passSoiree <= 0}
-                      className="w-8 h-8 p-0"
-                      style={{ borderColor: COLORS.secondary, borderRadius: "6px" }}
-                    >
-                      <Minus className="w-4 h-4" />
-                    </Button>
-                    
-                    <Input
-                      type="number"
-                      min="0"
-                      value={amenagementData.passSoiree}
-                      onChange={(e) => onAmenagementChange('passSoiree', parseInt(e.target.value) || 0)}
-                      className="w-16 text-center font-[Poppins] border-[#3DB5A0] focus:ring-[#3DB5A0]"
-                      style={{ borderRadius: "6px" }}
-                    />
-                    
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => updateQuantity('passSoiree', 1)}
-                      className="w-8 h-8 p-0"
-                      style={{ borderColor: COLORS.secondary, borderRadius: "6px" }}
-                    >
-                      <Plus className="w-4 h-4" />
-                    </Button>
-                    
-                    <span className="text-sm text-gray-600 font-[Poppins] ml-2">
-                      = {(amenagementData.passSoiree * amenagementPrices.passSoiree).toLocaleString('fr-FR')} €
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Badges exposants */}
-              <div className="p-4 border rounded-lg bg-yellow-50 border-yellow-200" style={{ borderRadius: "8px" }}>
-                <h4 className="font-semibold mb-2 font-[Poppins] text-yellow-800">BADGES EXPOSANTS</h4>
-                <p className="text-sm text-gray-700 font-[Poppins] mb-2">
-                  Le nombre de badges nécessaires pour l'accès des équipes de l'exposant aux 2 jours de salon est laissé à l'entière discrétion de ce dernier. Une fois son inscription complètement acceptée, l'exposant pourra se connecter sur son espace personnalisé afin de quantifier et personnaliser ses badges.
-                </p>
-                <p className="text-sm font-semibold text-yellow-800 font-[Poppins]">
-                  Retrouvez toutes les infos sur : www.salon-madeinhainaut.com
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Totaux */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div 

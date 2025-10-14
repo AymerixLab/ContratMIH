@@ -140,8 +140,8 @@ describe('utils financial calculations', () => {
       passSoiree: 3,
     };
 
-    // (2*165 + 1*40) + 150 + (3*50) = 670
-    expect(calculateTotalHT2(amenagement)).toBe(670);
+    // Les produits complémentaires ne doivent plus impacter HT2 : (2*165 + 1*40) = 370
+    expect(calculateTotalHT2(amenagement)).toBe(370);
   });
 
   it('computes HT3 with complementary products', () => {
@@ -151,7 +151,7 @@ describe('utils financial calculations', () => {
       passSoiree: 2,
     };
 
-    expect(calculateTotalHT3(amenagement)).toBe(0);
+    expect(calculateTotalHT3(amenagement)).toBe(250);
   });
 
   it('computes HT4 based on stand size dependent visibility options', () => {
@@ -251,7 +251,7 @@ describe('utils financial calculations', () => {
     expect(totals.details.section4).toEqual({});
   });
 
-  it('places complementary products in section 2 breakdown', () => {
+  it('places complementary products in section 3 breakdown', () => {
     const amenagement: AmenagementData = {
       ...baseAmenagement,
       scanBadges: true,
@@ -260,13 +260,13 @@ describe('utils financial calculations', () => {
 
     const totals = calculateTotals(baseReservation, amenagement, baseVisibilite);
 
-    expect(totals.ht2).toBe(250);
-    expect(totals.details.section2).toMatchObject({
+    expect(totals.ht2).toBe(0);
+    expect(totals.details.section2).toEqual({});
+    expect(totals.ht3).toBe(250);
+    expect(totals.details.section3).toMatchObject({
       'Scan badges visiteurs': 150,
       'Pass soirée complémentaires': 100,
     });
-    expect(totals.ht3).toBe(0);
-    expect(totals.details.section3).toEqual({});
   });
 });
 

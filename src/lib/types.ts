@@ -1,4 +1,4 @@
-export type CurrentPage = 'identity' | 'reservation' | 'amenagements' | 'visibilite' | 'engagement' | 'thanks';
+export type CurrentPage = 'identity' | 'reservation' | 'amenagements' | 'complementaires' | 'visibilite' | 'engagement' | 'thanks';
 
 export type StandType = 'equipped' | 'ready' | 'bare' | null;
 

@@ -11,6 +11,7 @@ import { ProgressIndicator } from './components/shared/ProgressIndicator';
 import { IdentityPage } from './components/pages/IdentityPage';
 import { ReservationPage } from './components/pages/ReservationPage';
 import { AmenagementPage } from './components/pages/AmenagementPage';
+import { ComplementairesPage } from './components/pages/ComplementairesPage';
 import { VisibilitePage } from './components/pages/VisibilitePage';
 import { EngagementPage } from './components/pages/EngagementPage';
 import { ThanksPage } from './components/pages/ThanksPage';
@@ -226,6 +227,19 @@ export default function App() {
             totalHT1={totalHT1}
             totalHT2={totalHT2}
             onBack={() => setCurrentPage('reservation')}
+            onNext={() => setCurrentPage('complementaires')}
+          />
+        );
+      case 'complementaires':
+        return (
+          <ComplementairesPage
+            amenagementData={amenagementData}
+            reservationData={reservationData}
+            onAmenagementChange={handleAmenagementChange}
+            totalHT1={totalHT1}
+            totalHT2={totalHT2}
+            totalHT3={totalHT3}
+            onBack={() => setCurrentPage('amenagements')}
             onNext={() => setCurrentPage('visibilite')}
           />
         );
@@ -240,7 +254,7 @@ export default function App() {
             totalHT2={totalHT2}
             totalHT3={totalHT3}
             totalHT4={totalHT4}
-            onBack={() => setCurrentPage('amenagements')}
+            onBack={() => setCurrentPage('complementaires')}
             onNext={() => setCurrentPage('engagement')}
           />
         );

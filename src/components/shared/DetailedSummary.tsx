@@ -41,11 +41,24 @@ export function DetailedSummary({
 
   // Fonction helper pour récupérer les aménagements sélectionnés
   const getSelectedAmenagements = () => {
-    const selected = [];
+    const amenagements: Array<{
+      name: string;
+      quantity?: number;
+      price: number;
+      total: number;
+      unit?: string;
+    }> = [];
+
+    const complementaires: Array<{
+      name: string;
+      quantity?: number;
+      price: number;
+      total: number;
+    }> = [];
     
     // Équipements stands
     if (amenagementData.reservePorteMelamine > 0) {
-      selected.push({
+      amenagements.push({
         name: 'Réserve d\'1m² avec porte (cloisons mélaminées)',
         quantity: amenagementData.reservePorteMelamine,
         price: amenagementPrices.reservePorteMelamine,
@@ -54,7 +67,7 @@ export function DetailedSummary({
     }
     
     if (amenagementData.reservePorteBois > 0) {
-      selected.push({
+      amenagements.push({
         name: 'Réserve d\'1m² avec porte (cloisons bois)',
         quantity: amenagementData.reservePorteBois,
         price: amenagementPrices.reservePorteBois,
@@ -63,7 +76,7 @@ export function DetailedSummary({
     }
     
     if (amenagementData.moquetteDifferente > 0) {
-      selected.push({
+      amenagements.push({
         name: `Moquette coloris différent (${amenagementData.moquetteCouleur || 'couleur non spécifiée'})`,
         quantity: amenagementData.moquetteDifferente,
         price: amenagementPrices.moquetteDifferente,
@@ -73,7 +86,7 @@ export function DetailedSummary({
     }
     
     if (amenagementData.velumStand > 0) {
-      selected.push({
+      amenagements.push({
         name: 'Velum (tissu tendu)',
         quantity: amenagementData.velumStand,
         price: amenagementPrices.velumStand,
@@ -83,7 +96,7 @@ export function DetailedSummary({
     }
     
     if (amenagementData.cloisonBoisGainee > 0) {
-      selected.push({
+      amenagements.push({
         name: 'Cloison bois gainée tissu',
         quantity: amenagementData.cloisonBoisGainee,
         price: amenagementPrices.cloisonBoisGainee,
@@ -93,7 +106,7 @@ export function DetailedSummary({
     }
     
     if (amenagementData.bandeauSignaletique > 0) {
-      selected.push({
+      amenagements.push({
         name: 'Bandeau signalétique',
         quantity: amenagementData.bandeauSignaletique,
         price: amenagementPrices.bandeauSignaletique,
@@ -129,7 +142,7 @@ export function DetailedSummary({
       const quantity = amenagementData[item.field as keyof AmenagementData] as number;
       if (quantity > 0) {
         const price = amenagementPrices[item.field as keyof typeof amenagementPrices];
-        selected.push({
+        amenagements.push({
           name: item.name,
           quantity,
           price,
@@ -140,7 +153,7 @@ export function DetailedSummary({
 
     // Pouf cube avec couleur
     if (amenagementData.poufCube > 0) {
-      selected.push({
+      amenagements.push({
         name: `Pouf cube (${amenagementData.poufCouleur || 'couleur non spécifiée'})`,
         quantity: amenagementData.poufCube,
         price: amenagementPrices.poufCube,
@@ -150,7 +163,7 @@ export function DetailedSummary({
 
     // Produits complémentaires
     if (amenagementData.scanBadges) {
-      selected.push({
+      complementaires.push({
         name: 'Scan badges visiteurs',
         quantity: 1,
         price: amenagementPrices.scanBadges,
@@ -159,7 +172,7 @@ export function DetailedSummary({
     }
 
     if (amenagementData.passSoiree > 0) {
-      selected.push({
+      complementaires.push({
         name: 'Pass soirée complémentaire',
         quantity: amenagementData.passSoiree,
         price: amenagementPrices.passSoiree,
@@ -167,7 +180,7 @@ export function DetailedSummary({
       });
     }
 
-    return selected;
+    return { amenagements, complementaires };
   };
 
   // Fonction helper pour récupérer les options de visibilité sélectionnées
@@ -263,7 +276,7 @@ export function DetailedSummary({
     return selected;
   };
 
-  const selectedAmenagements = getSelectedAmenagements();
+  const { amenagements: selectedAmenagements, complementaires: selectedComplementaires } = getSelectedAmenagements();
   const selectedVisibilite = getSelectedVisibilite();
   const standPrice = getStandPrice();
   const exteriorSurface = Math.min(
@@ -415,6 +428,29 @@ export function DetailedSummary({
             </div>
           )}
 
+          {selectedComplementaires.length > 0 && (
+            <div>
+              <h4 className="font-semibold text-lg mb-3 font-[Poppins]" style={{ color: COLORS.secondary }}>
+                🎟️ Produits complémentaires
+              </h4>
+              <div className="space-y-2">
+                {selectedComplementaires.map((item, index) => (
+                  <div key={index} className="flex justify-between items-center py-2 border-b border-gray-200 last:border-0">
+                    <div>
+                      <span className="font-medium text-sm">{item.name}</span>
+                      {item.quantity && (
+                        <span className="text-gray-500 text-xs ml-2">
+                          {item.quantity} unité{item.quantity > 1 ? 's' : ''} × {item.price} €
+                        </span>
+                      )}
+                    </div>
+                    <span className="font-semibold">{item.total.toLocaleString('fr-FR')} €</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* VISIBILITÉ ET COMMUNICATION */}
           {selectedVisibilite.length > 0 && (
             <div>
@@ -433,7 +469,7 @@ export function DetailedSummary({
           )}
 
           {/* Message si aucune sélection */}
-          {selectedAmenagements.length === 0 && selectedVisibilite.length === 0 && !reservationData.standType && (
+          {selectedAmenagements.length === 0 && selectedComplementaires.length === 0 && selectedVisibilite.length === 0 && !reservationData.standType && (
             <div className="text-center py-8 text-gray-500">
               <p className="font-[Poppins]">Aucune sélection effectuée pour le moment.</p>
             </div>

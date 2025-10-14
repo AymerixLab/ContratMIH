@@ -188,20 +188,23 @@ export function calculateTotals(
     }
   });
 
-  // Produits complémentaires déplacés en section 2 (demande client)
-  if (amenagementData.scanBadges) {
-    addSection2('Scan badges visiteurs', amenagementPrices.scanBadges);
-  }
-
-  if (amenagementData.passSoiree > 0) {
-    const passCost = amenagementData.passSoiree * amenagementPrices.passSoiree;
-    addSection2('Pass soirée complémentaires', passCost);
-  }
-
   // ========================================
   // SECTION 3: PRODUITS COMPLÉMENTAIRES
   // ========================================
   let ht3 = 0;
+
+  const addSection3 = (label: string, amount: number) => {
+    ht3 += addDetail('section3', label, amount);
+  };
+
+  if (amenagementData.scanBadges) {
+    addSection3('Scan badges visiteurs', amenagementPrices.scanBadges);
+  }
+
+  if (amenagementData.passSoiree > 0) {
+    const passCost = amenagementData.passSoiree * amenagementPrices.passSoiree;
+    addSection3('Pass soirée complémentaires', passCost);
+  }
 
   // ========================================
   // SECTION 4: VISIBILITÉ & COMMUNICATION

@@ -34,13 +34,27 @@ vi.mock('./components/pages/AmenagementPage', () => ({
   AmenagementPage: (props: any) => {
     const setAmenagement = () => {
       props.onAmenagementChange('comptoir', 2);
-      props.onAmenagementChange('scanBadges', true);
     };
     return (
       <div>
         <button onClick={setAmenagement}>amenagement-set</button>
         <button onClick={props.onNext}>amenagement-next</button>
         <div data-testid="total-ht2">{props.totalHT2}</div>
+      </div>
+    );
+  },
+}));
+
+vi.mock('./components/pages/ComplementairesPage', () => ({
+  ComplementairesPage: (props: any) => {
+    const setComplementaires = () => {
+      props.onAmenagementChange('scanBadges', true);
+    };
+    return (
+      <div>
+        <button onClick={setComplementaires}>complementaires-set</button>
+        <button onClick={props.onNext}>complementaires-next</button>
+        <div data-testid="total-ht3">{props.totalHT3}</div>
       </div>
     );
   },
@@ -118,12 +132,18 @@ describe('App happy path', () => {
     await user.click(await screen.findByText('reservation-next'));
 
     await user.click(await screen.findByText('amenagement-set'));
-    await waitFor(() => expect(screen.getByTestId('total-ht2').textContent).toBe('480'));
+    await waitFor(() => {
+      expect(screen.getByTestId('total-ht2').textContent).toBe('330');
+    });
     await user.click(await screen.findByText('amenagement-next'));
+
+    await user.click(await screen.findByText('complementaires-set'));
+    await waitFor(() => expect(screen.getByTestId('total-ht3').textContent).toBe('150'));
+    await user.click(await screen.findByText('complementaires-next'));
 
     await user.click(await screen.findByText('visibilite-set'));
     await waitFor(() => {
-      expect(screen.getByTestId('total-ht3').textContent).toBe('0');
+      expect(screen.getByTestId('total-ht3').textContent).toBe('150');
       expect(screen.getByTestId('total-ht4').textContent).toBe('305');
     });
     await user.click(await screen.findByText('visibilite-next'));
@@ -145,8 +165,8 @@ describe('App happy path', () => {
     const payload = submitMock.mock.calls[0][0];
     expect(payload.totals).toEqual({
       totalHT1: 4045,
-      totalHT2: 480,
-      totalHT3: 0,
+      totalHT2: 330,
+      totalHT3: 150,
       totalHT4: 305,
       totalHT: 4830,
       tva: 966,
@@ -155,7 +175,7 @@ describe('App happy path', () => {
 
     const zipArgs = zipMock.mock.calls[0];
     const totalsSlice = zipArgs.slice(-7);
-    expect(totalsSlice).toEqual([4045, 480, 0, 305, 4830, 966, 5796]);
+    expect(totalsSlice).toEqual([4045, 330, 150, 305, 4830, 966, 5796]);
 
     expect(await screen.findByText('thanks-page')).toBeInTheDocument();
   });

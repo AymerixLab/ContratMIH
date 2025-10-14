@@ -104,17 +104,21 @@ export const calculateTotalHT2 = (amenagementData: AmenagementData): number => {
   total += amenagementData.planteBambou * amenagementPrices.planteBambou;
   total += amenagementData.planteKentia * amenagementPrices.planteKentia;
 
-  if (amenagementData.scanBadges) {
-    total += amenagementPrices.scanBadges;
-  }
-
-  total += amenagementData.passSoiree * amenagementPrices.passSoiree;
   return total;
 };
 
 export const calculateTotalHT3 = (amenagementData: AmenagementData): number => {
-  void amenagementData;
-  return 0;
+  let total = 0;
+
+  if (amenagementData.scanBadges) {
+    total += amenagementPrices.scanBadges;
+  }
+
+  if (amenagementData.passSoiree > 0) {
+    total += amenagementData.passSoiree * amenagementPrices.passSoiree;
+  }
+
+  return total;
 };
 
 export const calculateTotalHT4 = (visibiliteData: VisibiliteData, reservationData?: ReservationData): number => {
