@@ -156,10 +156,24 @@ export const PDF_FIELD_MAP: Record<string, PdfFieldMapping> = {
   } },
 
   // Espace extérieur
-  'std_ext_surface_qte': { type: 'text', get: ({ reservationData, mockAll }) => reservationData.exteriorSpace ? (reservationData.exteriorSurface || '1') : (mockAll ? (reservationData.exteriorSurface || '12') : '') },
-  'std_ext_prix_ht': { type: 'text', get: ({ reservationData }) => {
-    const q = reservationData.exteriorSpace ? parseInt(reservationData.exteriorSurface || '0') : 0;
-    return q > 0 ? num(q * exteriorSpacePrice) : '';
+  'std_ext_surface_qte': { type: 'text', get: ({ reservationData, mockAll }) => {
+    if (!reservationData.exteriorSpace && !mockAll) return '';
+
+    const raw = reservationData.exteriorSurface || (mockAll ? '12' : '0');
+    const qty = Math.min(Math.max(parseInt(raw, 10) || 0, 0), 80);
+    if (qty <= 0) return mockAll ? '12' : '';
+
+    return String(qty);
+  } },
+  'std_ext_prix_ht': { type: 'text', get: ({ reservationData, mockAll }) => {
+    if (!reservationData.exteriorSpace && !mockAll) return '';
+
+    const fallback = mockAll ? 12 : 0;
+    const raw = reservationData.exteriorSurface || String(fallback);
+    const qty = Math.min(Math.max(parseInt(raw, 10) || 0, 0), 80);
+    const effectiveQty = qty > 0 ? qty : fallback;
+
+    return effectiveQty > 0 ? num(effectiveQty * exteriorSpacePrice) : '';
   } },
 
   // Aménagements – quantités

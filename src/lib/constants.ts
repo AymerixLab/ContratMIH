@@ -17,6 +17,9 @@ export const standardSizes = Array.from({ length: 25 }, (_, i) => (i + 6).toStri
 
 // Surfaces et prix fixes pour le pack "Prêt à exposer"
 export const readyToExposePrices: { [key: string]: number } = {
+  '12': 3552,  // 12 m² à 3552 € HT (12 × 296)
+  '15': 4440,  // 15 m² à 4440 € HT (15 × 296)
+  '18': 5328,  // 18 m² à 5328 € HT (18 × 296)
   '21': 6216,  // 21 m² à 6216 € HT (21 × 296)
   '24': 7104,  // 24 m² à 7104 € HT (24 × 296)
   '27': 7992,  // 27 m² à 7992 € HT (27 × 296)
@@ -26,7 +29,7 @@ export const readyToExposePrices: { [key: string]: number } = {
 };
 
 // Surfaces disponibles pour le pack prêt à exposer
-export const readyToExposeSizes = ['21', '24', '27', '30', '33', '36'];
+export const readyToExposeSizes = ['12', '15', '18', '21', '24', '27', '30', '33', '36'];
 
 // Prix des angles (185 € par angle)
 export const anglePrice = 185;

@@ -266,7 +266,10 @@ export function DetailedSummary({
   const selectedAmenagements = getSelectedAmenagements();
   const selectedVisibilite = getSelectedVisibilite();
   const standPrice = getStandPrice();
-  const exteriorSurface = parseInt(reservationData.exteriorSurface || '0', 10);
+  const exteriorSurface = Math.min(
+    Math.max(parseInt(reservationData.exteriorSurface || '0', 10) || 0, 0),
+    80
+  );
   const exteriorSpaceCost = reservationData.exteriorSpace ? exteriorSurface * exteriorSpacePrice : 0;
 
   return (

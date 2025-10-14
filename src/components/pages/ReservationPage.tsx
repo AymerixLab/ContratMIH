@@ -1,3 +1,4 @@
+import { ChangeEvent } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
@@ -54,11 +55,44 @@ export function ReservationPage({
   removeCoExposant,
   updateCoExposant,
 }: ReservationPageProps) {
+  const exteriorSurfaceValue = reservationData.exteriorSurface;
+  const exteriorSurfaceNumber = parseInt(exteriorSurfaceValue || "0", 10);
+  const exteriorSurfaceMissing = reservationData.exteriorSpace && exteriorSurfaceValue === "";
+  const exteriorSurfaceTooSmall =
+    reservationData.exteriorSpace && exteriorSurfaceValue !== "" && exteriorSurfaceNumber < 1;
+  const exteriorSurfaceTooLarge =
+    reservationData.exteriorSpace && exteriorSurfaceNumber > 80;
+  const isExteriorSurfaceInvalid =
+    exteriorSurfaceMissing || exteriorSurfaceTooSmall || exteriorSurfaceTooLarge;
+
+  const exteriorSurfaceError = (() => {
+    if (!reservationData.exteriorSpace) return "";
+    if (exteriorSurfaceMissing) return "Veuillez saisir une surface comprise entre 1 et 80 m².";
+    if (exteriorSurfaceTooSmall) return "La surface minimale est de 1 m².";
+    if (exteriorSurfaceTooLarge) return "La surface maximale est de 80 m².";
+    return "";
+  })();
+
   // Fonction pour vérifier si on peut procéder à la page suivante
   const canProceedToNext = () => {
+    const hasInteriorStand = reservationData.standType !== null;
+    const hasExteriorSelection = reservationData.exteriorSpace && reservationData.gardenCottage;
+    const exteriorSurfaceValid = !reservationData.exteriorSpace || !isExteriorSurfaceInvalid;
+
     // Doit avoir au moins un stand intérieur sélectionné OU un espace extérieur avec garden cottage
-    return reservationData.standType !== null || 
-           (reservationData.exteriorSpace && reservationData.gardenCottage);
+    return (hasInteriorStand || hasExteriorSelection) && exteriorSurfaceValid;
+  };
+
+  const handleExteriorSurfaceInput = (event: ChangeEvent<HTMLInputElement>) => {
+    const { value } = event.target;
+
+    if (value === "") {
+      onReservationChange("exteriorSurface", "");
+      return;
+    }
+
+    const sanitized = value.replace(/[^\d]/g, "");
+    onReservationChange("exteriorSurface", sanitized);
   };
 
   const handleNext = () => {
@@ -112,8 +146,8 @@ export function ReservationPage({
         // Stand équipé : 6 à 30 m² par pas de 3m² (6, 9, 12, 15, 18, 21, 24, 27, 30)
         return Array.from({ length: 9 }, (_, i) => (6 + i * 3).toString());
       case 'ready':
-        // Pack prêt à exposer : 6 choix fixes (21, 24, 27, 30, 33, 36 m²)
-        return ['21', '24', '27', '30', '33', '36'];
+        // Pack prêt à exposer : 9 choix fixes (12 à 36 m² par pas de 3 m²)
+        return ['12', '15', '18', '21', '24', '27', '30', '33', '36'];
       case 'bare':
         // Stand nu : 6 à 30 m² par pas de 3m² (comme équipé)
         return Array.from({ length: 9 }, (_, i) => (6 + i * 3).toString());
@@ -330,7 +364,7 @@ export function ReservationPage({
                   <Label className="font-[Poppins] font-medium">
                     Surface du stand (m²)
                     {reservationData.standType === 'equipped' && " - De 6 à 30 m² (par pas de 3m²)"}
-                    {reservationData.standType === 'ready' && " - 6 choix disponibles (21 à 36 m²)"}
+                    {reservationData.standType === 'ready' && " - 9 choix disponibles (12 à 36 m²)"}
                     {reservationData.standType === 'bare' && " - De 6 à 30 m² (par pas de 3m²)"}
                   </Label>
                   <Select
@@ -700,16 +734,17 @@ export function ReservationPage({
                     type="number"
                     min="1"
                     max="80"
-                    value={reservationData.exteriorSpaceSize}
-                    onChange={(e) =>
-                      onReservationChange(
-                        "exteriorSpaceSize",
-                        e.target.value,
-                      )
-                    }
+                    value={reservationData.exteriorSurface}
+                    onChange={handleExteriorSurfaceInput}
                     className="mt-1 w-32 font-[Poppins] border-[#3DB5A0] focus:ring-[#3DB5A0]"
+                    aria-invalid={isExteriorSurfaceInvalid}
                     style={{ borderRadius: "8px" }}
                   />
+                  {isExteriorSurfaceInvalid && (
+                    <p className="mt-2 text-sm text-red-600 font-[Poppins]">
+                      {exteriorSurfaceError}
+                    </p>
+                  )}
                 </div>
               )}
 

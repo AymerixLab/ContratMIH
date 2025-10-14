@@ -46,7 +46,10 @@ export const calculateTotalHT1 = (reservationData: ReservationData): number => {
   
   // Prix surface extérieure (50€ / m²)
   if (reservationData.exteriorSpace && reservationData.exteriorSurface) {
-    const surface = parseInt(reservationData.exteriorSurface) || 0;
+    const surface = Math.min(
+      Math.max(parseInt(reservationData.exteriorSurface, 10) || 0, 0),
+      80
+    );
     total += surface * exteriorSpacePrice;
   }
   

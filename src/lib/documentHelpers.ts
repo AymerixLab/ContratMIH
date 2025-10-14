@@ -1,4 +1,5 @@
 import { FormData, ReservationData, AmenagementData, VisibiliteData } from './types';
+import { exteriorSpacePrice } from './constants';
 
 export function generateStandTypeDescription(standType: string): string {
   const descriptions = {
@@ -85,19 +86,24 @@ export function generateDevisTableRows(
   
   // Espace extérieur
   if (reservationData.exteriorSpace && reservationData.exteriorSurface) {
-    const surface = parseInt(reservationData.exteriorSurface);
-    const total = surface * 50;
+    const rawSurface = parseInt(reservationData.exteriorSurface || '0', 10) || 0;
+    const surface = Math.min(Math.max(rawSurface, 0), 80);
+
+    if (surface > 0) {
+      const totalHT = surface * exteriorSpacePrice;
+      const totalTTC = totalHT * 1.2;
     rows.push(`
       <tr>
         <td>Espace extérieur</td>
         <td>${surface}</td>
         <td>m²</td>
-        <td>50 €</td>
+        <td>${exteriorSpacePrice.toLocaleString('fr-FR')} €</td>
         <td>0,00%</td>
         <td>20,00%</td>
-        <td>${(total * 1.2).toFixed(2)} €</td>
+        <td>${totalTTC.toFixed(2)} €</td>
       </tr>
     `);
+    }
   }
   
   // Garden cottage

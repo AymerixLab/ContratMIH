@@ -88,7 +88,11 @@ export function calculateTotals(
 
   // Espace extérieur
   if (reservationData.exteriorSpace && reservationData.exteriorSurface) {
-    const surface = parseInt(reservationData.exteriorSurface);
+    const surface = Math.min(
+      Math.max(parseInt(reservationData.exteriorSurface, 10) || 0, 0),
+      80
+    );
+
     if (surface > 0) {
       const extCost = surface * exteriorSpacePrice;
       details.section1[`Espace extérieur ${surface}m²`] = extCost;

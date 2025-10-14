@@ -428,6 +428,11 @@ export function useFormData() {
     setReservationData(prev => {
       const newData = { ...prev, [field]: value };
       
+      if (field === 'exteriorSurface') {
+        const sanitized = typeof value === 'string' ? value.replace(/[^\d]/g, '') : '';
+        newData.exteriorSurface = sanitized;
+      }
+
       // Gérer le garden cottage selon les règles métier
       if (field === 'standType') {
         if (value) {
@@ -457,6 +462,14 @@ export function useFormData() {
       // Décocher garden cottage si on décoche l'espace extérieur
       if (field === 'exteriorSpace' && value === false) {
         newData.gardenCottage = false;
+      }
+
+      if (field === 'exteriorSpace' && value === true) {
+        newData.exteriorSurface = prev.exteriorSurface || '1';
+      }
+
+      if (field === 'exteriorSpace' && value === false) {
+        newData.exteriorSurface = '';
       }
       
       // Reset co-exposants si la surface devient < 12m²
