@@ -27,7 +27,160 @@ interface EngagementPageProps {
   onComplete: () => void;
 }
 
-const REGULATION_PDF_URL = new URL('../../assets/Contrat de participation 2025 form.pdf', import.meta.url).href;
+const REGULATION_PDF_URL = new URL('../../assets/Reglement.pdf', import.meta.url).href;
+
+const REGULATION_SECTIONS = [
+  {
+    title: '1. Conditions générales de ventes',
+    paragraphs: [
+      'Le présent règlement a pour objet de définir les règles applicables à l’admission et à la participation des exposants à l’édition 2026 du Salon Made in Hainaut.',
+      'Porte du Hainaut Développement, ci-après désigné « l’Organisateur », se réserve la possibilité de modifier ou de compléter le présent règlement, sans préavis, dans l’intérêt du respect de la sécurité des personnes et des biens. L’Organisateur en informera l’exposant par tous moyens appropriés.'
+    ]
+  },
+  {
+    title: '2. Participation',
+    paragraphs: [
+      'Le contrat de participation doit être adressé à Porte du Hainaut Développement « Salon Made in Hainaut », rue Michel Rondet - BP 28 - 59135 WALLERS-ARENBERG et marque l’acceptation pleine et entière de l’exposant au présent règlement.',
+      'Seules les demandes entièrement remplies et dûment signées, accompagnées du paiement prévu pourront être prises en considération, sous réserve de l’encaissement complet.',
+      'Les paiements sont à libeller à l’ordre de « Porte du Hainaut Développement ».'
+    ]
+  },
+  {
+    title: '3. Conditions de règlement',
+    paragraphs: [
+      'Le paiement de la location doit être fait aux deux échéances définies. L’exposant doit verser, au moment de sa demande de participation, une première échéance égale à 50 % du montant total TTC de sa réservation. En cas de désistement du fait de l’exposant, ce premier paiement partiel reste définitivement acquis à l’Organisateur.',
+      'Cent pour cent du montant total TTC du contrat de participation devra être payé le 06 mai 2026 au plus tard. Tout défaut de paiement aux échéances fixées entraîne de plein droit des pénalités de retard au taux mensuel égal à deux fois le taux de l’intérêt légal et autorise l’Organisateur à annuler la mise à disposition du stand et modifier l’emplacement concédé.',
+      'Le défaut de paiement du solde dans le délai fixé donne à l’Organisateur, sans mise en demeure préalable, le droit de retirer l’admission de l’exposant et/ou d’entraîner la déchéance de l’emplacement. Dans tous les cas, le montant total de la facture est dû.'
+    ]
+  },
+  {
+    title: '4. Défaut d’occupation – Annulation',
+    paragraphs: [
+      'La signature de la demande de participation constitue un engagement ferme. Toute annulation entraîne le paiement d’une indemnité par l’exposant et doit être adressée par lettre recommandée avec accusé de réception.',
+      'Si le désistement intervient avant le 20 avril 2026, 50 % du montant total de la facture sera dû à titre d’indemnité. Passé ce délai, l’intégralité du règlement demeure exigible.',
+      'Tout stand non occupé le jour de l’ouverture à 10h sera repris par l’Organisateur, sans indemnité possible, même si l’emplacement a pu être reloué. L’Organisateur peut reporter la manifestation ou changer les horaires si nécessaire, sans que cela ne justifie une annulation par l’exposant.'
+    ]
+  },
+  {
+    title: '5. Affectation des stands',
+    paragraphs: [
+      'L’Organisateur est seul juge de l’implantation des stands, statue sur les admissions et répartitions, ainsi que sur la surface attribuée, sans obligation de motivation.',
+      'Seule l’émission de la facture de location d’espace constitue une preuve d’admission, sous réserve de l’encaissement complet. L’Organisateur tient notamment compte de la date de retour des dossiers.'
+    ]
+  },
+  {
+    title: '6. Obligations de l’exposant',
+    paragraphs: [
+      'Aucune société non affiliée ne peut être hébergée sur un stand sans accord écrit de l’Organisateur. Toute admission engage définitivement l’exposant au respect du présent règlement et des règlements complémentaires communiqués.',
+      'Les exposants s’engagent à ne présenter que des produits conformes à la réglementation française et à ne pas commettre d’actes de contrefaçon ou de concurrence déloyale. La distribution de documents est limitée au stand et soumise à autorisation pour des articles non exposés.',
+      'L’aménagement des stands doit respecter les limites et hauteurs fixées, ainsi que les éléments fournis par l’Organisateur. Les matériaux ajoutés doivent être ignifugés et toute infraction peut entraîner le démontage du stand aux frais de l’exposant.',
+      'Les détériorations causées aux installations ou locaux sont évaluées et facturées à l’exposant. L’installation doit être terminée la veille de l’ouverture et un responsable doit rester présent jusqu’au démontage complet.'
+    ]
+  },
+  {
+    title: '7. Assurances',
+    paragraphs: [
+      'L’Organisateur décline toute responsabilité en cas de dommages aux biens exposés. Une assurance responsabilité civile a été souscrite par l’Organisateur qui, ainsi que ses assureurs, renonce à tout recours contre les exposants sauf malveillance.',
+      'Les exposants doivent présenter une assurance responsabilité civile avec clause de renonciation à recours envers Porte du Hainaut Développement et la commune de Wallers, ainsi qu’une assurance dommages conseillée couvrant bris, vols ou détériorations.'
+    ]
+  },
+  {
+    title: '8. Sécurité',
+    paragraphs: [
+      'Les produits et services présentés doivent respecter les normes de sécurité. Lors de la visite de la Commission de Sécurité, l’exposant doit être présent sur le stand et fournir les procès-verbaux de réaction au feu des matériaux utilisés.',
+      'L’utilisation de machines en fonctionnement, moteurs thermiques, liquides inflammables, générateurs de fumées, substances radioactives, rayons X, lasers ou drones est soumise à une réglementation particulière et nécessite une demande préalable auprès du chargé de sécurité agréé.'
+    ]
+  },
+  {
+    title: '9. Limitation de responsabilité',
+    paragraphs: [
+      'L’Organisateur n’est pas responsable des dommages immatériels, indirects ou spéciaux, ni des pertes de profit ou de jouissance subies par l’exposant ou un tiers.',
+      'En cas de dommages directs, la responsabilité de l’Organisateur est limitée au montant versé pour l’admission de l’exposant.'
+    ]
+  },
+  {
+    title: '10. Prestations exclusives et entreprises agréées',
+    paragraphs: [
+      'Les prestations exclusives de Porte du Hainaut Développement couvrent notamment les fluides, la sécurité, le gardiennage, les télécommunications, l’accrochage des charges, le chauffage, la climatisation, le nettoyage, l’accueil, le bar et la restauration.',
+      'Seules les entreprises agréées par l’Organisateur sont habilitées à effectuer les travaux et à fournir le matériel dans le cadre du salon. L’exposant doit prendre soin du matériel mis à disposition, sous peine de supporter les coûts de remplacement.'
+    ]
+  },
+  {
+    title: '11. Guide de l’exposant',
+    paragraphs: [
+      'Les détails pratiques relatifs à la participation sont fournis dans le « Guide de l’Exposant » communiqué après l’attribution des stands.'
+    ]
+  },
+  {
+    title: '12. Accrochage de charges',
+    paragraphs: [
+      'Toute accroche doit faire l’objet d’une demande préalable auprès de Porte du Hainaut Développement. Pour des raisons de sécurité, l’exposant doit recourir aux services de l’Organisateur pour l’accrochage de charges à partir de la charpente du bâtiment.'
+    ]
+  },
+  {
+    title: '13. Résistance au sol',
+    paragraphs: [
+      'La résistance au sol est de 0,5 tonne par mètre carré. Les manutentions doivent en tenir compte et les surcharges ou travaux lourds requièrent l’accord du service technique.',
+      'Les chariots et appareils de manutention doivent être équipés de roues à bandage caoutchouté. Il est interdit de trouer ou fixer des éléments au sol, toute dégradation restant à la charge de l’exposant.'
+    ]
+  },
+  {
+    title: '14. Parking',
+    paragraphs: [
+      'Le stationnement aux abords du site de Wallers-Arenberg est strictement réglementé. Les opérations de chargement et déchargement doivent s’effectuer depuis l’aire de livraison et pour une durée limitée selon les directives du service de sécurité.'
+    ]
+  },
+  {
+    title: '15. Nuisances et environnement',
+    paragraphs: [
+      'L’exposant doit adopter une attitude conforme aux intérêts du salon et à l’image de l’Organisateur. Toute attitude nuisible peut entraîner l’exclusion immédiate.',
+      'L’Organisateur peut faire enlever toute installation nuisant à l’aspect général ou considérée comme dangereuse. Toute animation sonore doit être préalablement approuvée.'
+    ]
+  },
+  {
+    title: '16. Animaux',
+    paragraphs: [
+      'L’introduction d’animaux est interdite dans l’enceinte du site de Wallers-Arenberg.'
+    ]
+  },
+  {
+    title: '17. Stockage des emballages',
+    paragraphs: [
+      'L’Organisateur ne dispose pas de locaux pour entreposer les emballages vides. Les exposants doivent les retirer au fur et à mesure du montage.'
+    ]
+  },
+  {
+    title: '18. Réception des colis',
+    paragraphs: [
+      'Les colis peuvent être livrés sur site pendant le montage aux risques de l’expéditeur, à condition d’indiquer clairement le nom du salon, de la société, de son représentant et le numéro du stand. Aucun colis ne sera accepté avant le montage.'
+    ]
+  },
+  {
+    title: '19. Contrôle des accès',
+    paragraphs: [
+      'L’accès au site est réglementé par le service de sécurité pendant le montage, le démontage et l’ouverture du salon. L’Organisateur peut refuser l’entrée ou expulser toute personne dont l’attitude ou la tenue porterait atteinte à l’image de la manifestation ou qui refuserait d’appliquer les règles de sécurité.'
+    ]
+  },
+  {
+    title: '20. Clause attributive de juridiction',
+    paragraphs: [
+      'En cas de litige relatif au présent règlement, compétence expresse est attribuée aux tribunaux de Valenciennes, même en cas de pluralité de défendeurs ou d’appel en garantie.'
+    ]
+  },
+  {
+    title: '21. Obligations',
+    paragraphs: [
+      'L’exposant atteste que le travail sera réalisé par des salariés employés régulièrement au regard des articles L143-3, L143-5, L341-6 et L620-3 du Code du travail. Il s’engage à respecter les obligations en matière de rémunération, de déclaration préalable d’embauche et d’emploi de travailleurs étrangers autorisés.'
+    ]
+  },
+  {
+    title: '22. RGPD',
+    paragraphs: [
+      'Les informations collectées sont utilisées pour gérer la participation au Salon Made in Hainaut et respecter les obligations légales. Elles sont conservées pendant la durée du contrat augmentée des délais légaux applicables.',
+      'Conformément au RGPD, les droits d’accès, de rectification, d’effacement, de limitation, de portabilité, d’opposition et d’information en cas de violation peuvent être exercés auprès de DPD@agglo-porteduhainaut.fr ou du Service DPD Avenue Michel Rondet, 59135 Wallers.'
+    ]
+  }
+] as const;
 
 export function EngagementPage({
   engagementData,
@@ -396,13 +549,28 @@ export function EngagementPage({
           <div
             ref={regulationContainerRef}
             onScroll={handleRegulationScroll}
-            className="max-h-[70vh] overflow-y-auto rounded-md border border-gray-200 p-4"
+            className="max-h-[70vh] overflow-y-auto rounded-md border border-gray-200 bg-gray-50 p-4"
           >
-            <iframe
-              src={REGULATION_PDF_URL}
-              className="h-[1200px] w-full"
-              title="Règlement du Salon"
-            />
+            <div className="space-y-6">
+              {REGULATION_SECTIONS.map((section) => (
+                <section
+                  key={section.title}
+                  className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+                >
+                  <h3
+                    className="text-lg font-semibold"
+                    style={{ color: COLORS.primary }}
+                  >
+                    {section.title}
+                  </h3>
+                  <div className="mt-3 space-y-3 text-sm leading-relaxed text-gray-700">
+                    {section.paragraphs.map((paragraph, index) => (
+                      <p key={index}>{paragraph}</p>
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </div>
             <div ref={regulationSentinelRef} aria-hidden className="h-1 w-full" />
           </div>
           <a
