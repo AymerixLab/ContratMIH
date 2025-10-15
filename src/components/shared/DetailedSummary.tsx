@@ -283,14 +283,14 @@ export function DetailedSummary({
 
     if (visibiliteData.documentationSacVisiteur) {
       selected.push({
-        name: 'Documentation dans le sac visiteur (3 000 sacs – 4 entreprises)',
+        name: 'Documentation dans le sac visiteur (3 000 sacs – 4 entreprises maximum)',
         price: visibilitePrices.documentationSacVisiteur
       });
     }
 
     if (visibiliteData.distributionHotesse) {
       selected.push({
-        name: 'Distribution par hôtesse (2 jours)',
+        name: 'Distribution par hôtesse (2 jours à 700 €/jour = 1 400 €)',
         price: visibilitePrices.distributionHotesse
       });
     }

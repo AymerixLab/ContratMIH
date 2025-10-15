@@ -89,14 +89,14 @@ export interface AmenagementData {
   blocPrises: number;                  // Bloc 3 prises - 18€
   fauteuil: number;                    // Fauteuil - 59€
   tableBasse: number;                  // Table basse ronde - 55€
-  gueridonHaut: number;                // Guéridon haut 120cm - 55€
+  gueridonHaut: number;                // Guéridon haut 120cm - 75€
   poufCube: number;                    // Pouf cube - 33€
   poufCouleur: string;                 // Couleur du pouf cube
-  colonneVitrine: number;              // Colonne vitrine - 252€
-  comptoirVitrine: number;             // Comptoir vitrine - 271€
+  colonneVitrine: number;              // Colonne vitrine - 350€
+  comptoirVitrine: number;             // Comptoir vitrine - 350€
   porteManteux: number;                // Porte-manteaux - 51€
-  planteBambou: number;                // Plante bambou - 50€
-  planteKentia: number;                // Plante kentia - 50€
+  planteBambou: number;                // Plante bambou - 80€
+  planteKentia: number;                // Plante kentia - 80€
 
   // PRODUITS COMPLÉMENTAIRES
   scanBadges: boolean;                 // Scan badges visiteurs - 150€

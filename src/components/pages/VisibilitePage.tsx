@@ -481,7 +481,7 @@ export function VisibilitePage({
                   <div className="flex-1">
                     <Label className="font-[Poppins] font-medium cursor-pointer">Votre documentation commerciale ou goodies dans le sac visiteur</Label>
                     <p className="text-xs text-gray-600 mt-1 font-[Poppins]">
-                      Environ 3 000 sacs, offre limitée à 4 entreprises
+                      3 000 sacs – 4 entreprises maximum
                     </p>
                     <p className="text-sm font-bold mt-1" style={{ color: COLORS.primary }}>
                       {visibilitePrices.documentationSacVisiteur} €
@@ -508,7 +508,7 @@ export function VisibilitePage({
                   <div className="flex-1">
                     <Label className="font-[Poppins] font-medium cursor-pointer">Distribution de votre communication par 1 hôtesse à l'entrée du salon</Label>
                     <p className="text-xs text-gray-600 mt-1 font-[Poppins]">
-                      700 € / jour (2 jours obligatoires)
+                      700 € / jour (2 jours obligatoires = 1 400 €)
                     </p>
                     <p className="text-sm font-bold mt-1" style={{ color: COLORS.primary }}>
                       {visibilitePrices.distributionHotesse.toLocaleString('fr-FR')} €

@@ -9,6 +9,7 @@ import {
   getFieldTitle,
 } from './utils';
 import { calculateTotals } from './calculateTotals';
+import { amenagementPrices, visibilitePrices } from './constants';
 
 import { ReservationData, AmenagementData, VisibiliteData, FormData } from './types';
 
@@ -144,6 +145,26 @@ describe('utils financial calculations', () => {
     expect(calculateTotalHT2(amenagement)).toBe(370);
   });
 
+  it('applies the updated amenagement unit prices', () => {
+    const amenagement: AmenagementData = {
+      ...baseAmenagement,
+      gueridonHaut: 1,
+      colonneVitrine: 1,
+      comptoirVitrine: 1,
+      planteBambou: 2,
+      planteKentia: 1,
+    };
+
+    const expected =
+      amenagementPrices.gueridonHaut +
+      amenagementPrices.colonneVitrine +
+      amenagementPrices.comptoirVitrine +
+      2 * amenagementPrices.planteBambou +
+      amenagementPrices.planteKentia;
+
+    expect(calculateTotalHT2(amenagement)).toBe(expected);
+  });
+
   it('computes HT3 with complementary products', () => {
     const amenagement: AmenagementData = {
       ...baseAmenagement,
@@ -171,6 +192,15 @@ describe('utils financial calculations', () => {
     const total = calculateTotalHT4(visibilite, reservation);
     // (10 × 125) + 180 + (2 × 185) = 1 800
     expect(total).toBe(1800);
+  });
+
+  it('charges distribution hôtesse for the mandatory two-day total', () => {
+    const visibilite: VisibiliteData = {
+      ...baseVisibilite,
+      distributionHotesse: true,
+    };
+
+    expect(calculateTotalHT4(visibilite, baseReservation)).toBe(visibilitePrices.distributionHotesse);
   });
 
   it('aligns calculateTotals with individual section helpers', () => {
