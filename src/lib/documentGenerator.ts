@@ -6,7 +6,13 @@ import type {
   VisibiliteData,
   EngagementData,
 } from './types';
-import { generateContractPdfBytes, getContractPdfFilename, sanitizeFilename } from './pdfFiller';
+import {
+  generateContractPdfBytes,
+  generateCoExposantPdfBytes,
+  getContractPdfFilename,
+  getCoExposantPdfFilename,
+  sanitizeFilename,
+} from './pdfFiller';
 
 export interface ZipAsset {
   blob: Blob;
@@ -37,6 +43,22 @@ export async function generateContractZipBlob(
   
   const zip = new JSZip();
   zip.file(getContractPdfFilename(formData), contractPdfBytes);
+
+  if (reservationData.coExposants && reservationData.coExposants.length > 0) {
+    const coExpoFiles = await Promise.all(
+      reservationData.coExposants.map(async (coExposant, index) => {
+        const bytes = await generateCoExposantPdfBytes(coExposant);
+        return {
+          filename: getCoExposantPdfFilename(coExposant, index),
+          bytes,
+        };
+      })
+    );
+
+    coExpoFiles.forEach(({ filename, bytes }) => {
+      zip.file(filename, bytes);
+    });
+  }
   
   // Générer et télécharger le ZIP
   const content = await zip.generateAsync({ type: 'blob' });

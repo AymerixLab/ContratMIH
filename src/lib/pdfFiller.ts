@@ -1,11 +1,12 @@
 import { PDFDocument, StandardFonts, PDFTextField, PDFCheckBox, PDFRadioGroup } from 'pdf-lib';
-import { FormData, ReservationData, AmenagementData, VisibiliteData, EngagementData } from './types';
+import { FormData, ReservationData, AmenagementData, VisibiliteData, EngagementData, CoExposant } from './types';
 import { generateStandTypeName } from './documentHelpers';
 import { PDF_FIELD_MAP, MappingCtx } from './pdfFieldMap';
 import { calculateTotals } from './calculateTotals';
 
 // Resolve the packaged asset URL via Vite
 const CONTRACT_TEMPLATE_URL = new URL('../assets/Contrat de participation 2025 form.pdf', import.meta.url).href;
+const CO_EXPOSANT_TEMPLATE_URL = new URL('../assets/Co.exposant Form.pdf', import.meta.url).href;
 
 function normalize(str: string) {
   return str
@@ -29,6 +30,11 @@ export function sanitizeFilename(name: string) {
 export function getContractPdfFilename(formData: FormData): string {
   const base = formData.raisonSociale || 'exposant';
   return `contrat-${sanitizeFilename(base)}.pdf`;
+}
+
+export function getCoExposantPdfFilename(coExposant: CoExposant, index: number): string {
+  const company = coExposant.nomEntreprise || `co-exposant-${index + 1}`;
+  return `co-exposant-${index + 1}-${sanitizeFilename(company)}.pdf`;
 }
 
 function sanitizeForPdf(text: string): string {
@@ -270,4 +276,34 @@ export async function fillAndDownloadContractPdf(
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
+}
+
+export async function generateCoExposantPdfBytes(coExposant: CoExposant): Promise<Uint8Array> {
+  const res = await fetch(CO_EXPOSANT_TEMPLATE_URL);
+  const ab = await res.arrayBuffer();
+  const pdfDoc = await PDFDocument.load(ab, { updateFieldAppearances: false });
+  const form = pdfDoc.getForm();
+
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  form.updateFieldAppearances(font);
+
+  const setText = (name: string, value: string) => {
+    if (!value) return;
+    try {
+      const field = form.getTextField(name);
+      field.setText(sanitizeForPdf(value));
+    } catch {}
+  };
+
+  setText('raison_social', coExposant.nomEntreprise);
+  setText('resp_nom', coExposant.nomResponsable);
+  setText('resp_prenom', coExposant.prenomResponsable);
+  setText('resp_tel', coExposant.telResponsable);
+  setText('resp_mail', coExposant.mailResponsable);
+
+  form.flatten();
+
+  return pdfDoc.save({
+    useObjectStreams: false,
+  });
 }
