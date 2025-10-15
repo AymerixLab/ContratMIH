@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FormData, ReservationData, AmenagementData, VisibiliteData, EngagementData, StandType, CoExposant } from '../lib/types';
-import { isEmailValid } from '../lib/utils';
+import { getCurrentSignatureIso, isEmailValid } from '../lib/utils';
 
 export function useFormData() {
   const [formData, setFormData] = useState<FormData>({
@@ -114,7 +114,7 @@ export function useFormData() {
     modeReglement: 'acompte' as 'acompte' | 'solde' | 'virement',
     accepteReglement: false,
     accepteCommunication: true,
-    dateSignature: '',
+    dateSignature: getCurrentSignatureIso(),
     cachetSignature: ''
   });
 
@@ -613,7 +613,7 @@ export function useFormData() {
       modeReglement: 'acompte' as 'acompte' | 'solde' | 'virement',
       accepteReglement: false,
       accepteCommunication: true,
-      dateSignature: '',
+      dateSignature: getCurrentSignatureIso(),
       cachetSignature: ''
     });
   };

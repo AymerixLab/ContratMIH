@@ -3,6 +3,7 @@ import { FormData, ReservationData, AmenagementData, VisibiliteData, EngagementD
 import { generateStandTypeName } from './documentHelpers';
 import { PDF_FIELD_MAP, MappingCtx } from './pdfFieldMap';
 import { calculateTotals } from './calculateTotals';
+import { formatSignatureFromIso } from './utils';
 
 // Resolve the packaged asset URL via Vite
 const CONTRACT_TEMPLATE_URL = new URL('../assets/Contrat de participation 2025 form.pdf', import.meta.url).href;
@@ -145,7 +146,10 @@ function resolveValue(
   if (includesAll(n, ['angle'])) return String(reservationData.standAngles ?? '');
 
   // Engagement / payment
-  if (includesAll(n, ['date', 'signature'])) return engagementData.dateSignature || new Date().toLocaleDateString('fr-FR');
+  if (includesAll(n, ['date', 'signature'])) {
+    const formatted = formatSignatureFromIso(engagementData.dateSignature);
+    return formatted || new Date().toLocaleDateString('fr-FR');
+  }
   if (includesAll(n, ['cachet']) && includesAll(n, ['signature'])) return engagementData.cachetSignature || '';
   if (includesAll(n, ['accepte']) && includesAll(n, ['reglement'])) return !!engagementData.accepteReglement;
 

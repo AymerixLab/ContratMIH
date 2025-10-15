@@ -1,5 +1,6 @@
 import { FormData, ReservationData, AmenagementData, VisibiliteData, EngagementData } from './types';
 import { standPrices, anglePrice, electricityPrices, exteriorSpacePrice, amenagementPrices, visibilitePrices, readyToExposePrices } from './constants';
+import { formatSignatureFromIso } from './utils';
 
 export type PdfFieldKind = 'text' | 'checkbox';
 
@@ -40,6 +41,15 @@ const formatDateFromDate = (date: Date) => {
 const normalizeSignatureDate = (raw?: string) => {
   if (!raw) return '';
   const trimmed = raw.trim();
+  const parsed = new Date(trimmed);
+  if (!Number.isNaN(parsed.getTime())) {
+    const day = String(parsed.getDate()).padStart(2, '0');
+    const month = String(parsed.getMonth() + 1).padStart(2, '0');
+    const year = String(parsed.getFullYear());
+    const hours = String(parsed.getHours()).padStart(2, '0');
+    const minutes = String(parsed.getMinutes()).padStart(2, '0');
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+  }
   const dateMatch = trimmed.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
   if (!dateMatch) return trimmed;
 
@@ -414,11 +424,13 @@ export const PDF_FIELD_MAP: Record<string, PdfFieldMapping> = {
 
   // Engagement
   'date': { type: 'text', get: ({ engagementData }) => {
-    const normalized = normalizeSignatureDate(engagementData.dateSignature);
+    const formatted = formatSignatureFromIso(engagementData.dateSignature) || engagementData.dateSignature;
+    const normalized = normalizeSignatureDate(formatted);
     return normalized || formatDateFromDate(new Date());
   } },
   'date_2': { type: 'text', get: ({ engagementData }) => {
-    const normalized = normalizeSignatureDate(engagementData.dateSignature);
+    const formatted = formatSignatureFromIso(engagementData.dateSignature) || engagementData.dateSignature;
+    const normalized = normalizeSignatureDate(formatted);
     return normalized || formatDateFromDate(new Date());
   } },
   'signature_nom': { type: 'text', get: ({ formData }) => formData.responsableNom || '' },

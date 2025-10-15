@@ -14,6 +14,13 @@ import {
 } from './constants';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+const SIGNATURE_DISPLAY_FORMATTER = new Intl.DateTimeFormat('fr-FR', {
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+});
 
 export const isEmailValid = (email: string): boolean => {
   const value = email.trim();
@@ -21,6 +28,19 @@ export const isEmailValid = (email: string): boolean => {
     return false;
   }
   return EMAIL_REGEX.test(value);
+};
+
+export const getCurrentSignatureIso = (): string => new Date().toISOString();
+
+export const formatSignatureFromIso = (value?: string | null): string => {
+  if (!value) {
+    return '';
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+  return SIGNATURE_DISPLAY_FORMATTER.format(date);
 };
 
 export const calculateTotalHT1 = (reservationData: ReservationData): number => {

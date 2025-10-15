@@ -1,6 +1,7 @@
 import request from 'supertest';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { createApp } from './app.js';
+import { MAX_TOTAL_VALUE } from './validation.js';
 
 const createValidPayload = () => ({
   formData: {
@@ -113,7 +114,7 @@ const createValidPayload = () => ({
     modeReglement: 'acompte',
     accepteReglement: true,
     accepteCommunication: true,
-    dateSignature: '',
+    dateSignature: new Date().toISOString(),
     cachetSignature: '',
   },
   totals: {
@@ -170,6 +171,7 @@ describe('createApp server', () => {
           standAngles: 2,
           electricityUpgrade: '4kw',
           accepteCommunication: true,
+          dateSignature: expect.any(Date),
           totalHtSection4: 1680,
           totalHt: 6205,
           totalTva: 1241,
@@ -192,6 +194,21 @@ describe('createApp server', () => {
       .set('Content-Type', 'application/json');
 
     expect(response.status).toBe(400);
+    expect(prismaMock.$transaction).not.toHaveBeenCalled();
+  });
+
+  it('rejects submissions when totals exceed supported range', async () => {
+    const app = createApp(prismaMock, { serveStatic: false });
+    const payload = createValidPayload();
+    payload.totals.totalHT = MAX_TOTAL_VALUE + 1;
+
+    const response = await request(app)
+      .post('/api/submissions')
+      .send(payload)
+      .set('Content-Type', 'application/json');
+
+    expect(response.status).toBe(400);
+    expect(response.body.details?.totals?.totalHT?._errors?.[0]).toContain('plafond autorisé');
     expect(prismaMock.$transaction).not.toHaveBeenCalled();
   });
 });

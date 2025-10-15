@@ -2,6 +2,19 @@ import { z } from 'zod';
 
 // Schémas de validation Zod pour sécuriser les données entrantes
 
+export const MAX_TOTAL_VALUE = 9_999_999_999.99;
+
+const createTotalValidator = (label) =>
+  z.number({
+    required_error: `${label} est requis`,
+    invalid_type_error: `${label} doit être un nombre`,
+  })
+    .min(0, `${label} doit être positif`)
+    .max(
+      MAX_TOTAL_VALUE,
+      `${label} dépasse le plafond autorisé (9 999 999 999,99 €)`
+    );
+
 const CoExposantSchema = z.object({
   id: z.string().optional(),
   nomEntreprise: z.string().min(1, 'Nom entreprise requis'),
@@ -123,18 +136,27 @@ const EngagementDataSchema = z.object({
     message: 'Vous devez accepter le règlement',
   }),
   accepteCommunication: z.boolean(),
-  dateSignature: z.string().optional(),
+  dateSignature: z.preprocess((value) => {
+    if (value === null || value === undefined) return null;
+    if (value instanceof Date) return value;
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      if (!trimmed) return null;
+      return new Date(trimmed);
+    }
+    return value;
+  }, z.date().nullable()),
   cachetSignature: z.string().optional(),
 });
 
 const TotalsSchema = z.object({
-  totalHT1: z.number().min(0),
-  totalHT2: z.number().min(0),
-  totalHT3: z.number().min(0),
-  totalHT4: z.number().min(0),
-  totalHT: z.number().min(0),
-  tva: z.number().min(0),
-  totalTTC: z.number().min(0),
+  totalHT1: createTotalValidator('Total HT section 1'),
+  totalHT2: createTotalValidator('Total HT section 2'),
+  totalHT3: createTotalValidator('Total HT section 3'),
+  totalHT4: createTotalValidator('Total HT section 4'),
+  totalHT: createTotalValidator('Total HT global'),
+  tva: createTotalValidator('TVA'),
+  totalTTC: createTotalValidator('Total TTC'),
 });
 
 export const SubmissionSchema = z.object({

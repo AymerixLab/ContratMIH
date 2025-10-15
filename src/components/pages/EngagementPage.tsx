@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { DetailedSummary } from '../shared/DetailedSummary';
 import { EngagementData, FormData, ReservationData, AmenagementData, VisibiliteData } from '../../lib/types';
 import { COLORS } from '../../lib/constants';
+import { formatSignatureFromIso, getCurrentSignatureIso } from '../../lib/utils';
 import { Loader2 } from 'lucide-react';
 
 interface EngagementPageProps {
@@ -32,14 +33,7 @@ interface EngagementPageProps {
 
 const REGULATION_PDF_URL = new URL('../../assets/Reglement.pdf', import.meta.url).href;
 
-const formatSignatureDate = (date: Date) => {
-  const day = String(date.getDate()).padStart(2, '0');
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const year = String(date.getFullYear());
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  return `${day}/${month}/${year} ${hours}:${minutes}`;
-};
+const formatSignatureDate = (value?: string | null) => formatSignatureFromIso(value);
 
 const REGULATION_SECTIONS = [
   {
@@ -256,9 +250,11 @@ export function EngagementPage({
   // Générer automatiquement la date et l'heure du jour
   useEffect(() => {
     if (!engagementData.dateSignature) {
-      onEngagementChange('dateSignature', formatSignatureDate(new Date()));
+      onEngagementChange('dateSignature', getCurrentSignatureIso());
     }
   }, [engagementData.dateSignature, onEngagementChange]);
+
+  const signatureDisplayValue = formatSignatureDate(engagementData.dateSignature);
 
   useEffect(() => {
     if (showRegulationModal) {
@@ -538,7 +534,7 @@ export function EngagementPage({
               <div>
                 <Label className="font-[Poppins] font-medium">Date et heure de signature</Label>
                 <Input 
-                  value={engagementData.dateSignature}
+                  value={signatureDisplayValue}
                   readOnly
                   className="mt-1 font-[Poppins] bg-gray-50 border-[#3DB5A0]"
                   style={{ borderRadius: "8px" }}

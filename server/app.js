@@ -36,6 +36,15 @@ export const toMoney = (value) => {
   return Math.round(parsed * 100) / 100;
 };
 
+export const toDate = (value) => {
+  if (value === null || value === undefined) return null;
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime()) ? null : value;
+  }
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+};
+
 export function createApp(prismaClient, options = {}) {
   if (!prismaClient) {
     throw new Error('Prisma client instance is required to create the app');
@@ -201,7 +210,7 @@ export function createApp(prismaClient, options = {}) {
             modeReglement: engagementData.modeReglement,
             accepteReglement: toBoolean(engagementData.accepteReglement),
             accepteCommunication: toBoolean(engagementData.accepteCommunication),
-            dateSignature: toNullableText(engagementData.dateSignature),
+            dateSignature: toDate(engagementData.dateSignature),
             cachetSignature: toNullableText(engagementData.cachetSignature),
             totalHtSection1: toMoney(totals.totalHT1),
             totalHtSection2: toMoney(totals.totalHT2),

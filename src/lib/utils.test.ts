@@ -8,6 +8,8 @@ import {
   validateIdentityPage,
   getFieldTitle,
   isEmailValid,
+  formatSignatureFromIso,
+  getCurrentSignatureIso,
 } from './utils';
 import { calculateTotals } from './calculateTotals';
 import { amenagementPrices, visibilitePrices } from './constants';
@@ -298,6 +300,23 @@ describe('utils financial calculations', () => {
       'Scan badges visiteurs': 150,
       'Pass soirée complémentaires': 100,
     });
+  });
+});
+
+describe('signature helpers', () => {
+  it('returns empty string for falsy values', () => {
+    expect(formatSignatureFromIso(undefined)).toBe('');
+    expect(formatSignatureFromIso(null)).toBe('');
+  });
+
+  it('formats ISO timestamp using French locale', () => {
+    const formatted = formatSignatureFromIso('2024-10-15T08:30:00.000Z');
+    expect(formatted).toMatch(/\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}/);
+  });
+
+  it('produces a valid ISO string for current timestamp helper', () => {
+    const iso = getCurrentSignatureIso();
+    expect(new Date(iso).toString()).not.toBe('Invalid Date');
   });
 });
 

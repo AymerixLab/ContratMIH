@@ -3,8 +3,23 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('./components/pages/IdentityPage', () => ({
-  IdentityPage: ({ onNext }: { onNext: () => void }) => (
-    <button onClick={onNext}>identity-next</button>
+  IdentityPage: ({ onNext, onInputChange }: { onNext: () => void; onInputChange: (field: string, value: string) => void }) => (
+    <button
+      onClick={() => {
+        onInputChange('raisonSociale', 'ACME');
+        onInputChange('adresse', '1 rue Test');
+        onInputChange('codePostal', '75001');
+        onInputChange('ville', 'PARIS');
+        onInputChange('pays', 'FRANCE');
+        onInputChange('tel', '0102030405');
+        onInputChange('contactComptaMail', 'contact@acme.test');
+        onInputChange('responsableMail', 'responsable@acme.test');
+        onInputChange('respOpMail', 'operation@acme.test');
+        onNext();
+      }}
+    >
+      identity-next
+    </button>
   ),
 }));
 

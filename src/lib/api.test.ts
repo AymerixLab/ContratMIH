@@ -107,7 +107,7 @@ const createPayload = (): SubmissionPayload => ({
     modeReglement: 'acompte',
     accepteReglement: true,
     accepteCommunication: true,
-    dateSignature: '',
+    dateSignature: new Date().toISOString(),
     cachetSignature: '',
   },
   totals: {

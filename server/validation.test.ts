@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { SubmissionSchema } from './validation.js';
+import { MAX_TOTAL_VALUE, SubmissionSchema } from './validation.js';
 
 const createValidPayload = () => ({
   formData: {
@@ -112,7 +112,7 @@ const createValidPayload = () => ({
     modeReglement: 'acompte',
     accepteReglement: true,
     accepteCommunication: true,
-    dateSignature: '',
+    dateSignature: new Date().toISOString(),
     cachetSignature: '',
   },
   totals: {
@@ -140,6 +140,36 @@ describe('SubmissionSchema', () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.error.issues[0].message).toContain('accepter le règlement');
+    }
+  });
+
+  it('rejects totals that exceed database precision limits', () => {
+    const payload = createValidPayload();
+    payload.totals.totalHT = MAX_TOTAL_VALUE + 1;
+
+    const result = SubmissionSchema.safeParse(payload);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const formatted = result.error.format();
+      expect(formatted.totals?.totalHT?._errors?.[0]).toContain('plafond autorisé');
+    }
+  });
+
+  it('converts ISO date strings into Date instances for signature field', () => {
+    const payload = createValidPayload();
+    const result = SubmissionSchema.parse(payload);
+    expect(result.engagementData.dateSignature).toBeInstanceOf(Date);
+  });
+
+  it('rejects invalid date signatures', () => {
+    const payload = createValidPayload();
+    payload.engagementData.dateSignature = 'not-a-date';
+
+    const result = SubmissionSchema.safeParse(payload);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const formatted = result.error.format();
+      expect(formatted.engagementData?.dateSignature?._errors?.[0]).toBeDefined();
     }
   });
 });
