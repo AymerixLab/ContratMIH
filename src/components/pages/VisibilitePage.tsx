@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 import { VisibiliteData, ReservationData, AmenagementData } from '../../lib/types';
 import { COLORS, visibilitePrices } from '../../lib/constants';
+import { formatCurrency } from '../../lib/format';
 import { cn } from '../ui/utils';
 
 // Import des images de signalétique
@@ -193,11 +194,11 @@ export function VisibilitePage({
                   Enseigne Haute, stickage haut de cloisons, stickage pourtour stand au sol, stickage comptoir
                 </div>
                 <p className="font-bold text-lg" style={{ color: COLORS.primary }}>
-                  {visibilitePrices.packSignaletiqueComplet} € / m²
+                  {formatCurrency(visibilitePrices.packSignaletiqueComplet)} € / m²
                 </p>
                 {standSurface > 0 && (
                   <p className="text-xs text-gray-600 font-[Poppins] mt-1">
-                    Total {packSignaletiqueTotal.toLocaleString('fr-FR')} € pour {standSurface} m²
+                    Total {formatCurrency(packSignaletiqueTotal)} € pour {standSurface} m²
                   </p>
                 )}
               </div>
@@ -239,7 +240,7 @@ export function VisibilitePage({
                 </div>
                 <p className={`font-bold text-lg ${comptoirReserve ? '' : 'text-gray-400'}`} 
                    style={{ color: comptoirReserve ? COLORS.primary : undefined }}>
-                  {visibilitePrices.signaletiqueComptoir} €
+                  {formatCurrency(visibilitePrices.signaletiqueComptoir)} €
                 </p>
                 {!comptoirReserve && (
                   <div className="mt-2 p-2 bg-orange-50 border border-orange-200 rounded-md">
@@ -281,11 +282,11 @@ export function VisibilitePage({
                   Visuel unique (type logo) sur les 6 cloisons, format L0,95m x H0,50m
                 </div>
                 <p className="font-bold text-lg" style={{ color: COLORS.primary }}>
-                  {visibilitePrices.signaletiqueHautCloisons} € / m²
+                  {formatCurrency(visibilitePrices.signaletiqueHautCloisons)} € / m²
                 </p>
                 {standSurface > 0 && (
                   <p className="text-xs text-gray-600 font-[Poppins] mt-1">
-                    Total {signaletiqueHautTotal.toLocaleString('fr-FR')} € pour {standSurface} m²
+                    Total {formatCurrency(signaletiqueHautTotal)} € pour {standSurface} m²
                   </p>
                 )}
               </div>
@@ -322,13 +323,13 @@ export function VisibilitePage({
                 </div>
                 <p className="font-bold text-lg" style={{ color: COLORS.primary }}>
                   {visibiliteData.signalethqueCloisons > 0 
-                    ? `${(visibiliteData.signalethqueCloisons * visibilitePrices.signalethqueCloisons).toLocaleString('fr-FR')} €`
-                    : `${visibilitePrices.signalethqueCloisons} € / cloison`
+                    ? `${formatCurrency(visibiliteData.signalethqueCloisons * visibilitePrices.signalethqueCloisons)} €`
+                    : `${formatCurrency(visibilitePrices.signalethqueCloisons)} € / cloison`
                   }
                 </p>
                 <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded-md">
                   <p className="text-xs text-blue-700 font-[Poppins]">
-                    *Tarif : 185 € par cloison. Un raidisseur métallique s'intercale entre chaque cloison
+                    *Tarif : {formatCurrency(visibilitePrices.signalethqueCloisons)} € par cloison. Un raidisseur métallique s'intercale entre chaque cloison
                   </p>
                 </div>
               </div>
@@ -364,7 +365,7 @@ export function VisibilitePage({
                   Mise en avant de votre logo société (L1m x H0,95m)
                 </div>
                 <p className="font-bold text-lg" style={{ color: COLORS.primary }}>
-                  {visibilitePrices.signaletiqueEnseigneHaute} €
+                  {formatCurrency(visibilitePrices.signaletiqueEnseigneHaute)} €
                 </p>
               </div>
             </div>
@@ -411,7 +412,7 @@ export function VisibilitePage({
                   <div className="flex-1">
                     <Label className="font-[Poppins] font-medium cursor-pointer">1/2 page quadri dans le catalogue des exposants</Label>
                     <p className="text-sm font-bold mt-1" style={{ color: COLORS.primary }}>
-                      {visibilitePrices.demiPageCatalogue} €
+                      {formatCurrency(visibilitePrices.demiPageCatalogue)} €
                     </p>
                   </div>
                 </div>
@@ -435,7 +436,7 @@ export function VisibilitePage({
                   <div className="flex-1">
                     <Label className="font-[Poppins] font-medium cursor-pointer">1 page quadri dans le catalogue des exposants</Label>
                     <p className="text-sm font-bold mt-1" style={{ color: COLORS.primary }}>
-                      {visibilitePrices.pageCompleeteCatalogue} €
+                      {formatCurrency(visibilitePrices.pageCompleeteCatalogue)} €
                     </p>
                   </div>
                 </div>
@@ -459,7 +460,7 @@ export function VisibilitePage({
                   <div className="flex-1">
                     <Label className="font-[Poppins] font-medium cursor-pointer">Deuxième de couverture dans le catalogue</Label>
                     <p className="text-sm font-bold mt-1" style={{ color: COLORS.primary }}>
-                      {visibilitePrices.deuxiemeCouverture} €
+                      {formatCurrency(visibilitePrices.deuxiemeCouverture)} €
                     </p>
                   </div>
                 </div>
@@ -483,7 +484,7 @@ export function VisibilitePage({
                   <div className="flex-1">
                     <Label className="font-[Poppins] font-medium cursor-pointer">Quatrième de couverture dans le catalogue</Label>
                     <p className="text-sm font-bold mt-1" style={{ color: COLORS.primary }}>
-                      {visibilitePrices.quatriemeCouverture} €
+                      {formatCurrency(visibilitePrices.quatriemeCouverture)} €
                     </p>
                   </div>
                 </div>
@@ -507,7 +508,7 @@ export function VisibilitePage({
                   <div className="flex-1">
                     <Label className="font-[Poppins] font-medium cursor-pointer">Votre logo sur le plan du salon affiché à l'entrée du pavillon</Label>
                     <p className="text-sm font-bold mt-1" style={{ color: COLORS.primary }}>
-                      {visibilitePrices.logoplanSalon} €
+                      {formatCurrency(visibilitePrices.logoplanSalon)} €
                     </p>
                   </div>
                 </div>
@@ -535,7 +536,7 @@ export function VisibilitePage({
                       3 000 sacs – 4 entreprises maximum
                     </p>
                     <p className="text-sm font-bold mt-1" style={{ color: COLORS.primary }}>
-                      {visibilitePrices.documentationSacVisiteur} €
+                      {formatCurrency(visibilitePrices.documentationSacVisiteur)} €
                     </p>
                   </div>
                 </div>
@@ -561,13 +562,13 @@ export function VisibilitePage({
                           Distribution de votre communication par 1 hôtesse à l'entrée du salon
                         </Label>
                         <p className="text-sm text-gray-600 mt-1 font-[Poppins]">
-                          700 € / jour (le salon dure 2 jours)
+                          {formatCurrency(visibilitePrices.distributionHotesse)} € / jour (le salon dure 2 jours)
                         </p>
                       </div>
                     </div>
                     {distributionTotal > 0 && (
-                      <p className="text-sm font-semibold text-left md:text-right" style={{ color: COLORS.primary }}>
-                        Total : {distributionTotal.toLocaleString('fr-FR')} €
+                        <p className="text-sm font-semibold text-left md:text-right" style={{ color: COLORS.primary }}>
+                        Total : {formatCurrency(distributionTotal)} €
                       </p>
                     )}
                   </div>
@@ -677,7 +678,7 @@ export function VisibilitePage({
             }}
           >
             <h2 className="text-xl font-bold font-[Poppins]">
-              TOTAL HT 1 : {totalHT1.toLocaleString('fr-FR')} €
+              TOTAL HT 1 : {formatCurrency(totalHT1)} €
             </h2>
             <p className="text-sm opacity-90">Réservation d'espace</p>
           </div>
@@ -690,7 +691,7 @@ export function VisibilitePage({
             }}
           >
             <h2 className="text-xl font-bold font-[Poppins]">
-              TOTAL HT 2 : {totalHT2.toLocaleString('fr-FR')} €
+              TOTAL HT 2 : {formatCurrency(totalHT2)} €
             </h2>
             <p className="text-sm opacity-90">Aménagements</p>
           </div>
@@ -703,7 +704,7 @@ export function VisibilitePage({
             }}
           >
             <h2 className="text-xl font-bold font-[Poppins]">
-              TOTAL HT 3 : {totalHT3.toLocaleString('fr-FR')} €
+              TOTAL HT 3 : {formatCurrency(totalHT3)} €
             </h2>
             <p className="text-sm opacity-90">Produits complémentaires</p>
           </div>
@@ -716,7 +717,7 @@ export function VisibilitePage({
             }}
           >
             <h2 className="text-xl font-bold font-[Poppins]">
-              TOTAL HT 4 : {totalHT4.toLocaleString('fr-FR')} €
+              TOTAL HT 4 : {formatCurrency(totalHT4)} €
             </h2>
             <p className="text-sm opacity-90">Visibilité & Communication</p>
           </div>

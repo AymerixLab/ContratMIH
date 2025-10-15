@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Plus, Minus } from 'lucide-react';
 import { AmenagementData, ReservationData } from '../../lib/types';
 import { COLORS, amenagementPrices, couleursMoquette, couleursPouf } from '../../lib/constants';
+import { formatCurrency } from '../../lib/format';
 
 interface AmenagementPageProps {
   amenagementData: AmenagementData;
@@ -70,7 +71,7 @@ export function AmenagementPage({
               <p className="text-sm text-gray-600 mt-1 font-[Poppins]">{description}</p>
             )}
             <p className="text-sm font-semibold mt-1" style={{ color: COLORS.primary }}>
-              {price}€ / {unit}
+              {formatCurrency(price)} € / {unit}
             </p>
           </div>
         </div>
@@ -112,7 +113,7 @@ export function AmenagementPage({
           
           <div className="text-right">
             <p className="text-sm font-semibold" style={{ color: COLORS.primary }}>
-              {total.toLocaleString('fr-FR')} €
+              {formatCurrency(total)} €
             </p>
           </div>
         </div>
@@ -211,7 +212,7 @@ export function AmenagementPage({
                   <div className="flex-1">
                     <Label className="font-[Poppins] font-medium text-gray-800">Moquette coloris différent</Label>
                     <p className="text-sm font-semibold mt-1" style={{ color: COLORS.primary }}>
-                      {amenagementPrices.moquetteDifferente}€ / m²
+                      {formatCurrency(amenagementPrices.moquetteDifferente)} € / m²
                     </p>
                   </div>
                 </div>
@@ -253,7 +254,7 @@ export function AmenagementPage({
                   
                   <div className="text-right">
                     <p className="text-sm font-semibold" style={{ color: COLORS.primary }}>
-                      {(amenagementData.moquetteDifferente * amenagementPrices.moquetteDifferente).toLocaleString('fr-FR')} €
+                      {formatCurrency(amenagementData.moquetteDifferente * amenagementPrices.moquetteDifferente)} €
                     </p>
                   </div>
                 </div>
@@ -436,7 +437,7 @@ export function AmenagementPage({
                     <Label className="font-[Poppins] font-medium text-gray-800">Pouf cube</Label>
                     <p className="text-sm text-gray-600 mt-1 font-[Poppins]">40x40x40 cm</p>
                     <p className="text-sm font-semibold mt-1" style={{ color: COLORS.primary }}>
-                      {amenagementPrices.poufCube}€ / unité
+                      {formatCurrency(amenagementPrices.poufCube)} € / unité
                     </p>
                   </div>
                 </div>
@@ -478,7 +479,7 @@ export function AmenagementPage({
                   
                   <div className="text-right">
                     <p className="text-sm font-semibold" style={{ color: COLORS.primary }}>
-                      {(amenagementData.poufCube * amenagementPrices.poufCube).toLocaleString('fr-FR')} €
+                      {formatCurrency(amenagementData.poufCube * amenagementPrices.poufCube)} €
                     </p>
                   </div>
                 </div>
@@ -521,7 +522,7 @@ export function AmenagementPage({
             }}
           >
             <h2 className="text-xl font-bold font-[Poppins]">
-              TOTAL HT 1 : {totalHT1.toLocaleString('fr-FR')} €
+              TOTAL HT 1 : {formatCurrency(totalHT1)} €
             </h2>
             <p className="text-sm opacity-90">Réservation d'espace</p>
           </div>
@@ -534,7 +535,7 @@ export function AmenagementPage({
             }}
           >
             <h2 className="text-xl font-bold font-[Poppins]">
-              TOTAL HT 2 : {totalHT2.toLocaleString('fr-FR')} €
+              TOTAL HT 2 : {formatCurrency(totalHT2)} €
             </h2>
             <p className="text-sm opacity-90">Aménagements</p>
           </div>

@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Plus, Minus } from 'lucide-react';
 import { AmenagementData, ReservationData } from '../../lib/types';
 import { COLORS, amenagementPrices, getPassSoireeInclus } from '../../lib/constants';
+import { formatCurrency } from '../../lib/format';
 
 interface ComplementairesPageProps {
   amenagementData: AmenagementData;

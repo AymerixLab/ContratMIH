@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button } from '../ui/button';
 import { Card, CardContent } from '../ui/card';
 import { COLORS } from '../../lib/constants';
+import { formatCurrency } from '../../lib/format';
 import { FormData, ReservationData, AmenagementData, VisibiliteData, EngagementData } from '../../lib/types';
 import { ZipAsset, downloadZipFromBlob } from '../../lib/documentGenerator';
 import { DetailedSummary } from '../shared/DetailedSummary';
@@ -105,27 +106,27 @@ export function ThanksPage({
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span>Réservation d'espace :</span>
-                  <span>{totalHT1.toLocaleString('fr-FR')} € HT</span>
+                  <span>{formatCurrency(totalHT1)} € HT</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Aménagements :</span>
-                  <span>{totalHT2.toLocaleString('fr-FR')} € HT</span>
+                  <span>{formatCurrency(totalHT2)} € HT</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Produits complémentaires :</span>
-                  <span>{totalHT3.toLocaleString('fr-FR')} € HT</span>
+                  <span>{formatCurrency(totalHT3)} € HT</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Visibilité & Communication :</span>
-                  <span>{totalHT4.toLocaleString('fr-FR')} € HT</span>
+                  <span>{formatCurrency(totalHT4)} € HT</span>
                 </div>
                 <div className="flex justify-between">
                   <span>TVA (20%) :</span>
-                  <span>{tva.toLocaleString('fr-FR')} €</span>
+                  <span>{formatCurrency(tva)} €</span>
                 </div>
                 <div className="flex justify-between text-lg font-bold pt-2 border-t" style={{ color: COLORS.primary }}>
                   <span>Total TTC :</span>
-                  <span>{totalTTC.toLocaleString('fr-FR')} €</span>
+                  <span>{formatCurrency(totalTTC)} €</span>
                 </div>
               </div>
             </div>

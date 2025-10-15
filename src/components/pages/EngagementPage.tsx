@@ -9,6 +9,7 @@ import { DetailedSummary } from '../shared/DetailedSummary';
 import { EngagementData, FormData, ReservationData, AmenagementData, VisibiliteData } from '../../lib/types';
 import { COLORS } from '../../lib/constants';
 import { formatSignatureFromIso, getCurrentSignatureIso } from '../../lib/utils';
+import { formatCurrency } from '../../lib/format';
 import { Loader2 } from 'lucide-react';
 
 interface EngagementPageProps {
@@ -386,31 +387,31 @@ export function EngagementPage({
             <div className="space-y-4">
               <div className="flex justify-between items-center py-2 border-b">
                 <span className="font-[Poppins]">Réservation d'espace (HT 1)</span>
-                <span className="font-semibold">{totalHT1.toLocaleString('fr-FR')} €</span>
+                <span className="font-semibold">{formatCurrency(totalHT1)} €</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b">
                 <span className="font-[Poppins]">Aménagements (HT 2)</span>
-                <span className="font-semibold">{totalHT2.toLocaleString('fr-FR')} €</span>
+                <span className="font-semibold">{formatCurrency(totalHT2)} €</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b">
                 <span className="font-[Poppins]">Produits complémentaires (HT 3)</span>
-                <span className="font-semibold">{totalHT3.toLocaleString('fr-FR')} €</span>
+                <span className="font-semibold">{formatCurrency(totalHT3)} €</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b">
                 <span className="font-[Poppins]">Visibilité & Communication (HT 4)</span>
-                <span className="font-semibold">{totalHT4.toLocaleString('fr-FR')} €</span>
+                <span className="font-semibold">{formatCurrency(totalHT4)} €</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-gray-400">
                 <span className="font-[Poppins] font-semibold">TOTAL HT</span>
-                <span className="font-bold text-lg">{totalHT.toLocaleString('fr-FR')} €</span>
+                <span className="font-bold text-lg">{formatCurrency(totalHT)} €</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b">
                 <span className="font-[Poppins]">TVA (20%)</span>
-                <span className="font-semibold">{tva.toLocaleString('fr-FR')} €</span>
+                <span className="font-semibold">{formatCurrency(tva)} €</span>
               </div>
               <div className="flex justify-between items-center py-3 border-2 border-green-500 rounded-lg px-4" style={{ backgroundColor: '#f0f9ff', borderRadius: "8px" }}>
                 <span className="font-[Poppins] font-bold text-lg" style={{ color: COLORS.primary }}>TOTAL TTC</span>
-                <span className="font-bold text-xl" style={{ color: COLORS.primary }}>{totalTTC.toLocaleString('fr-FR')} €</span>
+                <span className="font-bold text-xl" style={{ color: COLORS.primary }}>{formatCurrency(totalTTC)} €</span>
               </div>
             </div>
           </CardContent>
@@ -431,7 +432,7 @@ export function EngagementPage({
                   <h4 className="font-semibold font-[Poppins]" style={{ color: COLORS.primary }}>Acompte :</h4>
                 </div>
                 <p className="text-sm font-[Poppins] leading-relaxed">
-                  Un premier acompte de <span className="font-semibold">50 % du montant total TTC</span> sera payé à la signature du contrat. Je soussigné <span className="font-semibold">{formData.responsableNom} {formData.responsablePrenom}</span>, responsable de <span className="font-semibold">{formData.raisonSociale || formData.enseigne}</span>, joins un acompte de <span className="font-semibold">{(totalTTC * 0.5).toLocaleString('fr-FR')} €</span> par chèque, à l'ordre de Porte du Hainaut Développement.
+                  Un premier acompte de <span className="font-semibold">50 % du montant total TTC</span> sera payé à la signature du contrat. Je soussigné <span className="font-semibold">{formData.responsableNom} {formData.responsablePrenom}</span>, responsable de <span className="font-semibold">{formData.raisonSociale || formData.enseigne}</span>, joins un acompte de <span className="font-semibold">{formatCurrency(totalTTC * 0.5)} €</span> par chèque, à l'ordre de Porte du Hainaut Développement.
                 </p>
               </div>
 
