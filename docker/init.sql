@@ -91,6 +91,8 @@ CREATE TABLE IF NOT EXISTS submissions (
   logo_plan_salon BOOLEAN NOT NULL,
   documentation_sac_visiteur BOOLEAN NOT NULL,
   distribution_hotesse BOOLEAN NOT NULL,
+  distribution_hotesse_days INTEGER NOT NULL DEFAULT 0,
+  distribution_hotesse_day INTEGER,
   mode_reglement TEXT NOT NULL,
   accepte_reglement BOOLEAN NOT NULL,
   date_signature DATE,

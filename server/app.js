@@ -115,6 +115,21 @@ export function createApp(prismaClient, options = {}) {
         submittedAt,
       } = validationResult.data;
 
+      const normalizedDistributionDays = Math.max(
+        0,
+        Math.min(
+          2,
+          Number(
+            visibiliteData.distributionHotesseDays ?? (visibiliteData.distributionHotesse ? 2 : 0)
+          ) || 0
+        )
+      );
+      const normalizedDistributionDay =
+        normalizedDistributionDays === 1 &&
+        (visibiliteData.distributionHotesseSelectedDay === 1 || visibiliteData.distributionHotesseSelectedDay === 2)
+          ? visibiliteData.distributionHotesseSelectedDay
+          : null;
+
       const result = await prismaClient.$transaction(async (tx) => {
         const submission = await tx.submission.create({
           data: {
@@ -206,7 +221,9 @@ export function createApp(prismaClient, options = {}) {
             quatriemeCouverture: toBoolean(visibiliteData.quatriemeCouverture),
             logoPlanSalon: toBoolean(visibiliteData.logoplanSalon),
             documentationSacVisiteur: toBoolean(visibiliteData.documentationSacVisiteur),
-            distributionHotesse: toBoolean(visibiliteData.distributionHotesse),
+            distributionHotesse: toBoolean(normalizedDistributionDays > 0),
+            distributionHotesseDays: toIntegerOrZero(normalizedDistributionDays),
+            distributionHotesseDay: normalizedDistributionDay,
             modeReglement: engagementData.modeReglement,
             accepteReglement: toBoolean(engagementData.accepteReglement),
             accepteCommunication: toBoolean(engagementData.accepteCommunication),

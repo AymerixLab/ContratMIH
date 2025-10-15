@@ -120,6 +120,8 @@ model Submission {
   logoPlanSalon                    Boolean @map("logo_plan_salon")
   documentationSacVisiteur         Boolean @map("documentation_sac_visiteur")
   distributionHotesse              Boolean @map("distribution_hotesse")
+  distributionHotesseDays          Int     @default(0) @map("distribution_hotesse_days")
+  distributionHotesseDay           Int?    @map("distribution_hotesse_day")
 
   // ENGAGEMENT
   modeReglement            String   @map("mode_reglement")

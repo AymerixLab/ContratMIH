@@ -263,7 +263,6 @@ export function calculateTotals(
     'Quatrième couverture': { active: visibiliteData.quatriemeCouverture, price: visibilitePrices.quatriemeCouverture },
     'Logo plan salon': { active: visibiliteData.logoplanSalon, price: visibilitePrices.logoplanSalon },
     'Documentation sac visiteur (3 000 sacs – 4 entreprises)': { active: visibiliteData.documentationSacVisiteur, price: visibilitePrices.documentationSacVisiteur },
-    'Distribution hôtesse (2 jours)': { active: visibiliteData.distributionHotesse, price: visibilitePrices.distributionHotesse },
   };
 
   Object.entries(communication).forEach(([name, { active, price }]) => {
@@ -271,6 +270,16 @@ export function calculateTotals(
       addSection4(name, price);
     }
   });
+
+  const distributionDays = typeof visibiliteData.distributionHotesseDays === 'number'
+    ? Math.max(0, Math.min(2, visibiliteData.distributionHotesseDays))
+    : (visibiliteData.distributionHotesse ? 2 : 0);
+  if (distributionDays > 0) {
+    const label = distributionDays === 2
+      ? 'Distribution hôtesse (2 jours)'
+      : `Distribution hôtesse (1 jour${visibiliteData.distributionHotesseSelectedDay ? ` – Jour ${visibiliteData.distributionHotesseSelectedDay}` : ''})`;
+    addSection4(label, distributionDays * visibilitePrices.distributionHotesse);
+  }
 
   // ========================================
   // TOTAUX FINAUX

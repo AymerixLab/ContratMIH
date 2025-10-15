@@ -102,6 +102,8 @@ const createPayload = (): SubmissionPayload => ({
     logoplanSalon: false,
     documentationSacVisiteur: false,
     distributionHotesse: false,
+    distributionHotesseDays: 0,
+    distributionHotesseSelectedDay: null,
   },
   engagementData: {
     modeReglement: 'acompte',

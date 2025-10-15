@@ -128,6 +128,16 @@ const VisibiliteDataSchema = z.object({
   logoplanSalon: z.boolean(),
   documentationSacVisiteur: z.boolean(),
   distributionHotesse: z.boolean(),
+  distributionHotesseDays: z.number().int().min(0).max(2),
+  distributionHotesseSelectedDay: z.number().int().min(1).max(2).nullable(),
+}).superRefine((data, ctx) => {
+  if (data.distributionHotesseDays === 1 && (data.distributionHotesseSelectedDay !== 1 && data.distributionHotesseSelectedDay !== 2)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Veuillez sélectionner Jour 1 ou Jour 2 pour la distribution par hôtesse.',
+      path: ['distributionHotesseSelectedDay'],
+    });
+  }
 });
 
 const EngagementDataSchema = z.object({

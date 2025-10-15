@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 import { VisibiliteData, ReservationData, AmenagementData } from '../../lib/types';
 import { COLORS, visibilitePrices } from '../../lib/constants';
+import { cn } from '../ui/utils';
 
 // Import des images de signalétique
 import packCompletImage from 'figma:asset/1cbc7581d9d6c894971112a8406a67150a3cb62e.png'; // Pack Signalétique complet
@@ -57,6 +58,14 @@ export function VisibilitePage({
   const standSurface = reservationData?.standSize ? parseInt(reservationData.standSize, 10) || 0 : 0;
   const packSignaletiqueTotal = standSurface > 0 ? standSurface * visibilitePrices.packSignaletiqueComplet : 0;
   const signaletiqueHautTotal = standSurface > 0 ? standSurface * visibilitePrices.signaletiqueHautCloisons : 0;
+  const rawDistributionDays = visibiliteData.distributionHotesseDays;
+  const distributionDays: 0 | 1 | 2 = rawDistributionDays === 1 || rawDistributionDays === 2
+    ? rawDistributionDays
+    : (visibiliteData.distributionHotesse ? 2 : 0);
+  const distributionSelectedDay = (visibiliteData.distributionHotesseSelectedDay === 1 || visibiliteData.distributionHotesseSelectedDay === 2)
+    ? visibiliteData.distributionHotesseSelectedDay
+    : null;
+  const distributionTotal = distributionDays * visibilitePrices.distributionHotesse;
 
   const handleCloisonChange = (value: string) => {
     const numValue = Math.max(0, parseInt(value, 10) || 0);
@@ -69,6 +78,48 @@ export function VisibilitePage({
       onVisibiliteChange(field, !currentValue);
     }
   };
+
+  const handleDistributionDaysChange = (days: 0 | 1 | 2) => {
+    onVisibiliteChange('distributionHotesseDays', days);
+    onVisibiliteChange('distributionHotesse', days > 0);
+    if (days !== 1) {
+      onVisibiliteChange('distributionHotesseSelectedDay', null);
+    }
+  };
+
+  const handleDistributionSelectedDayChange = (day: 1 | 2) => {
+    onVisibiliteChange('distributionHotesseSelectedDay', day);
+    if (distributionDays !== 1) {
+      onVisibiliteChange('distributionHotesseDays', 1);
+    }
+    onVisibiliteChange('distributionHotesse', true);
+  };
+
+  const renderChoiceButton = (
+    label: string,
+    isActive: boolean,
+    onClick: () => void,
+    options?: { compact?: boolean }
+  ) => (
+    <button
+      type="button"
+      onClick={onClick}
+      style={isActive ? {
+        backgroundColor: '#3DB5A0',
+        borderColor: '#3DB5A0',
+        color: '#ffffff'
+      } : {}}
+      className={cn(
+        'inline-flex items-center justify-center rounded-full border-2 px-6 py-3 text-base font-medium font-[Poppins] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#3DB5A0]',
+        options?.compact ? 'min-w-[140px]' : 'min-w-[160px]',
+        isActive
+          ? 'shadow-lg hover:opacity-90'
+          : 'bg-white text-gray-700 border-gray-300 hover:border-[#3DB5A0] hover:text-[#3DB5A0] hover:shadow-md'
+      )}
+    >
+      {label}
+    </button>
+  );
 
   return (
     <Card className="mb-8 font-[Poppins]" style={{ borderRadius: "12px" }}>
@@ -490,29 +541,81 @@ export function VisibilitePage({
                 </div>
               </div>
 
-              <div 
-                className={`p-4 border rounded-lg cursor-pointer transition-all duration-300 ${
-                  visibiliteData.distributionHotesse 
-                    ? 'border-[#3DB5A0] bg-green-50 shadow-md transform scale-105' 
-                    : 'border-gray-300 hover:border-[#3DB5A0] hover:shadow-lg hover:scale-105'
-                }`}
-                style={{ borderRadius: "8px", borderWidth: "2px" }}
-                onClick={() => handleCardClick('distributionHotesse', visibiliteData.distributionHotesse)}
-              >
-                <div className="flex items-center space-x-3">
-                  <Checkbox 
-                    checked={visibiliteData.distributionHotesse}
-                    onCheckedChange={(checked) => onVisibiliteChange('distributionHotesse', checked)}
-                    className="data-[state=checked]:bg-[#3DB5A0] data-[state=checked]:border-[#3DB5A0] pointer-events-none"
-                  />
-                  <div className="flex-1">
-                    <Label className="font-[Poppins] font-medium cursor-pointer">Distribution de votre communication par 1 hôtesse à l'entrée du salon</Label>
-                    <p className="text-xs text-gray-600 mt-1 font-[Poppins]">
-                      700 € / jour (2 jours obligatoires = 1 400 €)
-                    </p>
-                    <p className="text-sm font-bold mt-1" style={{ color: COLORS.primary }}>
-                      {visibilitePrices.distributionHotesse.toLocaleString('fr-FR')} €
-                    </p>
+              <div>
+                <div
+                  className={`p-6 border-2 rounded-xl transition-all duration-300 ${
+                    distributionDays > 0
+                      ? 'border-[#3DB5A0] bg-[#E9FBF7] shadow-md'
+                      : 'border-gray-300 hover:border-[#3DB5A0] hover:shadow-md'
+                  }`}
+                >
+                  <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                    <div className="flex items-start gap-3 md:flex-1">
+                      <Checkbox
+                        checked={distributionDays > 0}
+                        onCheckedChange={(checked) => handleDistributionDaysChange(checked ? 2 : 0)}
+                        className="mt-1 data-[state=checked]:bg-[#3DB5A0] data-[state=checked]:border-[#3DB5A0]"
+                      />
+                      <div>
+                        <Label className="font-[Poppins] font-medium text-base">
+                          Distribution de votre communication par 1 hôtesse à l'entrée du salon
+                        </Label>
+                        <p className="text-sm text-gray-600 mt-1 font-[Poppins]">
+                          700 € / jour (le salon dure 2 jours)
+                        </p>
+                      </div>
+                    </div>
+                    {distributionTotal > 0 && (
+                      <p className="text-sm font-semibold text-left md:text-right" style={{ color: COLORS.primary }}>
+                        Total : {distributionTotal.toLocaleString('fr-FR')} €
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="mt-6 space-y-5">
+                    <div className="flex flex-wrap gap-4 items-center">
+                      {[
+                        { label: 'Aucun', value: 0 as 0 | 1 | 2 },
+                        { label: '1 jour', value: 1 as 0 | 1 | 2 },
+                        { label: '2 jours', value: 2 as 0 | 1 | 2 },
+                      ].map((option) => (
+                        <div key={option.value}>
+                          {renderChoiceButton(
+                            option.label,
+                            distributionDays === option.value,
+                            () => handleDistributionDaysChange(option.value)
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    {distributionDays === 1 && (
+                      <div className="pl-4 border-l-4 border-[#3DB5A0] bg-blue-50/50 rounded-r-lg p-4">
+                        <Label className="text-sm font-semibold text-gray-700 mb-3 block font-[Poppins]">
+                          Quel jour souhaitez-vous la distribution ?
+                        </Label>
+                        <div className="flex flex-wrap gap-4 items-center">
+                          {[
+                            { value: 1, label: 'Jour 1', desc: '(Premier jour)' },
+                            { value: 2, label: 'Jour 2', desc: '(Second jour)' }
+                          ].map(({ value, label, desc }) => (
+                            <div key={value} className="text-center">
+                              {renderChoiceButton(
+                                `${label} ${desc}`,
+                                distributionSelectedDay === value,
+                                () => handleDistributionSelectedDayChange(value as 1 | 2),
+                                { compact: true }
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                        {distributionSelectedDay === null && (
+                          <p className="text-sm text-red-600 font-[Poppins] mt-3">
+                            ⚠️ Veuillez sélectionner le jour souhaité.
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

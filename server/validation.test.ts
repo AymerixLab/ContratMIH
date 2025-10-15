@@ -107,6 +107,8 @@ const createValidPayload = () => ({
     logoplanSalon: false,
     documentationSacVisiteur: false,
     distributionHotesse: false,
+    distributionHotesseDays: 0,
+    distributionHotesseSelectedDay: null,
   },
   engagementData: {
     modeReglement: 'acompte',
@@ -170,6 +172,20 @@ describe('SubmissionSchema', () => {
     if (!result.success) {
       const formatted = result.error.format();
       expect(formatted.engagementData?.dateSignature?._errors?.[0]).toBeDefined();
+    }
+  });
+
+  it('requires a selected day when a single distribution day is chosen', () => {
+    const payload = createValidPayload();
+    payload.visibiliteData.distributionHotesse = true;
+    payload.visibiliteData.distributionHotesseDays = 1;
+    payload.visibiliteData.distributionHotesseSelectedDay = null;
+
+    const result = SubmissionSchema.safeParse(payload);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const formatted = result.error.format();
+      expect(formatted.visibiliteData?.distributionHotesseSelectedDay?._errors?.[0]).toContain('Jour');
     }
   });
 });

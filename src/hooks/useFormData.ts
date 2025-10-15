@@ -107,7 +107,9 @@ export function useFormData() {
     quatriemeCouverture: false,
     logoplanSalon: false,
     documentationSacVisiteur: false,
-    distributionHotesse: false
+    distributionHotesse: false,
+    distributionHotesseDays: 0,
+    distributionHotesseSelectedDay: null
   });
 
   const [engagementData, setEngagementData] = useState<EngagementData>({
@@ -606,7 +608,9 @@ export function useFormData() {
       quatriemeCouverture: false,
       logoplanSalon: false,
       documentationSacVisiteur: false,
-      distributionHotesse: false
+      distributionHotesse: false,
+      distributionHotesseDays: 0,
+      distributionHotesseSelectedDay: null
     });
 
     setEngagementData({

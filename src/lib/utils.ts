@@ -195,8 +195,11 @@ export const calculateTotalHT4 = (visibiliteData: VisibiliteData, reservationDat
   if (visibiliteData.documentationSacVisiteur) {
     total += visibilitePrices.documentationSacVisiteur;
   }
-  if (visibiliteData.distributionHotesse) {
-    total += visibilitePrices.distributionHotesse;
+  const distributionDays = typeof visibiliteData.distributionHotesseDays === 'number'
+    ? Math.max(0, Math.min(2, visibiliteData.distributionHotesseDays))
+    : (visibiliteData.distributionHotesse ? 2 : 0);
+  if (distributionDays > 0) {
+    total += distributionDays * visibilitePrices.distributionHotesse;
   }
   
   return total;

@@ -116,6 +116,8 @@ export interface VisibiliteData {
   logoplanSalon: boolean;
   documentationSacVisiteur: boolean;
   distributionHotesse: boolean;
+  distributionHotesseDays: 0 | 1 | 2;
+  distributionHotesseSelectedDay: 1 | 2 | null;
 }
 
 export interface EngagementData {

@@ -288,10 +288,19 @@ export function DetailedSummary({
       });
     }
 
-    if (visibiliteData.distributionHotesse) {
+    const distributionDays = typeof visibiliteData.distributionHotesseDays === 'number'
+      ? Math.max(0, Math.min(2, visibiliteData.distributionHotesseDays))
+      : (visibiliteData.distributionHotesse ? 2 : 0);
+    if (distributionDays > 0) {
+      const total = distributionDays * visibilitePrices.distributionHotesse;
+      const dayLabel = distributionDays === 2
+        ? '2 jours'
+        : visibiliteData.distributionHotesseSelectedDay
+          ? `Jour ${visibiliteData.distributionHotesseSelectedDay}`
+          : '1 jour';
       selected.push({
-        name: 'Distribution par hôtesse (2 jours à 700 €/jour = 1 400 €)',
-        price: visibilitePrices.distributionHotesse
+        name: `Distribution par hôtesse (${dayLabel})`,
+        price: total
       });
     }
 

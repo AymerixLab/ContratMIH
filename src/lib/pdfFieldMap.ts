@@ -452,6 +452,15 @@ export const PDF_FIELD_MAP: Record<string, PdfFieldMapping> = {
   'comm_catalogue_quatrieme': { type: 'text', get: ({ visibiliteData }) => visibiliteData.quatriemeCouverture ? num(visibilitePrices.quatriemeCouverture) : '' },
   'comm_logo_plan': { type: 'text', get: ({ visibiliteData }) => visibiliteData.logoplanSalon ? num(visibilitePrices.logoplanSalon) : '' },
   'comm_sac': { type: 'text', get: ({ visibiliteData }) => visibiliteData.documentationSacVisiteur ? num(visibilitePrices.documentationSacVisiteur) : '' },
-  'comm_hotesse': { type: 'text', get: ({ visibiliteData }) => visibiliteData.distributionHotesse ? num(visibilitePrices.distributionHotesse) : '' },
+  'comm_hotesse': {
+    type: 'text',
+    get: ({ visibiliteData }) => {
+      const days = typeof visibiliteData.distributionHotesseDays === 'number'
+        ? Math.max(0, Math.min(2, visibiliteData.distributionHotesseDays))
+        : (visibiliteData.distributionHotesse ? 2 : 0);
+      if (days <= 0) return '';
+      return num(days * visibilitePrices.distributionHotesse);
+    }
+  },
   'comm_papier': { type: 'text', get: () => '' },
 };

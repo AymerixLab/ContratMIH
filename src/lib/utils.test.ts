@@ -74,6 +74,8 @@ const baseVisibilite: VisibiliteData = {
   logoplanSalon: false,
   documentationSacVisiteur: false,
   distributionHotesse: false,
+  distributionHotesseDays: 0,
+  distributionHotesseSelectedDay: null,
 };
 
 const fullFormData = (): FormData => ({
@@ -197,13 +199,23 @@ describe('utils financial calculations', () => {
     expect(total).toBe(1800);
   });
 
-  it('charges distribution hôtesse for the mandatory two-day total', () => {
+  it('charges distribution hôtesse based on the selected number of days', () => {
     const visibilite: VisibiliteData = {
       ...baseVisibilite,
       distributionHotesse: true,
+      distributionHotesseDays: 2,
     };
 
-    expect(calculateTotalHT4(visibilite, baseReservation)).toBe(visibilitePrices.distributionHotesse);
+    expect(calculateTotalHT4(visibilite, baseReservation)).toBe(2 * visibilitePrices.distributionHotesse);
+
+    const singleDay: VisibiliteData = {
+      ...baseVisibilite,
+      distributionHotesse: true,
+      distributionHotesseDays: 1,
+      distributionHotesseSelectedDay: 1,
+    };
+
+    expect(calculateTotalHT4(singleDay, baseReservation)).toBe(visibilitePrices.distributionHotesse);
   });
 
   it('aligns calculateTotals with individual section helpers', () => {

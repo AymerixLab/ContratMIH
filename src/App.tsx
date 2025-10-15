@@ -94,6 +94,15 @@ export default function App() {
       }
     });
 
+    const distributionDays = visibiliteData.distributionHotesseDays;
+    const needsDaySelection = (distributionDays === 1) || (distributionDays === undefined && visibiliteData.distributionHotesse);
+    if (needsDaySelection) {
+      const selectedDay = visibiliteData.distributionHotesseSelectedDay;
+      if (selectedDay !== 1 && selectedDay !== 2) {
+        issues.push('Veuillez sélectionner Jour 1 ou Jour 2 pour la distribution par hôtesse.');
+      }
+    }
+
     return issues;
   };
 

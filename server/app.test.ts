@@ -109,6 +109,8 @@ const createValidPayload = () => ({
     logoplanSalon: false,
     documentationSacVisiteur: false,
     distributionHotesse: false,
+    distributionHotesseDays: 0,
+    distributionHotesseSelectedDay: null,
   },
   engagementData: {
     modeReglement: 'acompte',
@@ -176,6 +178,8 @@ describe('createApp server', () => {
           totalHt: 6205,
           totalTva: 1241,
           totalTtc: 7446,
+          distributionHotesseDays: 0,
+          distributionHotesseDay: null,
         }),
       })
     );
