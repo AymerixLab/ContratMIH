@@ -521,7 +521,8 @@ export function EngagementPage({
         {/* Signature et cachet */}
         <Card className="mb-6 rounded-lg" style={{ borderColor: COLORS.primary, borderWidth: "2px", borderRadius: "12px" }}>
           <CardHeader className="rounded-t-lg" style={{ backgroundColor: COLORS.primary, borderTopLeftRadius: "10px", borderTopRightRadius: "10px" }}>
-            <CardTitle className="text-white font-[Poppins]">SIGNATURE ET CACHET</CardTitle>
+            {/* <CardTitle className="text-white font-[Poppins]">SIGNATURE ET CACHET</CardTitle> */}
+            <CardTitle className="text-white font-[Poppins]">SIGNATURE</CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -536,7 +537,7 @@ export function EngagementPage({
                 <p className="text-xs text-gray-500 mt-1">Date et heure générées automatiquement</p>
               </div>
 
-              <div>
+              {/* <div>
                 <Label htmlFor="cachetSignature" className="font-[Poppins] font-medium">
                   Cachet et signature de l'entreprise
                 </Label>
@@ -548,7 +549,7 @@ export function EngagementPage({
                   className="mt-1 font-[Poppins] border-[#3DB5A0] focus:ring-[#3DB5A0]"
                   style={{ borderRadius: "8px" }}
                 />
-              </div>
+              </div> */}
             </div>
           </CardContent>
         </Card>
