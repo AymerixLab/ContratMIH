@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { DetailedSummary } from '../shared/DetailedSummary';
 import { EngagementData, FormData, ReservationData, AmenagementData, VisibiliteData } from '../../lib/types';
 import { COLORS } from '../../lib/constants';
+import { Loader2 } from 'lucide-react';
 
 interface EngagementPageProps {
   engagementData: EngagementData;
@@ -25,6 +26,8 @@ interface EngagementPageProps {
   totalTTC: number;
   onBack: () => void;
   onComplete: () => void;
+  submissionError: string | null;
+  isSubmitting: boolean;
 }
 
 const REGULATION_PDF_URL = new URL('../../assets/Reglement.pdf', import.meta.url).href;
@@ -239,13 +242,16 @@ export function EngagementPage({
   tva,
   totalTTC,
   onBack,
-  onComplete
+  onComplete,
+  submissionError,
+  isSubmitting
 }: EngagementPageProps) {
   const [showRegulationModal, setShowRegulationModal] = useState(false);
   const [hasScrolledRegulation, setHasScrolledRegulation] = useState(false);
   const [manualAcknowledgement, setManualAcknowledgement] = useState(false);
   const regulationContainerRef = useRef<HTMLDivElement | null>(null);
   const regulationSentinelRef = useRef<HTMLDivElement | null>(null);
+  const submissionMessages = submissionError ? submissionError.split(' • ').filter(Boolean) : [];
   
   // Générer automatiquement la date et l'heure du jour
   useEffect(() => {
@@ -302,6 +308,9 @@ export function EngagementPage({
   };
 
   const handleComplete = () => {
+    if (isSubmitting) {
+      return;
+    }
     if (!engagementData.accepteReglement) {
       alert('Veuillez accepter les conditions pour continuer.');
       return;
@@ -564,6 +573,21 @@ export function EngagementPage({
           </p>
         </div>
 
+        {submissionError && (
+          <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            <p className="font-semibold text-red-800 mb-2">Impossible de finaliser l'inscription</p>
+            {submissionMessages.length > 1 ? (
+              <ul className="list-disc list-inside space-y-1">
+                {submissionMessages.map((message, index) => (
+                  <li key={index}>{message}</li>
+                ))}
+              </ul>
+            ) : (
+              <p>{submissionMessages[0] ?? submissionError}</p>
+            )}
+          </div>
+        )}
+
         {/* Navigation Buttons */}
         <div className="flex justify-between">
           <Button 
@@ -577,13 +601,20 @@ export function EngagementPage({
           <Button 
             size="lg"
             className={`text-white px-12 py-3 font-[Poppins] font-semibold transition-colors duration-200 ${
-              !engagementData.accepteReglement ? 'opacity-50 cursor-not-allowed' : ''
+              !engagementData.accepteReglement || isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
             }`}
             style={{ backgroundColor: engagementData.accepteReglement ? COLORS.secondary : '#gray', borderRadius: "8px" }}
             onClick={handleComplete}
-            disabled={!engagementData.accepteReglement}
+            disabled={!engagementData.accepteReglement || isSubmitting}
           >
-            Valider et Générer les Documents
+            {isSubmitting ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Envoi en cours...
+              </span>
+            ) : (
+              'Valider et Générer les Documents'
+            )}
           </Button>
         </div>
       </CardContent>

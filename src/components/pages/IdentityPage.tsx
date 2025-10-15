@@ -28,6 +28,7 @@ interface IdentityPageProps {
   isTvaIntraValid: (tva: string) => boolean;
   onPhoneChange: (field: string, value: string) => void;
   isPhoneValid: (phone: string) => boolean;
+  isEmailValid: (email: string) => boolean;
   onNext: () => void;
 }
 
@@ -49,6 +50,7 @@ export function IdentityPage({
   isTvaIntraValid,
   onPhoneChange,
   isPhoneValid,
+  isEmailValid,
   onNext
 }: IdentityPageProps) {
   const [errorFields, setErrorFields] = useState<string[]>([]);
@@ -76,6 +78,8 @@ export function IdentityPage({
           if (isTvaIntraValid(value)) fields.push(field);
         } else if (field === 'tel' || field === 'contactComptaTel' || field === 'responsableTel' || field === 'respOpTel') {
           if (isPhoneValid(value)) fields.push(field);
+        } else if (field === 'contactComptaMail' || field === 'responsableMail' || field === 'respOpMail') {
+          if (isEmailValid(value)) fields.push(field);
         } else {
           fields.push(field);
         }
@@ -91,7 +95,7 @@ export function IdentityPage({
     formData.contactComptaTel, formData.contactComptaMail, formData.responsableNom, 
     formData.responsablePrenom, formData.responsableTel, formData.responsableMail, 
     formData.respOpNom, formData.respOpPrenom, formData.respOpTel, formData.respOpMail, 
-    formData.autreActivite, isSiretValid, isTvaIntraValid, isPhoneValid
+    formData.autreActivite, isSiretValid, isTvaIntraValid, isPhoneValid, isEmailValid
   ]);
 
   // Animation variants simplifiées
@@ -185,11 +189,31 @@ export function IdentityPage({
         formData[field as keyof FormData] && !isPhoneValid(formData[field as keyof FormData] as string)) {
       hasFormatError = true;
     }
+    if ((field === 'contactComptaMail' || field === 'responsableMail' || field === 'respOpMail') &&
+        formData[field as keyof FormData] && !isEmailValid(formData[field as keyof FormData] as string)) {
+      hasFormatError = true;
+    }
     
     const isValid = validFields.includes(field) && !isError && !hasFormatError;
     
     return { isError, hasFormatError, isValid };
-  }, [errorFields, formData.siret, formData.tvaIntra, formData.tel, formData.contactComptaTel, formData.responsableTel, formData.respOpTel, validFields, isSiretValid, isTvaIntraValid, isPhoneValid]);
+  }, [
+    errorFields,
+    formData.siret,
+    formData.tvaIntra,
+    formData.tel,
+    formData.contactComptaTel,
+    formData.responsableTel,
+    formData.respOpTel,
+    formData.contactComptaMail,
+    formData.responsableMail,
+    formData.respOpMail,
+    validFields,
+    isSiretValid,
+    isTvaIntraValid,
+    isPhoneValid,
+    isEmailValid
+  ]);
 
   // Fonction pour obtenir les messages informatifs
   const getFieldMessage = useCallback((field: string) => {
@@ -212,8 +236,24 @@ export function IdentityPage({
     if (field === 'respOpTel' && formData.respOpTel && formData.respOpTel.length > 0) {
       return `${formData.respOpTel.length} chiffres (minimum 8)`;
     }
+    if ((field === 'contactComptaMail' || field === 'responsableMail' || field === 'respOpMail') &&
+        formData[field as keyof FormData] && (formData[field as keyof FormData] as string).length > 0 &&
+        !isEmailValid(formData[field as keyof FormData] as string)) {
+      return 'Adresse e-mail invalide';
+    }
     return '';
-  }, [formData.siret, formData.tvaIntra, formData.tel, formData.contactComptaTel, formData.responsableTel, formData.respOpTel]);
+  }, [
+    formData.siret,
+    formData.tvaIntra,
+    formData.tel,
+    formData.contactComptaTel,
+    formData.responsableTel,
+    formData.respOpTel,
+    formData.contactComptaMail,
+    formData.responsableMail,
+    formData.respOpMail,
+    isEmailValid
+  ]);
 
   return (
     <motion.div
@@ -967,7 +1007,7 @@ export function IdentityPage({
                     <Label 
                       htmlFor="contactComptaMail"
                       className={`font-[Poppins] font-medium transition-colors duration-200 ${
-                        getFieldStatus('contactComptaMail').isError ? 'text-red-600' : 
+                        getFieldStatus('contactComptaMail').isError || getFieldStatus('contactComptaMail').hasFormatError ? 'text-red-600' : 
                         getFieldStatus('contactComptaMail').isValid ? 'text-green-600' : ''
                       }`}
                     >
@@ -982,17 +1022,25 @@ export function IdentityPage({
                       value={formData.contactComptaMail}
                       onChange={(e) => onInputChange('contactComptaMail', e.target.value)}
                       className={`mt-1 font-[Poppins] transition-all duration-200 ${
-                        getFieldStatus('contactComptaMail').isError
+                        getFieldStatus('contactComptaMail').isError || getFieldStatus('contactComptaMail').hasFormatError
                           ? 'border-red-500 focus:ring-red-500' 
                           : getFieldStatus('contactComptaMail').isValid
                           ? 'border-green-500 focus:ring-green-500'
                           : 'border-gray-300 focus:border-[#3DB5A0] focus:ring-[#3DB5A0] hover:border-gray-400'
                       }`}
-                      data-error={getFieldStatus('contactComptaMail').isError}
+                      data-error={getFieldStatus('contactComptaMail').isError || getFieldStatus('contactComptaMail').hasFormatError}
                     />
-                    {getFieldStatus('contactComptaMail').isError && (
+                    {(getFieldStatus('contactComptaMail').isError || getFieldStatus('contactComptaMail').hasFormatError) && (
                       <div className="absolute right-3 top-8 text-red-500">
                         <AlertCircle className="w-4 h-4" />
+                      </div>
+                    )}
+                    {getFieldMessage('contactComptaMail') && (
+                      <div className={`text-xs mt-1 transition-colors duration-200 ${
+                        getFieldStatus('contactComptaMail').hasFormatError ? 'text-red-500' : 
+                        getFieldStatus('contactComptaMail').isValid ? 'text-green-500' : 'text-gray-500'
+                      }`}>
+                        {getFieldMessage('contactComptaMail')}
                       </div>
                     )}
                   </div>
@@ -1122,7 +1170,7 @@ export function IdentityPage({
                     <Label 
                       htmlFor="responsableMail"
                       className={`font-[Poppins] font-medium transition-colors duration-200 ${
-                        getFieldStatus('responsableMail').isError ? 'text-red-600' : 
+                        getFieldStatus('responsableMail').isError || getFieldStatus('responsableMail').hasFormatError ? 'text-red-600' : 
                         getFieldStatus('responsableMail').isValid ? 'text-green-600' : ''
                       }`}
                     >
@@ -1137,17 +1185,25 @@ export function IdentityPage({
                       value={formData.responsableMail}
                       onChange={(e) => onInputChange('responsableMail', e.target.value)}
                       className={`mt-1 font-[Poppins] transition-all duration-200 ${
-                        getFieldStatus('responsableMail').isError
+                        getFieldStatus('responsableMail').isError || getFieldStatus('responsableMail').hasFormatError
                           ? 'border-red-500 focus:ring-red-500' 
                           : getFieldStatus('responsableMail').isValid
                           ? 'border-green-500 focus:ring-green-500'
                           : 'border-gray-300 focus:border-[#3DB5A0] focus:ring-[#3DB5A0] hover:border-gray-400'
                       }`}
-                      data-error={getFieldStatus('responsableMail').isError}
+                      data-error={getFieldStatus('responsableMail').isError || getFieldStatus('responsableMail').hasFormatError}
                     />
-                    {getFieldStatus('responsableMail').isError && (
+                    {(getFieldStatus('responsableMail').isError || getFieldStatus('responsableMail').hasFormatError) && (
                       <div className="absolute right-3 top-8 text-red-500">
                         <AlertCircle className="w-4 h-4" />
+                      </div>
+                    )}
+                    {getFieldMessage('responsableMail') && (
+                      <div className={`text-xs mt-1 transition-colors duration-200 ${
+                        getFieldStatus('responsableMail').hasFormatError ? 'text-red-500' : 
+                        getFieldStatus('responsableMail').isValid ? 'text-green-500' : 'text-gray-500'
+                      }`}>
+                        {getFieldMessage('responsableMail')}
                       </div>
                     )}
                   </div>
@@ -1277,7 +1333,7 @@ export function IdentityPage({
                     <Label 
                       htmlFor="respOpMail"
                       className={`font-[Poppins] font-medium transition-colors duration-200 ${
-                        getFieldStatus('respOpMail').isError ? 'text-red-600' : 
+                        getFieldStatus('respOpMail').isError || getFieldStatus('respOpMail').hasFormatError ? 'text-red-600' : 
                         getFieldStatus('respOpMail').isValid ? 'text-green-600' : ''
                       }`}
                     >
@@ -1292,17 +1348,25 @@ export function IdentityPage({
                       value={formData.respOpMail}
                       onChange={(e) => onInputChange('respOpMail', e.target.value)}
                       className={`mt-1 font-[Poppins] transition-all duration-200 ${
-                        getFieldStatus('respOpMail').isError
+                        getFieldStatus('respOpMail').isError || getFieldStatus('respOpMail').hasFormatError
                           ? 'border-red-500 focus:ring-red-500' 
                           : getFieldStatus('respOpMail').isValid
                           ? 'border-green-500 focus:ring-green-500'
                           : 'border-gray-300 focus:border-[#3DB5A0] focus:ring-[#3DB5A0] hover:border-gray-400'
                       }`}
-                      data-error={getFieldStatus('respOpMail').isError}
+                      data-error={getFieldStatus('respOpMail').isError || getFieldStatus('respOpMail').hasFormatError}
                     />
-                    {getFieldStatus('respOpMail').isError && (
+                    {(getFieldStatus('respOpMail').isError || getFieldStatus('respOpMail').hasFormatError) && (
                       <div className="absolute right-3 top-8 text-red-500">
                         <AlertCircle className="w-4 h-4" />
+                      </div>
+                    )}
+                    {getFieldMessage('respOpMail') && (
+                      <div className={`text-xs mt-1 transition-colors duration-200 ${
+                        getFieldStatus('respOpMail').hasFormatError ? 'text-red-500' : 
+                        getFieldStatus('respOpMail').isValid ? 'text-green-500' : 'text-gray-500'
+                      }`}>
+                        {getFieldMessage('respOpMail')}
                       </div>
                     )}
                   </div>

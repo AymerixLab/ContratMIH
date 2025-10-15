@@ -92,11 +92,57 @@ export async function uploadSubmissionDocument(
 async function safeParseError(response: Response): Promise<string> {
   try {
     const data = await response.json();
-    if (data?.error) {
+    const detailMessages = collectDetailMessages(data?.details);
+
+    if (typeof data?.error === 'string') {
+      if (detailMessages.length > 0) {
+        return `${data.error}: ${detailMessages.join(' • ')}`;
+      }
       return data.error;
     }
+
+    if (detailMessages.length > 0) {
+      return detailMessages.join(' • ');
+    }
+
     return `API error ${response.status}`;
   } catch (_error) {
     return `API error ${response.status}`;
   }
+}
+
+function collectDetailMessages(details: unknown, path: string[] = []): string[] {
+  if (!details) return [];
+
+  if (typeof details === 'string') {
+    const prefix = path.length > 0 ? `${path.join(' > ')}: ` : '';
+    return [`${prefix}${details}`];
+  }
+
+  if (Array.isArray(details)) {
+    return details.flatMap((item) => collectDetailMessages(item, path));
+  }
+
+  if (typeof details === 'object') {
+    const obj = details as Record<string, unknown>;
+    const errors = Array.isArray(obj._errors)
+      ? (obj._errors as unknown[]).filter((item): item is string => typeof item === 'string')
+      : [];
+
+    const messages: string[] = errors.map((message) => {
+      const prefix = path.length > 0 ? `${path.join(' > ')}: ` : '';
+      return `${prefix}${message}`;
+    });
+
+    Object.entries(obj).forEach(([key, value]) => {
+      if (key === '_errors') {
+        return;
+      }
+      messages.push(...collectDetailMessages(value, [...path, key]));
+    });
+
+    return messages;
+  }
+
+  return [];
 }

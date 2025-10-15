@@ -19,6 +19,8 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState<CurrentPage>('identity');
   const [savedIdentityData, setSavedIdentityData] = useState(null);
   const [zipAsset, setZipAsset] = useState<ZipAsset | null>(null);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const {
     formData,
@@ -50,7 +52,8 @@ export default function App() {
     isSiretValid,
     isTvaIntraValid,
     handlePhoneChange,
-    isPhoneValid
+    isPhoneValid,
+    isEmailValid
   } = useFormData();
 
   const totalsBreakdown = useMemo(() => calculateTotals(reservationData, amenagementData, visibiliteData), [reservationData, amenagementData, visibiliteData]);
@@ -62,7 +65,49 @@ export default function App() {
   const tva = totalsBreakdown.tva;
   const totalTTC = totalsBreakdown.ttc;
 
+  const collectSubmissionIssues = () => {
+    const issues: string[] = [];
+
+    const emailChecks: Array<{ value: string; label: string; required?: boolean }> = [
+      { value: formData.contactComptaMail, label: "Email (Comptabilité)", required: true },
+      { value: formData.responsableMail, label: "Email (Responsable de l'entreprise)", required: true },
+      { value: formData.respOpMail, label: "Email (Responsable opérationnel)", required: true },
+    ];
+
+    emailChecks.forEach(({ value, label, required }) => {
+      const trimmed = value.trim();
+      if (required && trimmed === '') {
+        issues.push(`${label} est requis.`);
+      } else if (trimmed !== '' && !isEmailValid(trimmed)) {
+        issues.push(`${label} est invalide.`);
+      }
+    });
+
+    reservationData.coExposants.forEach((coExposant, index) => {
+      const labelSuffix = `co-exposant #${index + 1}`;
+      if (!coExposant.nomEntreprise.trim()) {
+        issues.push(`Le nom de l'entreprise du ${labelSuffix} est requis.`);
+      }
+      const emailValue = coExposant.mailResponsable.trim();
+      if (emailValue !== '' && !isEmailValid(emailValue)) {
+        issues.push(`L'email du responsable du ${labelSuffix} est invalide.`);
+      }
+    });
+
+    return issues;
+  };
+
   const handleComplete = async () => {
+    const issues = collectSubmissionIssues();
+    if (issues.length > 0) {
+      setSubmissionError(issues.join(' \u2022 '));
+      window.scrollTo(0, 0);
+      return;
+    }
+
+    setSubmissionError(null);
+    setIsSubmitting(true);
+
     const submittedAt = new Date().toISOString();
     const totals = {
       totalHT1,
@@ -91,6 +136,9 @@ export default function App() {
       createdSubmissionId = submissionResponse.id;
     } catch (error) {
       console.error('Erreur lors de la sauvegarde en base de données:', error);
+      setSubmissionError(error instanceof Error ? error.message : 'Erreur inconnue lors de la sauvegarde.');
+      setIsSubmitting(false);
+      return;
     }
 
     let generatedAsset: ZipAsset | null = null;
@@ -122,6 +170,8 @@ export default function App() {
         console.error('Erreur lors de l’envoi des documents:', error);
       });
     }
+
+    setIsSubmitting(false);
   };
 
   const handleRestartFromReservation = () => {
@@ -181,6 +231,7 @@ export default function App() {
             isTvaIntraValid={isTvaIntraValid}
             onPhoneChange={handlePhoneChange}
             isPhoneValid={isPhoneValid}
+            isEmailValid={isEmailValid}
             onNext={() => setCurrentPage('reservation')}
           />
         );
@@ -195,6 +246,7 @@ export default function App() {
             addCoExposant={addCoExposant}
             removeCoExposant={removeCoExposant}
             updateCoExposant={updateCoExposant}
+            isEmailValid={isEmailValid}
           />
         );
       case 'amenagements':
@@ -255,6 +307,8 @@ export default function App() {
             totalTTC={totalTTC}
             onBack={() => setCurrentPage('visibilite')}
             onComplete={handleComplete}
+            submissionError={submissionError}
+            isSubmitting={isSubmitting}
           />
         );
       case 'thanks':

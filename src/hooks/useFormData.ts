@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { FormData, ReservationData, AmenagementData, VisibiliteData, EngagementData, StandType, CoExposant } from '../lib/types';
+import { isEmailValid } from '../lib/utils';
 
 export function useFormData() {
   const [formData, setFormData] = useState<FormData>({
@@ -652,6 +653,7 @@ export function useFormData() {
     // Fonctions utilitaires exportées
     isSiretValid,
     isTvaIntraValid,
-    isPhoneValid
+    isPhoneValid,
+    isEmailValid
   };
 }

@@ -7,6 +7,7 @@ import {
   isCoExpositionAvailable,
   validateIdentityPage,
   getFieldTitle,
+  isEmailValid,
 } from './utils';
 import { calculateTotals } from './calculateTotals';
 import { amenagementPrices, visibilitePrices } from './constants';
@@ -300,6 +301,19 @@ describe('utils financial calculations', () => {
   });
 });
 
+describe('email validation helpers', () => {
+  it('validates correct emails', () => {
+    expect(isEmailValid('user@example.com')).toBe(true);
+    expect(isEmailValid('USER+tag@sub.domain.co')).toBe(true);
+  });
+
+  it('rejects malformed emails', () => {
+    expect(isEmailValid('bad')).toBe(false);
+    expect(isEmailValid('user@domain')).toBe(false);
+    expect(isEmailValid('user@domain.')).toBe(false);
+  });
+});
+
 describe('utils validation helpers', () => {
   it('prevents proceeding when garden cottage missing for exterior only', () => {
     const reservation: ReservationData = {
@@ -329,6 +343,14 @@ describe('utils validation helpers', () => {
     const errors = validateIdentityPage(data);
     expect(errors).toContain('raisonSociale');
     expect(errors).toContain('tel');
+  });
+
+  it('flags identity emails when malformed', () => {
+    const data = fullFormData();
+    data.contactComptaMail = 'invalid';
+
+    const errors = validateIdentityPage(data);
+    expect(errors).toContain('contactComptaMail');
   });
 
   it('maps field names to human friendly titles with fallback', () => {

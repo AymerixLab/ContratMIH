@@ -18,7 +18,7 @@ import {
 import { Checkbox } from "../ui/checkbox";
 import { Plus, X } from "lucide-react";
 import { ImageWithFallback } from "../figma/ImageWithFallback";
-import { ReservationData } from "../../lib/types";
+import { ReservationData, CoExposant } from "../../lib/types";
 import {
   electricityPrices,
   coExpositionPrice,
@@ -43,6 +43,7 @@ interface ReservationPageProps {
     field: string,
     value: string,
   ) => void;
+  isEmailValid: (email: string) => boolean;
 }
 
 export function ReservationPage({
@@ -54,6 +55,7 @@ export function ReservationPage({
   addCoExposant,
   removeCoExposant,
   updateCoExposant,
+  isEmailValid,
 }: ReservationPageProps) {
   const exteriorSurfaceValue = reservationData.exteriorSurface;
   const exteriorSurfaceNumber = parseInt(exteriorSurfaceValue || "0", 10);
@@ -73,6 +75,19 @@ export function ReservationPage({
     return "";
   })();
 
+  const getCoExposantValidation = (coExposant: CoExposant) => {
+    const companyMissing = !coExposant.nomEntreprise.trim();
+    const emailValue = (coExposant.mailResponsable || '').trim();
+    const emailInvalid = emailValue !== '' && !isEmailValid(emailValue);
+
+    return { companyMissing, emailInvalid };
+  };
+
+  const hasInvalidCoExposantData = reservationData.coExposants.some((coExposant) => {
+    const { companyMissing, emailInvalid } = getCoExposantValidation(coExposant);
+    return companyMissing || emailInvalid;
+  });
+
   // Fonction pour vérifier si on peut procéder à la page suivante
   const canProceedToNext = () => {
     const hasInteriorStand = reservationData.standType !== null;
@@ -80,7 +95,7 @@ export function ReservationPage({
     const exteriorSurfaceValid = !reservationData.exteriorSpace || !isExteriorSurfaceInvalid;
 
     // Doit avoir au moins un stand intérieur sélectionné OU un espace extérieur avec garden cottage
-    return (hasInteriorStand || hasExteriorSelection) && exteriorSurfaceValid;
+    return (hasInteriorStand || hasExteriorSelection) && exteriorSurfaceValid && !hasInvalidCoExposantData;
   };
 
   const handleExteriorSurfaceInput = (event: ChangeEvent<HTMLInputElement>) => {
@@ -519,8 +534,10 @@ export function ReservationPage({
                   )}
                 </div>
 
-                {reservationData.coExposants.map(
-                  (coExposant, index) => (
+                {reservationData.coExposants.map((coExposant, index) => {
+                  const { companyMissing, emailInvalid } = getCoExposantValidation(coExposant);
+
+                  return (
                     <Card
                       key={coExposant.id}
                       className="mb-4"
@@ -567,9 +584,17 @@ export function ReservationPage({
                                   e.target.value,
                                 )
                               }
-                              className="mt-1 font-[Poppins] border-[#3DB5A0] focus:ring-[#3DB5A0]"
+                              className={`mt-1 font-[Poppins] focus:ring-[#3DB5A0] ${
+                                companyMissing ? 'border-red-500 focus:ring-red-500' : 'border-[#3DB5A0]'
+                              }`}
                               style={{ borderRadius: "8px" }}
+                              data-error={companyMissing}
                             />
+                            {companyMissing && (
+                              <p className="mt-1 text-sm text-red-600 font-[Poppins]">
+                                Le nom de l'entreprise est requis.
+                              </p>
+                            )}
                           </div>
 
                           <div>
@@ -642,15 +667,23 @@ export function ReservationPage({
                                   e.target.value,
                                 )
                               }
-                              className="mt-1 font-[Poppins] border-[#3DB5A0] focus:ring-[#3DB5A0]"
+                              className={`mt-1 font-[Poppins] focus:ring-[#3DB5A0] ${
+                                emailInvalid ? 'border-red-500 focus:ring-red-500' : 'border-[#3DB5A0]'
+                              }`}
                               style={{ borderRadius: "8px" }}
+                              data-error={emailInvalid}
                             />
+                            {emailInvalid && (
+                              <p className="mt-1 text-sm text-red-600 font-[Poppins]">
+                                Adresse e-mail invalide.
+                              </p>
+                            )}
                           </div>
                         </div>
                       </CardContent>
                     </Card>
-                  ),
-                )}
+                  );
+                })}
 
                 {reservationData.coExposants.length > 0 && (
                   <div

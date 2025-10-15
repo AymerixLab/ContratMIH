@@ -155,6 +155,28 @@ describe('submitFormData', () => {
     await expect(submitFormData(payload)).rejects.toThrow('Données invalides');
   });
 
+  it('includes detail messages when available', async () => {
+    const payload = createPayload();
+    vi.spyOn(global, 'fetch').mockResolvedValue({
+      ok: false,
+      status: 400,
+      json: async () => ({
+        error: 'Données invalides',
+        details: {
+          formData: {
+            contactComptaMail: {
+              _errors: ['Invalid email address'],
+            },
+          },
+        },
+      }),
+    } as Response);
+
+    await expect(submitFormData(payload)).rejects.toThrow(
+      "Données invalides: formData > contactComptaMail: Invalid email address"
+    );
+  });
+
   it('throws when API returns malformed payload', async () => {
     const payload = createPayload();
     vi.spyOn(global, 'fetch').mockResolvedValue({

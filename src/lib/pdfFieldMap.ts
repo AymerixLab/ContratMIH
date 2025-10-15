@@ -426,7 +426,7 @@ export const PDF_FIELD_MAP: Record<string, PdfFieldMapping> = {
   'acompte': { type: 'text', get: ({ totals }) => {
     const totalTtc = totals.ttc;
     if (!Number.isFinite(totalTtc) || totalTtc <= 0) return '';
-    return num(totalTtc * 0.5);
+    return `${num(totalTtc * 0.5)} €`;
   } },
   'solde': { type: 'text', get: ({ engagementData }) => engagementData.modeReglement === 'solde' ? 'X' : '' },
   'virement': { type: 'text', get: ({ engagementData }) => engagementData.modeReglement === 'virement' ? 'X' : '' },

@@ -13,6 +13,16 @@ import {
   getPassSoireeInclus
 } from './constants';
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+
+export const isEmailValid = (email: string): boolean => {
+  const value = email.trim();
+  if (value === '') {
+    return false;
+  }
+  return EMAIL_REGEX.test(value);
+};
+
 export const calculateTotalHT1 = (reservationData: ReservationData): number => {
   let total = 0;
   
@@ -211,6 +221,21 @@ export const validateIdentityPage = (formData: FormData): string[] => {
   if (!formData.respOpTel.trim()) missingFields.push('respOpTel');
   if (!formData.respOpMail.trim()) missingFields.push('respOpMail');
   if (!formData.enseigne.trim()) missingFields.push('enseigne');
+
+  const emailFields: Array<keyof FormData> = [
+    'contactComptaMail',
+    'responsableMail',
+    'respOpMail',
+  ];
+
+  emailFields.forEach((field) => {
+    const value = (formData[field] as string) ?? '';
+    if (value.trim() && !isEmailValid(value)) {
+      if (!missingFields.includes(field)) {
+        missingFields.push(field);
+      }
+    }
+  });
   
   return missingFields;
 };
