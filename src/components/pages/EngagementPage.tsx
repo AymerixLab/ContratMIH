@@ -29,6 +29,15 @@ interface EngagementPageProps {
 
 const REGULATION_PDF_URL = new URL('../../assets/Reglement.pdf', import.meta.url).href;
 
+const formatSignatureDate = (date: Date) => {
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = String(date.getFullYear());
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${day}/${month}/${year} ${hours}:${minutes}`;
+};
+
 const REGULATION_SECTIONS = [
   {
     title: '1. Conditions générales de ventes',
@@ -241,15 +250,7 @@ export function EngagementPage({
   // Générer automatiquement la date et l'heure du jour
   useEffect(() => {
     if (!engagementData.dateSignature) {
-      const now = new Date();
-      const dateStr = now.toLocaleDateString('fr-FR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-      onEngagementChange('dateSignature', dateStr);
+      onEngagementChange('dateSignature', formatSignatureDate(new Date()));
     }
   }, [engagementData.dateSignature, onEngagementChange]);
 
@@ -497,6 +498,20 @@ export function EngagementPage({
                   >
                     mih@agence-porteduhainaut.fr
                   </a>
+                </Label>
+              </div>
+              <div className="flex items-start gap-3">
+                <Checkbox
+                  id="accepteCommunication"
+                  checked={engagementData.accepteCommunication}
+                  onCheckedChange={(checked) => onEngagementChange('accepteCommunication', checked === true)}
+                  className="data-[state=checked]:bg-[#3DB5A0] data-[state=checked]:border-[#3DB5A0] mt-1"
+                />
+                <Label
+                  htmlFor="accepteCommunication"
+                  className="font-[Poppins] leading-relaxed"
+                >
+                  J’accepte de recevoir des informations et invitations concernant les événements organisés par Porte du Hainaut Développement.
                 </Label>
               </div>
             </div>

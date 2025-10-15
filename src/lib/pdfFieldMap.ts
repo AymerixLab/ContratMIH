@@ -28,6 +28,38 @@ export interface PdfFieldMapping {
 
 const num = (n: number) => n.toFixed(2).replace('.', ',');
 
+const formatDateFromDate = (date: Date) => {
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = String(date.getFullYear());
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  return `${day}/${month}/${year} ${hours}:${minutes}`;
+};
+
+const normalizeSignatureDate = (raw?: string) => {
+  if (!raw) return '';
+  const trimmed = raw.trim();
+  const dateMatch = trimmed.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+  if (!dateMatch) return trimmed;
+
+  const [, dayRaw, monthRaw, yearRaw] = dateMatch;
+  const dateIndex = dateMatch.index ?? 0;
+  const normalizedDate = `${dayRaw.padStart(2, '0')}/${monthRaw.padStart(2, '0')}/${
+    yearRaw.length === 2 ? `20${yearRaw}` : yearRaw.padStart(4, '0')
+  }`;
+
+  const afterDate = trimmed.slice(dateIndex + dateMatch[0].length).trim();
+  if (!afterDate) return normalizedDate;
+
+  const timeMatch = afterDate.match(/(\d{1,2})(?:[:hH](\d{1,2}))?/);
+  if (!timeMatch) return normalizedDate;
+
+  const hours = timeMatch[1].padStart(2, '0');
+  const minutes = (timeMatch[2] ?? '0').padStart(2, '0');
+  return `${normalizedDate} ${hours}:${minutes}`;
+};
+
 export const PDF_FIELD_MAP: Record<string, PdfFieldMapping> = {
   // Identité
   'raison_social': { type: 'text', get: ({ formData }) => formData.raisonSociale || formData.enseigne },
@@ -381,8 +413,21 @@ export const PDF_FIELD_MAP: Record<string, PdfFieldMapping> = {
   'total_ttc': { type: 'text', get: ({ totals }) => num(totals.ttc) },
 
   // Engagement
-  'date': { type: 'text', get: ({ engagementData }) => engagementData.dateSignature || new Date().toLocaleDateString('fr-FR') },
-  'acompte': { type: 'text', get: ({ engagementData }) => engagementData.modeReglement === 'acompte' ? 'X' : '' },
+  'date': { type: 'text', get: ({ engagementData }) => {
+    const normalized = normalizeSignatureDate(engagementData.dateSignature);
+    return normalized || formatDateFromDate(new Date());
+  } },
+  'date_2': { type: 'text', get: ({ engagementData }) => {
+    const normalized = normalizeSignatureDate(engagementData.dateSignature);
+    return normalized || formatDateFromDate(new Date());
+  } },
+  'signature_nom': { type: 'text', get: ({ formData }) => formData.responsableNom || '' },
+  'signature_prenom': { type: 'text', get: ({ formData }) => formData.responsablePrenom || '' },
+  'acompte': { type: 'text', get: ({ totals }) => {
+    const totalTtc = totals.ttc;
+    if (!Number.isFinite(totalTtc) || totalTtc <= 0) return '';
+    return num(totalTtc * 0.5);
+  } },
   'solde': { type: 'text', get: ({ engagementData }) => engagementData.modeReglement === 'solde' ? 'X' : '' },
   'virement': { type: 'text', get: ({ engagementData }) => engagementData.modeReglement === 'virement' ? 'X' : '' },
 

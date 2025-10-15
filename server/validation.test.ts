@@ -111,6 +111,7 @@ const createValidPayload = () => ({
   engagementData: {
     modeReglement: 'acompte',
     accepteReglement: true,
+    accepteCommunication: true,
     dateSignature: '',
     cachetSignature: '',
   },

@@ -200,6 +200,7 @@ export function createApp(prismaClient, options = {}) {
             distributionHotesse: toBoolean(visibiliteData.distributionHotesse),
             modeReglement: engagementData.modeReglement,
             accepteReglement: toBoolean(engagementData.accepteReglement),
+            accepteCommunication: toBoolean(engagementData.accepteCommunication),
             dateSignature: toNullableText(engagementData.dateSignature),
             cachetSignature: toNullableText(engagementData.cachetSignature),
             totalHtSection1: toMoney(totals.totalHT1),

@@ -106,6 +106,7 @@ const createPayload = (): SubmissionPayload => ({
   engagementData: {
     modeReglement: 'acompte',
     accepteReglement: true,
+    accepteCommunication: true,
     dateSignature: '',
     cachetSignature: '',
   },

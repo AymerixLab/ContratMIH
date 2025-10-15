@@ -112,6 +112,7 @@ const createValidPayload = () => ({
   engagementData: {
     modeReglement: 'acompte',
     accepteReglement: true,
+    accepteCommunication: true,
     dateSignature: '',
     cachetSignature: '',
   },
@@ -168,6 +169,7 @@ describe('createApp server', () => {
           siteInternet: null,
           standAngles: 2,
           electricityUpgrade: '4kw',
+          accepteCommunication: true,
           totalHtSection4: 1680,
           totalHt: 6205,
           totalTva: 1241,

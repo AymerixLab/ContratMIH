@@ -112,6 +112,7 @@ export function useFormData() {
   const [engagementData, setEngagementData] = useState<EngagementData>({
     modeReglement: 'acompte' as 'acompte' | 'solde' | 'virement',
     accepteReglement: false,
+    accepteCommunication: true,
     dateSignature: '',
     cachetSignature: ''
   });
@@ -610,6 +611,7 @@ export function useFormData() {
     setEngagementData({
       modeReglement: 'acompte' as 'acompte' | 'solde' | 'virement',
       accepteReglement: false,
+      accepteCommunication: true,
       dateSignature: '',
       cachetSignature: ''
     });

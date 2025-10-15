@@ -124,6 +124,7 @@ model Submission {
   // ENGAGEMENT
   modeReglement            String   @map("mode_reglement")
   accepteReglement         Boolean  @map("accepte_reglement")
+  accepteCommunication     Boolean  @map("accepte_communication")
   dateSignature            String?  @map("date_signature")
   cachetSignature          String?  @map("cachet_signature")
 

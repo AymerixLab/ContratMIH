@@ -121,6 +121,7 @@ export interface VisibiliteData {
 export interface EngagementData {
   modeReglement: 'acompte' | 'solde' | 'virement';
   accepteReglement: boolean;
+  accepteCommunication: boolean;
   dateSignature: string;
   cachetSignature: string;
 }

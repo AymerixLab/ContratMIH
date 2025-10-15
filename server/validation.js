@@ -122,6 +122,7 @@ const EngagementDataSchema = z.object({
   accepteReglement: z.boolean().refine(val => val === true, {
     message: 'Vous devez accepter le règlement',
   }),
+  accepteCommunication: z.boolean(),
   dateSignature: z.string().optional(),
   cachetSignature: z.string().optional(),
 });
