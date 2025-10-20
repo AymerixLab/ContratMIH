@@ -187,6 +187,7 @@ export function createApp(prismaClient, options = {}) {
             cloisonBoisGainee: toIntegerOrZero(amenagementData.cloisonBoisGainee),
             reservePorteBois: toIntegerOrZero(amenagementData.reservePorteBois),
             bandeauSignaletique: toIntegerOrZero(amenagementData.bandeauSignaletique),
+            railSpots: toIntegerOrZero(amenagementData.railSpots),
             comptoir: toIntegerOrZero(amenagementData.comptoir),
             tabouret: toIntegerOrZero(amenagementData.tabouret),
             mangeDebout: toIntegerOrZero(amenagementData.mangeDebout),

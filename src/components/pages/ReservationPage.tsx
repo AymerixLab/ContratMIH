@@ -164,8 +164,8 @@ export function ReservationPage({
         // Pack prêt à exposer : 9 choix fixes (12 à 36 m² par pas de 3 m²)
         return ['12', '15', '18', '21', '24', '27', '30', '33', '36'];
       case 'bare':
-        // Stand nu : 6 à 30 m² par pas de 3m² (comme équipé)
-        return Array.from({ length: 9 }, (_, i) => (6 + i * 3).toString());
+        // Stand nu : 24 à 60 m² par pas de 3 m²
+        return Array.from({ length: 13 }, (_, i) => (24 + i * 3).toString());
       default:
         return [];
     }
@@ -382,7 +382,7 @@ export function ReservationPage({
                     Surface du stand (m²)
                     {reservationData.standType === 'equipped' && " - De 6 à 30 m² (par pas de 3m²)"}
                     {reservationData.standType === 'ready' && " - 9 choix disponibles (12 à 36 m²)"}
-                    {reservationData.standType === 'bare' && " - De 6 à 30 m² (par pas de 3m²)"}
+                    {reservationData.standType === 'bare' && " - De 24 à 60 m² (par pas de 3m²)"}
                   </Label>
                   <Select
                     value={reservationData.standSize}

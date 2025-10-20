@@ -1,0 +1,27 @@
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+ARG SUPERCRONIC_VERSION=0.2.4
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends build-essential libpq-dev curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -fsSLo /usr/local/bin/supercronic \
+    "https://github.com/aptible/supercronic/releases/download/v${SUPERCRONIC_VERSION}/supercronic-linux-amd64" \
+    && chmod +x /usr/local/bin/supercronic
+
+WORKDIR /app
+
+COPY scripts/db-sync/requirements.txt /tmp/requirements.txt
+
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
+
+COPY scripts/db-sync/ /app/
+
+RUN chmod +x /app/entrypoint.sh
+
+ENTRYPOINT ["/app/entrypoint.sh"]
+CMD []

@@ -86,6 +86,7 @@ const AmenagementDataSchema = z.object({
   cloisonBoisGainee: z.number().int().min(0),
   reservePorteBois: z.number().int().min(0),
   bandeauSignaletique: z.number().int().min(0),
+  railSpots: z.number().int().min(0),
 
   // MOBILIER
   comptoir: z.number().int().min(0),

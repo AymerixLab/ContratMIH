@@ -95,6 +95,25 @@ services:
     networks:
       - traefik-network
 
+  db-sync:
+    build:
+      context: .
+      dockerfile: Dockerfile.db-sync
+    depends_on:
+      - db
+    restart: unless-stopped
+    env_file:
+      - .env.db-sync
+    environment:
+      DB_SYNC_DATABASE_URL: ${DB_SYNC_DATABASE_URL:-postgresql://mih:mih_password@db:5432/mih_staging}
+      DB_SYNC_CRON: ${DB_SYNC_CRON:-*/5 * * * *}
+      DB_SYNC_TIMEZONE: ${DB_SYNC_TIMEZONE:-Europe/Paris}
+      DB_SYNC_EXCLUDED_SCHEMAS: ${DB_SYNC_EXCLUDED_SCHEMAS:-prisma}
+      DB_SYNC_EXCLUDED_TABLE_PREFIXES: ${DB_SYNC_EXCLUDED_TABLE_PREFIXES:-prisma}
+      DB_SYNC_LOG_LEVEL: ${DB_SYNC_LOG_LEVEL:-INFO}
+      GOOGLE_SPREADSHEET_ID: ${GOOGLE_SPREADSHEET_ID}
+      GOOGLE_CREDENTIALS_BASE64: ${GOOGLE_CREDENTIALS_BASE64}
+
 networks:
   traefik-network:
     driver: bridge

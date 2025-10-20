@@ -37,3 +37,4 @@ Thumbs.db
 
 # Docker artifacts
 docker/db-data/
+*.pyc

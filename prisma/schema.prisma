@@ -9,169 +9,170 @@ datasource db {
 }
 
 model Submission {
-  id                       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  submittedAt              DateTime @default(now()) @map("submitted_at") @db.Timestamptz(6)
-  clientSubmittedAt        DateTime? @map("client_submitted_at") @db.Timestamptz(6)
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  submittedAt       DateTime  @default(now()) @map("submitted_at") @db.Timestamptz(6)
+  clientSubmittedAt DateTime? @map("client_submitted_at") @db.Timestamptz(6)
 
   // BACKUP COMPLET - Colonne pour ne jamais perdre de données
-  rawPayload               Json?    @map("raw_payload") @db.JsonB
-  rawTotals                Json?    @map("raw_totals") @db.JsonB
+  rawPayload Json? @map("raw_payload") @db.JsonB
+  rawTotals  Json? @map("raw_totals") @db.JsonB
 
   // IDENTITÉ ENTREPRISE
-  raisonSociale            String   @map("raison_sociale")
-  adresse                  String
-  codePostal               String   @map("code_postal")
-  ville                    String
-  pays                     String
-  tel                      String
-  siteInternet             String?  @map("site_internet")
-  siret                    String?
-  tvaIntra                 String?  @map("tva_intra")
-  membreAssociation        Boolean  @map("membre_association")
-  exposant2024             Boolean  @map("exposant_2024")
+  raisonSociale     String  @map("raison_sociale")
+  adresse           String
+  codePostal        String  @map("code_postal")
+  ville             String
+  pays              String
+  tel               String
+  siteInternet      String? @map("site_internet")
+  siret             String?
+  tvaIntra          String? @map("tva_intra")
+  membreAssociation Boolean @map("membre_association")
+  exposant2024      Boolean @map("exposant_2024")
 
   // ACTIVITÉS
-  activiteIndustrie                    Boolean @map("activite_industrie")
-  activiteTransportLogistique          Boolean @map("activite_transport_logistique")
-  activiteBtpConstructionLogement      Boolean @map("activite_btp_construction_logement")
-  activiteEnvironnementEnergie         Boolean @map("activite_environnement_energie")
-  activiteServicesEntreprises          Boolean @map("activite_services_entreprises")
-  activiteImageNouvellesTechnologies   Boolean @map("activite_image_nouvelles_technologies")
-  activiteTourismeBienEtre             Boolean @map("activite_tourisme_bien_etre")
-  activiteAutre                        Boolean @map("activite_autre")
-  autreActivite                        String? @map("autre_activite")
+  activiteIndustrie                  Boolean @map("activite_industrie")
+  activiteTransportLogistique        Boolean @map("activite_transport_logistique")
+  activiteBtpConstructionLogement    Boolean @map("activite_btp_construction_logement")
+  activiteEnvironnementEnergie       Boolean @map("activite_environnement_energie")
+  activiteServicesEntreprises        Boolean @map("activite_services_entreprises")
+  activiteImageNouvellesTechnologies Boolean @map("activite_image_nouvelles_technologies")
+  activiteTourismeBienEtre           Boolean @map("activite_tourisme_bien_etre")
+  activiteAutre                      Boolean @map("activite_autre")
+  autreActivite                      String? @map("autre_activite")
 
   // FACTURATION
-  facturationAdresse       String?  @map("facturation_adresse")
-  facturationCp            String?  @map("facturation_cp")
-  facturationVille         String?  @map("facturation_ville")
-  facturationPays          String?  @map("facturation_pays")
+  facturationAdresse String? @map("facturation_adresse")
+  facturationCp      String? @map("facturation_cp")
+  facturationVille   String? @map("facturation_ville")
+  facturationPays    String? @map("facturation_pays")
 
   // CONTACTS
-  contactComptaNom         String?  @map("contact_compta_nom")
-  contactComptaTel         String?  @map("contact_compta_tel")
-  contactComptaMail        String?  @map("contact_compta_mail")
-  responsableNom           String?  @map("responsable_nom")
-  responsablePrenom        String?  @map("responsable_prenom")
-  responsableTel           String?  @map("responsable_tel")
-  responsableMail          String?  @map("responsable_mail")
-  respOpNom                String?  @map("resp_op_nom")
-  respOpPrenom             String?  @map("resp_op_prenom")
-  respOpTel                String?  @map("resp_op_tel")
-  respOpMail               String?  @map("resp_op_mail")
-  enseigne                 String?
+  contactComptaNom  String? @map("contact_compta_nom")
+  contactComptaTel  String? @map("contact_compta_tel")
+  contactComptaMail String? @map("contact_compta_mail")
+  responsableNom    String? @map("responsable_nom")
+  responsablePrenom String? @map("responsable_prenom")
+  responsableTel    String? @map("responsable_tel")
+  responsableMail   String? @map("responsable_mail")
+  respOpNom         String? @map("resp_op_nom")
+  respOpPrenom      String? @map("resp_op_prenom")
+  respOpTel         String? @map("resp_op_tel")
+  respOpMail        String? @map("resp_op_mail")
+  enseigne          String?
 
   // RÉSERVATION STAND
-  standType                String?  @map("stand_type")
-  standSize                String?  @map("stand_size")
-  standAngles              Int?     @map("stand_angles")
-  electricityUpgrade       String?  @map("electricity_upgrade")
-  exteriorSpace            Boolean  @map("exterior_space")
-  exteriorSurface          String?  @map("exterior_surface")
-  gardenCottage            Boolean  @map("garden_cottage")
-  microStand               Boolean  @map("micro_stand")
+  standType          String? @map("stand_type")
+  standSize          String? @map("stand_size")
+  standAngles        Int?    @map("stand_angles")
+  electricityUpgrade String? @map("electricity_upgrade")
+  exteriorSpace      Boolean @map("exterior_space")
+  exteriorSurface    String? @map("exterior_surface")
+  gardenCottage      Boolean @map("garden_cottage")
+  microStand         Boolean @map("micro_stand")
 
   // AMÉNAGEMENT - ÉQUIPEMENTS STANDS
-  reservePorteMelamine     Int      @map("reserve_porte_melamine")
-  moquetteDifferente       Int      @map("moquette_differente")
-  moquetteCouleur          String?  @map("moquette_couleur")
-  velumStand               Int      @map("velum_stand")
-  cloisonBoisGainee        Int      @map("cloison_bois_gainee")
-  reservePorteBois         Int      @map("reserve_porte_bois")
-  bandeauSignaletique      Int      @map("bandeau_signaletique")
+  reservePorteMelamine Int     @map("reserve_porte_melamine")
+  moquetteDifferente   Int     @map("moquette_differente")
+  moquetteCouleur      String? @map("moquette_couleur")
+  velumStand           Int     @map("velum_stand")
+  cloisonBoisGainee    Int     @map("cloison_bois_gainee")
+  reservePorteBois     Int     @map("reserve_porte_bois")
+  bandeauSignaletique  Int     @map("bandeau_signaletique")
+  railSpots            Int     @map("rail_spots")
 
   // AMÉNAGEMENT - MOBILIER
-  comptoir                 Int
-  tabouret                 Int
-  mangeDebout              Int      @map("mange_debout")
-  chaise                   Int
-  table120x60              Int      @map("table_120x60")
-  mange3Tabourets          Int      @map("mange_3_tabourets")
-  ecran52                  Int      @map("ecran_52")
-  refrigerateur140         Int      @map("refrigerateur_140")
-  refrigerateur240         Int      @map("refrigerateur_240")
-  presentoirA4             Int      @map("presentoir_a4")
-  blocPrises               Int      @map("bloc_prises")
-  fauteuil                 Int
-  tableBasse               Int      @map("table_basse")
-  gueridonHaut             Int      @map("gueridon_haut")
-  poufCube                 Int      @map("pouf_cube")
-  poufCouleur              String?  @map("pouf_couleur")
-  colonneVitrine           Int      @map("colonne_vitrine")
-  comptoirVitrine          Int      @map("comptoir_vitrine")
-  porteManteaux            Int      @map("porte_manteaux")
-  planteBambou             Int      @map("plante_bambou")
-  planteKentia             Int      @map("plante_kentia")
+  comptoir         Int
+  tabouret         Int
+  mangeDebout      Int     @map("mange_debout")
+  chaise           Int
+  table120x60      Int     @map("table_120x60")
+  mange3Tabourets  Int     @map("mange_3_tabourets")
+  ecran52          Int     @map("ecran_52")
+  refrigerateur140 Int     @map("refrigerateur_140")
+  refrigerateur240 Int     @map("refrigerateur_240")
+  presentoirA4     Int     @map("presentoir_a4")
+  blocPrises       Int     @map("bloc_prises")
+  fauteuil         Int
+  tableBasse       Int     @map("table_basse")
+  gueridonHaut     Int     @map("gueridon_haut")
+  poufCube         Int     @map("pouf_cube")
+  poufCouleur      String? @map("pouf_couleur")
+  colonneVitrine   Int     @map("colonne_vitrine")
+  comptoirVitrine  Int     @map("comptoir_vitrine")
+  porteManteaux    Int     @map("porte_manteaux")
+  planteBambou     Int     @map("plante_bambou")
+  planteKentia     Int     @map("plante_kentia")
 
   // AMÉNAGEMENT - PRODUITS COMPLÉMENTAIRES
-  scanBadges               Boolean  @map("scan_badges")
-  passSoiree               Int      @map("pass_soiree")
+  scanBadges Boolean @map("scan_badges")
+  passSoiree Int     @map("pass_soiree")
 
   // VISIBILITÉ
-  packSignaletiqueComplet          Boolean @map("pack_signaletique_complet")
-  signaletiqueComptoir             Boolean @map("signaletique_comptoir")
-  signaletiqueHautCloisons         Boolean @map("signaletique_haut_cloisons")
-  signaletiqueCloisonsLineaires    Int     @map("signaletique_cloisons_lineaires")
-  signaletiqueEnseigneHaute        Boolean @map("signaletique_enseigne_haute")
-  demiPageCatalogue                Boolean @map("demi_page_catalogue")
-  pageCompleteCatalogue            Boolean @map("page_complete_catalogue")
-  deuxiemeCouverture               Boolean @map("deuxieme_couverture")
-  quatriemeCouverture              Boolean @map("quatrieme_couverture")
-  logoPlanSalon                    Boolean @map("logo_plan_salon")
-  documentationSacVisiteur         Boolean @map("documentation_sac_visiteur")
-  distributionHotesse              Boolean @map("distribution_hotesse")
-  distributionHotesseDays          Int     @default(0) @map("distribution_hotesse_days")
-  distributionHotesseDay           Int?    @map("distribution_hotesse_day")
+  packSignaletiqueComplet       Boolean @map("pack_signaletique_complet")
+  signaletiqueComptoir          Boolean @map("signaletique_comptoir")
+  signaletiqueHautCloisons      Boolean @map("signaletique_haut_cloisons")
+  signaletiqueCloisonsLineaires Int     @map("signaletique_cloisons_lineaires")
+  signaletiqueEnseigneHaute     Boolean @map("signaletique_enseigne_haute")
+  demiPageCatalogue             Boolean @map("demi_page_catalogue")
+  pageCompleteCatalogue         Boolean @map("page_complete_catalogue")
+  deuxiemeCouverture            Boolean @map("deuxieme_couverture")
+  quatriemeCouverture           Boolean @map("quatrieme_couverture")
+  logoPlanSalon                 Boolean @map("logo_plan_salon")
+  documentationSacVisiteur      Boolean @map("documentation_sac_visiteur")
+  distributionHotesse           Boolean @map("distribution_hotesse")
+  distributionHotesseDays       Int     @default(0) @map("distribution_hotesse_days")
+  distributionHotesseDay        Int?    @map("distribution_hotesse_day")
 
   // ENGAGEMENT
-  modeReglement            String   @map("mode_reglement")
-  accepteReglement         Boolean  @map("accepte_reglement")
-  accepteCommunication     Boolean  @map("accepte_communication")
-  dateSignature            DateTime? @map("date_signature") @db.Date
-  cachetSignature          String?  @map("cachet_signature")
+  modeReglement        String    @map("mode_reglement")
+  accepteReglement     Boolean   @map("accepte_reglement")
+  accepteCommunication Boolean   @map("accepte_communication")
+  dateSignature        DateTime? @map("date_signature") @db.Date
+  cachetSignature      String?   @map("cachet_signature")
 
   // TOTAUX
-  totalHtSection1          Decimal  @map("total_ht_section1") @db.Decimal(12, 2)
-  totalHtSection2          Decimal  @map("total_ht_section2") @db.Decimal(12, 2)
-  totalHtSection3          Decimal  @map("total_ht_section3") @db.Decimal(12, 2)
-  totalHtSection4          Decimal  @map("total_ht_section4") @db.Decimal(12, 2)
-  totalHt                  Decimal  @map("total_ht") @db.Decimal(12, 2)
-  totalTva                 Decimal  @map("total_tva") @db.Decimal(12, 2)
-  totalTtc                 Decimal  @map("total_ttc") @db.Decimal(12, 2)
+  totalHtSection1 Decimal @map("total_ht_section1") @db.Decimal(12, 2)
+  totalHtSection2 Decimal @map("total_ht_section2") @db.Decimal(12, 2)
+  totalHtSection3 Decimal @map("total_ht_section3") @db.Decimal(12, 2)
+  totalHtSection4 Decimal @map("total_ht_section4") @db.Decimal(12, 2)
+  totalHt         Decimal @map("total_ht") @db.Decimal(12, 2)
+  totalTva        Decimal @map("total_tva") @db.Decimal(12, 2)
+  totalTtc        Decimal @map("total_ttc") @db.Decimal(12, 2)
 
   // RELATION
-  coExposants              CoExposant[]
-  documents                Document[]
+  coExposants CoExposant[]
+  documents   Document[]
 
   @@index([submittedAt])
   @@map("submissions")
 }
 
 model CoExposant {
-  id                 String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  submissionId       String     @map("submission_id") @db.Uuid
-  nomEntreprise      String     @map("nom_entreprise")
-  nomResponsable     String?    @map("nom_responsable")
-  prenomResponsable  String?    @map("prenom_responsable")
-  telResponsable     String?    @map("tel_responsable")
-  mailResponsable    String?    @map("mail_responsable")
+  id                String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  submissionId      String  @map("submission_id") @db.Uuid
+  nomEntreprise     String  @map("nom_entreprise")
+  nomResponsable    String? @map("nom_responsable")
+  prenomResponsable String? @map("prenom_responsable")
+  telResponsable    String? @map("tel_responsable")
+  mailResponsable   String? @map("mail_responsable")
 
-  submission         Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
 
   @@index([submissionId])
   @@map("co_exposants")
 }
 
 model Document {
-  id           String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  submissionId String     @map("submission_id") @db.Uuid
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  submissionId String   @map("submission_id") @db.Uuid
   filename     String
   filepath     String
   mimetype     String
   size         Int
-  uploadedAt   DateTime   @default(now()) @map("uploaded_at") @db.Timestamptz(6)
+  uploadedAt   DateTime @default(now()) @map("uploaded_at") @db.Timestamptz(6)
 
-  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  submission Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
 
   @@index([submissionId])
   @@map("documents")
