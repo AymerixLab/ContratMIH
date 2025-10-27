@@ -241,8 +241,10 @@ export function DetailedSummary({
 
     if (visibiliteData.signaletiqueEnseigneHaute) {
       selected.push({
-        name: 'Signalétique enseigne haute',
-        price: visibilitePrices.signaletiqueEnseigneHaute
+        name: visibiliteData.enseigneHauteIncluse
+          ? 'Signalétique enseigne haute (incluse dans le pack "PRÊT À EXPOSER")'
+          : 'Signalétique enseigne haute',
+        price: visibiliteData.enseigneHauteIncluse ? 0 : visibilitePrices.signaletiqueEnseigneHaute
       });
     }
 

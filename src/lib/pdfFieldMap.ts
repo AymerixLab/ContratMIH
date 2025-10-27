@@ -411,7 +411,13 @@ export const PDF_FIELD_MAP: Record<string, PdfFieldMapping> = {
     if (qty === 0) return '';
     return num(qty * visibilitePrices.signalethqueCloisons);
   } },
-  'signa_enseigne_haute_prix_ht': { type: 'text', get: ({ visibiliteData }) => visibiliteData.signaletiqueEnseigneHaute ? num(1 * visibilitePrices.signaletiqueEnseigneHaute) : '' },
+  'signa_enseigne_haute_prix_ht': { type: 'text', get: ({ visibiliteData }) => {
+    if (!visibiliteData.signaletiqueEnseigneHaute) {
+      return '';
+    }
+    const price = visibiliteData.enseigneHauteIncluse ? 0 : visibilitePrices.signaletiqueEnseigneHaute;
+    return num(price);
+  } },
 
   // Totaux
   'total_ht_1': { type: 'text', get: ({ totals }) => num(totals.ht1) },

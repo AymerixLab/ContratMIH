@@ -123,6 +123,7 @@ const VisibiliteDataSchema = z.object({
   signaletiqueHautCloisons: z.boolean(),
   signalethqueCloisons: z.number().int().min(0),
   signaletiqueEnseigneHaute: z.boolean(),
+  enseigneHauteIncluse: z.boolean(),
   demiPageCatalogue: z.boolean(),
   pageCompleeteCatalogue: z.boolean(),
   deuxiemeCouverture: z.boolean(),

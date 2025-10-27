@@ -101,6 +101,7 @@ const createValidPayload = () => ({
     signaletiqueHautCloisons: false,
     signalethqueCloisons: 0,
     signaletiqueEnseigneHaute: false,
+    enseigneHauteIncluse: false,
     demiPageCatalogue: false,
     pageCompleeteCatalogue: false,
     deuxiemeCouverture: false,

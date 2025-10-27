@@ -336,13 +336,15 @@ export function VisibilitePage({
 
               {/* Signalétique enseigne haute */}
               <div 
-                className={`text-center p-4 border rounded-lg cursor-pointer transition-all duration-300 ${
+                className={`text-center p-4 border rounded-lg transition-all duration-300 ${
+                  visibiliteData.enseigneHauteIncluse ? 'cursor-default' : 'cursor-pointer'
+                } ${
                   visibiliteData.signaletiqueEnseigneHaute 
                     ? 'border-[#3DB5A0] bg-green-50 shadow-md transform scale-105' 
                     : 'border-gray-300 hover:border-[#3DB5A0] hover:shadow-lg hover:scale-105'
                 }`}
                 style={{ borderRadius: "12px", borderWidth: "2px" }}
-                onClick={() => handleCardClick('signaletiqueEnseigneHaute', visibiliteData.signaletiqueEnseigneHaute)}
+                onClick={() => handleCardClick('signaletiqueEnseigneHaute', visibiliteData.signaletiqueEnseigneHaute, visibiliteData.enseigneHauteIncluse)}
               >
                 <div className="w-full h-32 mb-3 flex items-center justify-center rounded-lg overflow-hidden bg-gray-50">
                   <ImageWithFallback 
@@ -357,7 +359,8 @@ export function VisibilitePage({
                   <Checkbox 
                     checked={visibiliteData.signaletiqueEnseigneHaute}
                     onCheckedChange={(checked) => onVisibiliteChange('signaletiqueEnseigneHaute', checked)}
-                    className="data-[state=checked]:bg-[#3DB5A0] data-[state=checked]:border-[#3DB5A0] pointer-events-none"
+                    disabled={visibiliteData.enseigneHauteIncluse}
+                    className={`data-[state=checked]:bg-[#3DB5A0] data-[state=checked]:border-[#3DB5A0] ${visibiliteData.enseigneHauteIncluse ? 'pointer-events-none opacity-80' : 'pointer-events-none'}`}
                   />
                   <Label className="font-[Poppins] text-sm font-medium cursor-pointer">Signalétique enseigne haute</Label>
                 </div>
@@ -365,8 +368,13 @@ export function VisibilitePage({
                   Mise en avant de votre logo société (L1m x H0,95m)
                 </div>
                 <p className="font-bold text-lg" style={{ color: COLORS.primary }}>
-                  {formatCurrency(visibilitePrices.signaletiqueEnseigneHaute)} €
+                  {formatCurrency(visibiliteData.enseigneHauteIncluse ? 0 : visibilitePrices.signaletiqueEnseigneHaute)} €
                 </p>
+                {visibiliteData.enseigneHauteIncluse && (
+                  <p className="mt-1 text-xs font-semibold" style={{ color: COLORS.secondary }}>
+                    Inclus dans le pack « PRÊT À EXPOSER »
+                  </p>
+                )}
               </div>
             </div>
           </CardContent>

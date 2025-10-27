@@ -105,6 +105,7 @@ export function useFormData() {
     signaletiqueHautCloisons: false,
     signalethqueCloisons: 0,
     signaletiqueEnseigneHaute: false,
+    enseigneHauteIncluse: false,
     demiPageCatalogue: false,
     pageCompleeteCatalogue: false,
     deuxiemeCouverture: false,
@@ -509,6 +510,28 @@ export function useFormData() {
       
       return newData;
     });
+
+    if (field === 'standType') {
+      setVisibiliteData(prev => {
+        if (value === 'ready') {
+          return {
+            ...prev,
+            signaletiqueEnseigneHaute: true,
+            enseigneHauteIncluse: true
+          };
+        }
+
+        if (prev.enseigneHauteIncluse) {
+          return {
+            ...prev,
+            signaletiqueEnseigneHaute: false,
+            enseigneHauteIncluse: false
+          };
+        }
+
+        return prev;
+      });
+    }
   };
 
   // Fonctions pour gérer les co-exposants
@@ -552,10 +575,22 @@ export function useFormData() {
   };
 
   const handleVisibiliteChange = (field: string, value: any) => {
-    setVisibiliteData(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setVisibiliteData(prev => {
+      if (field === 'signaletiqueEnseigneHaute' && prev.enseigneHauteIncluse && value === true) {
+        return prev;
+      }
+
+      const next = {
+        ...prev,
+        [field]: value
+      } as VisibiliteData;
+
+      if (field === 'signaletiqueEnseigneHaute') {
+        next.enseigneHauteIncluse = false;
+      }
+
+      return next;
+    });
   };
 
   const handleEngagementChange = (field: string, value: any) => {
@@ -619,6 +654,7 @@ export function useFormData() {
       signaletiqueHautCloisons: false,
       signalethqueCloisons: 0,
       signaletiqueEnseigneHaute: false,
+      enseigneHauteIncluse: false,
       demiPageCatalogue: false,
       pageCompleeteCatalogue: false,
       deuxiemeCouverture: false,

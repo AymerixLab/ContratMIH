@@ -253,7 +253,17 @@ export function calculateTotals(
   }
 
   if (visibiliteData.signaletiqueEnseigneHaute) {
-    addSection4('Signalétique enseigne haute', visibilitePrices.signaletiqueEnseigneHaute);
+    const included = visibiliteData.enseigneHauteIncluse;
+    const label = included
+      ? 'Signalétique enseigne haute (incluse dans le pack "PRÊT À EXPOSER")'
+      : 'Signalétique enseigne haute';
+    const price = included ? 0 : visibilitePrices.signaletiqueEnseigneHaute;
+
+    if (included) {
+      details.section4[label] = 0;
+    } else {
+      addSection4(label, price);
+    }
   }
 
   const communication: { [key: string]: { active: boolean; price: number } } = {

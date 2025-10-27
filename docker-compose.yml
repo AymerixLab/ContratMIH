@@ -56,6 +56,9 @@ services:
       - "traefik.http.routers.pgadmin.tls=true"
       - "traefik.http.routers.pgadmin.tls.certresolver=letsencrypt"
       - "traefik.http.services.pgadmin.loadbalancer.server.port=80"
+      # 🔒 Basic Auth middleware
+      - "traefik.http.middlewares.pgadmin-auth.basicauth.users=admin:$$2y$$05$$g26/OX5/nK2bebWXs4E3.uCD/vYv.AIsB.eKA5qYJVABUQ0F4GAb6"
+      - "traefik.http.routers.pgadmin.middlewares=pgadmin-auth"
     networks:
       - traefik-network
 
@@ -95,24 +98,24 @@ services:
     networks:
       - traefik-network
 
-  db-sync:
-    build:
-      context: .
-      dockerfile: Dockerfile.db-sync
-    depends_on:
-      - db
-    restart: unless-stopped
-    env_file:
-      - .env.db-sync
-    environment:
-      DB_SYNC_DATABASE_URL: ${DB_SYNC_DATABASE_URL:-postgresql://mih:mih_password@db:5432/mih_staging}
-      DB_SYNC_CRON: ${DB_SYNC_CRON:-*/5 * * * *}
-      DB_SYNC_TIMEZONE: ${DB_SYNC_TIMEZONE:-Europe/Paris}
-      DB_SYNC_EXCLUDED_SCHEMAS: ${DB_SYNC_EXCLUDED_SCHEMAS:-prisma}
-      DB_SYNC_EXCLUDED_TABLE_PREFIXES: ${DB_SYNC_EXCLUDED_TABLE_PREFIXES:-prisma}
-      DB_SYNC_LOG_LEVEL: ${DB_SYNC_LOG_LEVEL:-INFO}
-      GOOGLE_SPREADSHEET_ID: ${GOOGLE_SPREADSHEET_ID}
-      GOOGLE_CREDENTIALS_BASE64: ${GOOGLE_CREDENTIALS_BASE64}
+  # db-sync:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.db-sync
+  #   depends_on:
+  #     - db
+  #   restart: unless-stopped
+  #   env_file:
+  #     - .env.db-sync
+  #   environment:
+  #     DB_SYNC_DATABASE_URL: ${DB_SYNC_DATABASE_URL:-postgresql://mih:mih_password@db:5432/mih_staging}
+  #     DB_SYNC_CRON: ${DB_SYNC_CRON:-*/5 * * * *}
+  #     DB_SYNC_TIMEZONE: ${DB_SYNC_TIMEZONE:-Europe/Paris}
+  #     DB_SYNC_EXCLUDED_SCHEMAS: ${DB_SYNC_EXCLUDED_SCHEMAS:-prisma}
+  #     DB_SYNC_EXCLUDED_TABLE_PREFIXES: ${DB_SYNC_EXCLUDED_TABLE_PREFIXES:-prisma}
+  #     DB_SYNC_LOG_LEVEL: ${DB_SYNC_LOG_LEVEL:-INFO}
+  #     GOOGLE_SPREADSHEET_ID: ${GOOGLE_SPREADSHEET_ID}
+  #     GOOGLE_CREDENTIALS_BASE64: ${GOOGLE_CREDENTIALS_BASE64}
 
 networks:
   traefik-network:

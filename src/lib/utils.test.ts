@@ -97,6 +97,7 @@ const baseVisibilite: VisibiliteData = {
   signaletiqueHautCloisons: false,
   signalethqueCloisons: 0,
   signaletiqueEnseigneHaute: false,
+  enseigneHauteIncluse: false,
   demiPageCatalogue: false,
   pageCompleeteCatalogue: false,
   deuxiemeCouverture: false,
@@ -227,6 +228,28 @@ describe('utils financial calculations', () => {
     const total = calculateTotalHT4(visibilite, reservation);
     // (10 × 125) + 180 + (2 × 185) = 1 800
     expect(total).toBe(1800);
+  });
+
+  it('does not bill the enseigne haute when included in the ready-to-expose pack', () => {
+    const reservation: ReservationData = {
+      ...baseReservation,
+      standType: 'ready',
+      standSize: '15',
+    };
+
+    const visibilite: VisibiliteData = {
+      ...baseVisibilite,
+      signaletiqueEnseigneHaute: true,
+      enseigneHauteIncluse: true,
+    };
+
+    expect(calculateTotalHT4(visibilite, reservation)).toBe(0);
+
+    const totals = calculateTotals(reservation, baseAmenagement, visibilite);
+    expect(totals.ht4).toBe(0);
+    expect(totals.details.section4).toMatchObject({
+      'Signalétique enseigne haute (incluse dans le pack "PRÊT À EXPOSER")': 0,
+    });
   });
 
   it('charges distribution hôtesse based on the selected number of days', () => {

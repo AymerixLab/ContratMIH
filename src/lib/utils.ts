@@ -189,7 +189,9 @@ export const calculateTotalHT4 = (visibiliteData: VisibiliteData, reservationDat
     total += visibiliteData.signalethqueCloisons * visibilitePrices.signalethqueCloisons;
   }
   if (visibiliteData.signaletiqueEnseigneHaute) {
-    total += visibilitePrices.signaletiqueEnseigneHaute;
+    if (!visibiliteData.enseigneHauteIncluse) {
+      total += visibilitePrices.signaletiqueEnseigneHaute;
+    }
   }
   
   // AMÉLIORATION DE VISIBILITÉ ET COMMUNICATION

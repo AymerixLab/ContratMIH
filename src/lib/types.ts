@@ -109,6 +109,7 @@ export interface VisibiliteData {
   signaletiqueHautCloisons: boolean;
   signalethqueCloisons: number;
   signaletiqueEnseigneHaute: boolean;
+  enseigneHauteIncluse: boolean;
   demiPageCatalogue: boolean;
   pageCompleeteCatalogue: boolean;
   deuxiemeCouverture: boolean;
