@@ -1,7 +1,14 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import request from 'supertest';
-import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { createApp } from './app.js';
 import { MAX_TOTAL_VALUE } from './validation.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const UPLOADS_DIR = path.join(__dirname, '..', 'uploads');
 
 const createValidPayload = () => ({
   formData: {
@@ -72,6 +79,7 @@ const createValidPayload = () => ({
     cloisonBoisGainee: 0,
     reservePorteBois: 0,
     bandeauSignaletique: 0,
+    railSpots: 0,
     comptoir: 0,
     tabouret: 0,
     mangeDebout: 0,
@@ -135,6 +143,8 @@ describe('createApp server', () => {
   let submissionCreate: ReturnType<typeof vi.fn>;
   let coExposantCreate: ReturnType<typeof vi.fn>;
   let prismaMock: any;
+  let envSpy: ReturnType<typeof vi.spyOn>;
+  let baseEnv: NodeJS.ProcessEnv;
 
   beforeEach(() => {
     submissionCreate = vi.fn(async ({ data }) => ({ id: 'sub-1', ...data }));
@@ -145,17 +155,30 @@ describe('createApp server', () => {
         coExposant: { create: coExposantCreate },
       })),
     };
+
+    baseEnv = { ...process.env };
+    envSpy = vi.spyOn(process, 'env', 'get');
+    envSpy.mockImplementation(() => ({
+      ...baseEnv,
+      VITE_BYPASS_VALIDATION: 'false',
+      VITE_DISABLE_SUBMISSION: 'false',
+      TEST: 'true',
+    }));
+  });
+
+  afterEach(() => {
+    envSpy.mockRestore();
   });
 
   it('exposes health endpoint', async () => {
-    const app = createApp(prismaMock, { serveStatic: false });
+    const app = createApp(prismaMock, { serveStatic: false, disableSubmission: false });
     const response = await request(app).get('/api/health');
     expect(response.status).toBe(200);
     expect(response.body).toEqual({ status: 'ok' });
   });
 
   it('persists submissions and normalises data', async () => {
-    const app = createApp(prismaMock, { serveStatic: false });
+    const app = createApp(prismaMock, { serveStatic: false, disableSubmission: false });
     const payload = createValidPayload();
 
     const response = await request(app)
@@ -188,7 +211,7 @@ describe('createApp server', () => {
   });
 
   it('rejects invalid submissions with 400', async () => {
-    const app = createApp(prismaMock, { serveStatic: false });
+    const app = createApp(prismaMock, { serveStatic: false, disableSubmission: false });
     const payload = createValidPayload();
     payload.formData.raisonSociale = '';
 
@@ -202,7 +225,7 @@ describe('createApp server', () => {
   });
 
   it('rejects submissions when totals exceed supported range', async () => {
-    const app = createApp(prismaMock, { serveStatic: false });
+    const app = createApp(prismaMock, { serveStatic: false, disableSubmission: false });
     const payload = createValidPayload();
     payload.totals.totalHT = MAX_TOTAL_VALUE + 1;
 
@@ -214,5 +237,49 @@ describe('createApp server', () => {
     expect(response.status).toBe(400);
     expect(response.body.details?.totals?.totalHT?._errors?.[0]).toContain('plafond autorisé');
     expect(prismaMock.$transaction).not.toHaveBeenCalled();
+  });
+
+  it('returns 503 when submissions are disabled', async () => {
+    envSpy.mockImplementation(() => ({
+      ...baseEnv,
+      NODE_ENV: 'development',
+      VITE_BYPASS_VALIDATION: 'false',
+      VITE_DISABLE_SUBMISSION: 'true',
+      TEST: 'true',
+    }));
+
+    const app = createApp(prismaMock, { serveStatic: false, disableSubmission: false });
+
+    const response = await request(app)
+      .post('/api/submissions')
+      .send(createValidPayload())
+      .set('Content-Type', 'application/json');
+
+    expect(response.status).toBe(503);
+    expect(response.body).toEqual({ error: 'Soumission désactivée en environnement de développement' });
+    expect(prismaMock.$transaction).not.toHaveBeenCalled();
+  });
+
+  it('conserve les documents sur disque lorsque la soumission est désactivée', async () => {
+    const submissionId = `dev-submission-${Date.now().toString(36)}`;
+    const app = createApp(prismaMock, { serveStatic: false, disableSubmission: true });
+
+    const storedDir = path.join(UPLOADS_DIR, submissionId);
+
+    try {
+      const response = await request(app)
+        .post(`/api/submissions/${submissionId}/documents`)
+        .attach('file', Buffer.from('zip-content'), 'contract.zip');
+
+      expect(response.status).toBe(201);
+      expect(response.body.id).toMatch(/^dev-document-/);
+      expect(response.body.filepath).toContain(submissionId);
+
+      expect(fs.existsSync(storedDir)).toBe(true);
+      const storedFiles = fs.readdirSync(storedDir);
+      expect(storedFiles.length).toBeGreaterThan(0);
+    } finally {
+      fs.rmSync(storedDir, { recursive: true, force: true });
+    }
   });
 });

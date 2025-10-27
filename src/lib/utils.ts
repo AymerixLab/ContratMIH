@@ -1,5 +1,5 @@
 import { ReservationData, AmenagementData, VisibiliteData, FormData } from './types';
-import { 
+import {
   standPrices, 
   readyToExposePrices, 
   anglePrice,
@@ -12,8 +12,21 @@ import {
   visibilitePrices,
   getPassSoireeInclus
 } from './constants';
+import {
+  isSubmissionDisabledFlag,
+  isValidationBypassedFlag,
+} from './envFlags';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+
+export const isSubmissionDisabled = (): boolean => {
+  return isSubmissionDisabledFlag();
+};
+
+export const isValidationBypassed = (): boolean => {
+  return isValidationBypassedFlag();
+};
+
 const SIGNATURE_DISPLAY_FORMATTER = new Intl.DateTimeFormat('fr-FR', {
   day: '2-digit',
   month: '2-digit',
@@ -23,6 +36,9 @@ const SIGNATURE_DISPLAY_FORMATTER = new Intl.DateTimeFormat('fr-FR', {
 });
 
 export const isEmailValid = (email: string): boolean => {
+  if (isValidationBypassed()) {
+    return true;
+  }
   const value = email.trim();
   if (value === '') {
     return false;
@@ -222,6 +238,9 @@ export const isCoExpositionAvailable = (reservationData: ReservationData): boole
 
 // Validation des champs obligatoires pour la page identité
 export const validateIdentityPage = (formData: FormData): string[] => {
+  if (isValidationBypassed()) {
+    return [];
+  }
   const missingFields: string[] = [];
   
   if (!formData.raisonSociale.trim()) missingFields.push('raisonSociale');
@@ -265,6 +284,9 @@ export const validateIdentityPage = (formData: FormData): string[] => {
 
 // Validation pour la page réservation
 export const validateReservationPage = (reservationData: ReservationData): string[] => {
+  if (isValidationBypassed()) {
+    return [];
+  }
   const missingFields: string[] = [];
   
   // Vérification garden cottage si surface extérieure sans stand intérieur

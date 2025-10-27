@@ -1,3 +1,4 @@
+import { afterEach, beforeEach, vi } from 'vitest';
 import {
   calculateTotalHT1,
   calculateTotalHT2,
@@ -15,6 +16,35 @@ import { calculateTotals } from './calculateTotals';
 import { amenagementPrices, visibilitePrices } from './constants';
 
 import { ReservationData, AmenagementData, VisibiliteData, FormData } from './types';
+import { isDevPrefillEnabled } from './envFlags';
+
+beforeEach(() => {
+  vi.stubEnv('DEV', 'true');
+  vi.stubEnv('VITE_BYPASS_VALIDATION', 'false');
+  vi.stubEnv('VITE_DISABLE_SUBMISSION', 'false');
+});
+
+afterEach(() => {
+  if (typeof vi.unstubAllEnvs === 'function') {
+    vi.unstubAllEnvs();
+  }
+});
+
+describe('envFlags integration', () => {
+  it('enables dev prefill when bypass flag is true in dev', () => {
+    vi.stubEnv('DEV', 'true');
+    vi.stubEnv('VITE_BYPASS_VALIDATION', 'true');
+
+    expect(isDevPrefillEnabled()).toBe(true);
+  });
+
+  it('enables dev prefill when submission is disabled in dev', () => {
+    vi.stubEnv('DEV', 'true');
+    vi.stubEnv('VITE_DISABLE_SUBMISSION', 'true');
+
+    expect(isDevPrefillEnabled()).toBe(true);
+  });
+});
 
 const baseReservation: ReservationData = {
   standType: null,

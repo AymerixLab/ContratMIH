@@ -1,10 +1,22 @@
 
-  import { defineConfig } from 'vite';
+  import { defineConfig, loadEnv } from 'vite';
   import react from '@vitejs/plugin-react-swc';
   import path from 'path';
 
-  export default defineConfig({
-    plugins: [react()],
+  export default defineConfig(({ mode }) => {
+    const env = loadEnv(mode, process.cwd(), '');
+
+    return {
+      plugins: [react()],
+      envPrefix: ['VITE_'],
+      define: {
+        __APP_ENV__: JSON.stringify({
+          VITE_DISABLE_SUBMISSION: env.VITE_DISABLE_SUBMISSION ?? null,
+          VITE_BYPASS_VALIDATION: env.VITE_BYPASS_VALIDATION ?? null,
+          VITE_DEV_PREFILL: env.VITE_DEV_PREFILL ?? null,
+          VITE_API_BASE_URL: env.VITE_API_BASE_URL ?? null,
+        }),
+      },
     resolve: {
       extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
       alias: {
@@ -91,4 +103,5 @@
       },
       environmentMatchGlobs: [['server/**/*.test.ts', 'node']]
     },
+    };
   });

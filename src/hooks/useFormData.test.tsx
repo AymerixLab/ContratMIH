@@ -1,5 +1,5 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useFormData } from './useFormData';
 
 const mockFetchResponse = (data: unknown) => ({
@@ -8,6 +8,27 @@ const mockFetchResponse = (data: unknown) => ({
 }) as Response;
 
 describe('useFormData hook', () => {
+  beforeEach(() => {
+    vi.stubEnv('DEV', 'true');
+    vi.stubEnv('VITE_DISABLE_SUBMISSION', 'false');
+    vi.stubEnv('VITE_BYPASS_VALIDATION', 'false');
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    if (typeof vi.unstubAllEnvs === 'function') {
+      vi.unstubAllEnvs();
+    }
+  });
+
+  it('prefills default data when dev prefill flag enabled', () => {
+    vi.stubEnv('VITE_BYPASS_VALIDATION', 'true');
+
+    const { result } = renderHook(() => useFormData());
+
+    expect(result.current.formData.raisonSociale).toBe('DEV COMPANY');
+    expect(result.current.reservationData.standType).toBe('equipped');
+  });
   it('formats and validates SIRET and TVA numbers', () => {
     const { result } = renderHook(() => useFormData());
 

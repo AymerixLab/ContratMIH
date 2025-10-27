@@ -1,5 +1,6 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { submitFormData, uploadSubmissionDocument, type SubmissionPayload } from './api';
+import { getApiBaseUrl } from './envFlags';
 
 const createFormDataStub = () => ({
   append: vi.fn(),
@@ -124,6 +125,19 @@ const createPayload = (): SubmissionPayload => ({
   submittedAt: new Date().toISOString(),
 });
 
+beforeEach(() => {
+  vi.stubEnv('DEV', 'true');
+  vi.stubEnv('VITE_DISABLE_SUBMISSION', 'false');
+  vi.stubEnv('VITE_BYPASS_VALIDATION', 'false');
+});
+
+afterEach(() => {
+  vi.restoreAllMocks();
+  if (typeof vi.unstubAllEnvs === 'function') {
+    vi.unstubAllEnvs();
+  }
+});
+
 describe('submitFormData', () => {
   it('sends payload to submissions endpoint', async () => {
     const payload = createPayload();
@@ -134,8 +148,10 @@ describe('submitFormData', () => {
 
     const result = await submitFormData(payload);
 
+    const expectedBase = getApiBaseUrl() || window.location.origin;
+
     expect(fetchSpy).toHaveBeenCalledWith(
-      `${window.location.origin}/api/submissions`,
+      `${expectedBase}/api/submissions`,
       expect.objectContaining({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -188,6 +204,20 @@ describe('submitFormData', () => {
 
     await expect(submitFormData(payload)).rejects.toThrow('Réponse du serveur invalide');
   });
+
+  it('returns a mocked submission when submissions are disabled', async () => {
+    vi.stubEnv('DEV', 'true');
+    vi.stubEnv('VITE_DISABLE_SUBMISSION', 'true');
+    const consoleSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
+    const fetchSpy = vi.spyOn(global, 'fetch');
+
+    const payload = createPayload();
+    const result = await submitFormData(payload);
+
+    expect(result.id).toMatch(/^dev-submission-/);
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(consoleSpy).toHaveBeenCalled();
+  });
 });
 
 describe('uploadSubmissionDocument', () => {
@@ -205,8 +235,10 @@ describe('uploadSubmissionDocument', () => {
       formDataFactory,
     });
 
+    const expectedBase = getApiBaseUrl() || window.location.origin;
+
     expect(fetchSpy).toHaveBeenCalledWith(
-      `${window.location.origin}/api/submissions/submission-123/documents`,
+      `${expectedBase}/api/submissions/submission-123/documents`,
       expect.objectContaining({
         method: 'POST',
         body: formDataInstance,
@@ -231,5 +263,25 @@ describe('uploadSubmissionDocument', () => {
     await expect(
       uploadSubmissionDocument('submission-123', blob, 'test.zip', { formDataFactory })
     ).rejects.toThrow('Erreur interne');
+  });
+
+  it('returns a mocked document id when submissions are disabled', async () => {
+    vi.stubEnv('DEV', 'true');
+    vi.stubEnv('VITE_DISABLE_SUBMISSION', 'true');
+    const consoleSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
+    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => ({ id: 'dev-document-123' }),
+    } as Response);
+
+    const blob = new Blob(['test'], { type: 'application/zip' });
+    const result = await uploadSubmissionDocument('submission-123', blob, 'test.zip');
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      expect.stringContaining('/api/submissions/submission-123/documents'),
+      expect.objectContaining({ method: 'POST' })
+    );
+    expect(result.id).toBe('dev-document-123');
+    expect(consoleSpy).toHaveBeenCalled();
   });
 });

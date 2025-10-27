@@ -4,7 +4,7 @@ import cors from 'cors';
 import multer from 'multer';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { SubmissionSchema } from './validation.js';
+import { SubmissionSchema, getSubmissionEnv } from './validation.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -53,9 +53,13 @@ export function createApp(prismaClient, options = {}) {
   const {
     corsOrigin = process.env.CORS_ORIGIN,
     serveStatic = true,
+    disableSubmission = false,
+    uploadsRoot,
   } = options;
 
-  const uploadsDir = path.join(__dirname, '..', 'uploads');
+  const uploadsDir = uploadsRoot
+    ? path.resolve(uploadsRoot)
+    : path.join(__dirname, '..', 'uploads');
   fs.mkdirSync(uploadsDir, { recursive: true });
 
   const storage = multer.diskStorage({
@@ -95,15 +99,22 @@ export function createApp(prismaClient, options = {}) {
 
   app.post('/api/submissions', async (req, res) => {
     try {
+      const { bypassValidation, disableSubmission: envDisableSubmission } = getSubmissionEnv(process.env.NODE_ENV, process.env);
+      if (envDisableSubmission) {
+        return res.status(503).json({ error: 'Soumission désactivée en environnement de développement' });
+      }
+
       const validationResult = SubmissionSchema.safeParse(req.body);
 
-      if (!validationResult.success) {
+      if (!validationResult.success && !bypassValidation) {
         console.error('Validation failed:', validationResult.error.format());
         return res.status(400).json({
           error: 'Données invalides',
           details: validationResult.error.format(),
         });
       }
+
+      const validationData = validationResult.success ? validationResult.data : req.body;
 
       const {
         formData,
@@ -113,7 +124,7 @@ export function createApp(prismaClient, options = {}) {
         engagementData,
         totals,
         submittedAt,
-      } = validationResult.data;
+      } = validationData;
 
       const normalizedDistributionDays = Math.max(
         0,
@@ -278,6 +289,23 @@ export function createApp(prismaClient, options = {}) {
         return res.status(400).json({ error: 'Aucun fichier fourni' });
       }
 
+      const relativePath = path.relative(uploadsDir, file.path);
+
+      if (disableSubmission) {
+        const devId = `dev-document-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+        if (typeof console !== 'undefined' && typeof console.info === 'function') {
+          console.info('[mih] Documents en mode développement, fichier conservé sur disque.', {
+            submissionId,
+            filepath: relativePath,
+          });
+        }
+
+        return res.status(201).json({
+          id: devId,
+          filepath: relativePath,
+        });
+      }
+
       try {
         const submission = await prismaClient.submission.findUnique({
           where: { id: submissionId },
@@ -287,8 +315,6 @@ export function createApp(prismaClient, options = {}) {
           await fs.promises.unlink(file.path).catch(() => undefined);
           return res.status(404).json({ error: 'Soumission introuvable' });
         }
-
-        const relativePath = path.relative(uploadsDir, file.path);
 
         const document = await prismaClient.document.create({
           data: {
@@ -300,7 +326,7 @@ export function createApp(prismaClient, options = {}) {
           },
         });
 
-        return res.status(201).json({ id: document.id });
+        return res.status(201).json({ id: document.id, filepath: relativePath });
       } catch (error) {
         console.error('Erreur lors de la sauvegarde du document:', error);
         await fs.promises.unlink(file.path).catch(() => undefined);

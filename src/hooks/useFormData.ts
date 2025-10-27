@@ -1,18 +1,22 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FormData, ReservationData, AmenagementData, VisibiliteData, EngagementData, StandType, CoExposant } from '../lib/types';
-import { getCurrentSignatureIso, isEmailValid } from '../lib/utils';
+import { getCurrentSignatureIso, isEmailValid, isValidationBypassed } from '../lib/utils';
+import { isDevPrefillEnabled } from '../lib/envFlags';
 
 export function useFormData() {
-  const [formData, setFormData] = useState<FormData>({
-    raisonSociale: '',
-    adresse: '',
-    codePostal: '',
-    ville: '',
-    pays: '',
-    tel: '',
+  const devPrefillEnabled = isDevPrefillEnabled();
+  const bypassValidation = isValidationBypassed();
+
+  const getDefaultFormData = (): FormData => ({
+    raisonSociale: devPrefillEnabled ? 'DEV COMPANY' : '',
+    adresse: devPrefillEnabled ? '1 rue Dev' : '',
+    codePostal: devPrefillEnabled ? '75001' : '',
+    ville: devPrefillEnabled ? 'PARIS' : '',
+    pays: devPrefillEnabled ? 'FRANCE' : '',
+    tel: devPrefillEnabled ? '0102030405' : '',
     siteInternet: '',
-    siret: '',
-    tvaIntra: '',
+    siret: devPrefillEnabled ? '12345678901234' : '',
+    tvaIntra: devPrefillEnabled ? 'FR12345678901' : '',
     membreAssociation: false,
     exposant2024: false,
     activites: {
@@ -30,23 +34,23 @@ export function useFormData() {
     facturationCP: '',
     facturationVille: '',
     facturationPays: '',
-    contactComptaNom: '',
-    contactComptaTel: '',
-    contactComptaMail: '',
-    responsableNom: '',
-    responsablePrenom: '',
-    responsableTel: '',
-    responsableMail: '',
-    respOpNom: '',
-    respOpPrenom: '',
-    respOpTel: '',
-    respOpMail: '',
-    enseigne: ''
+    contactComptaNom: devPrefillEnabled ? 'COMPTA' : '',
+    contactComptaTel: devPrefillEnabled ? '0102030407' : '',
+    contactComptaMail: devPrefillEnabled ? 'compta@example.com' : '',
+    responsableNom: devPrefillEnabled ? 'DOE' : '',
+    responsablePrenom: devPrefillEnabled ? 'JOHN' : '',
+    responsableTel: devPrefillEnabled ? '0102030408' : '',
+    responsableMail: devPrefillEnabled ? 'john@example.com' : '',
+    respOpNom: devPrefillEnabled ? 'SMITH' : '',
+    respOpPrenom: devPrefillEnabled ? 'ALICE' : '',
+    respOpTel: devPrefillEnabled ? '0102030409' : '',
+    respOpMail: devPrefillEnabled ? 'ops@example.com' : '',
+    enseigne: devPrefillEnabled ? 'DEV STAND' : ''
   });
 
-  const [reservationData, setReservationData] = useState<ReservationData>({
-    standType: null as StandType,
-    standSize: '',
+  const getDefaultReservationData = (): ReservationData => ({
+    standType: devPrefillEnabled ? 'equipped' : (null as StandType),
+    standSize: devPrefillEnabled ? '9' : '',
     standAngles: 0,
     electricityUpgrade: 'none' as string,
     exteriorSpace: false,
@@ -56,7 +60,7 @@ export function useFormData() {
     coExposants: []
   });
 
-  const [amenagementData, setAmenagementData] = useState<AmenagementData>({
+  const getDefaultAmenagementData = (): AmenagementData => ({
     // ÉQUIPEMENTS STANDS
     reservePorteMelamine: 0,
     moquetteDifferente: 0,
@@ -95,7 +99,7 @@ export function useFormData() {
     passSoiree: 0
   });
 
-  const [visibiliteData, setVisibiliteData] = useState<VisibiliteData>({
+  const getDefaultVisibiliteData = (): VisibiliteData => ({
     packSignaletiqueComplet: false,
     signaletiqueComptoir: false,
     signaletiqueHautCloisons: false,
@@ -112,13 +116,31 @@ export function useFormData() {
     distributionHotesseSelectedDay: null
   });
 
-  const [engagementData, setEngagementData] = useState<EngagementData>({
-    modeReglement: 'acompte' as 'acompte' | 'solde' | 'virement',
-    accepteReglement: false,
-    accepteCommunication: false,
+  const getDefaultEngagementData = (): EngagementData => ({
+    modeReglement: 'acompte',
+    accepteReglement: bypassValidation,
+    accepteCommunication: bypassValidation,
     dateSignature: getCurrentSignatureIso(),
     cachetSignature: ''
   });
+
+  const [formData, setFormData] = useState<FormData>(getDefaultFormData);
+  const [reservationData, setReservationData] = useState<ReservationData>(getDefaultReservationData);
+  const [amenagementData, setAmenagementData] = useState<AmenagementData>(getDefaultAmenagementData);
+  const [visibiliteData, setVisibiliteData] = useState<VisibiliteData>(getDefaultVisibiliteData);
+  const [engagementData, setEngagementData] = useState<EngagementData>(getDefaultEngagementData);
+
+  useEffect(() => {
+    if (!devPrefillEnabled) {
+      return;
+    }
+    setFormData(getDefaultFormData());
+    setReservationData(getDefaultReservationData());
+    setAmenagementData(getDefaultAmenagementData());
+    setVisibiliteData(getDefaultVisibiliteData());
+    setEngagementData(getDefaultEngagementData());
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [devPrefillEnabled]);
 
   // États pour l'auto-complétion des villes
   const [villeSuggestions, setVilleSuggestions] = useState<{ nom: string; codePostal: string }[]>([]);
@@ -558,7 +580,6 @@ export function useFormData() {
     });
 
     setAmenagementData({
-      // ÉQUIPEMENTS STANDS
       reservePorteMelamine: 0,
       moquetteDifferente: 0,
       moquetteCouleur: '',
@@ -567,8 +588,6 @@ export function useFormData() {
       reservePorteBois: 0,
       bandeauSignaletique: 0,
       railSpots: 0,
-      
-      // MOBILIER
       comptoir: 0,
       tabouret: 0,
       mangeDebout: 0,
@@ -590,8 +609,6 @@ export function useFormData() {
       porteManteux: 0,
       planteBambou: 0,
       planteKentia: 0,
-      
-      // PRODUITS COMPLÉMENTAIRES
       scanBadges: false,
       passSoiree: 0
     });

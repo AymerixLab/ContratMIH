@@ -1,4 +1,13 @@
-import { PDFDocument, StandardFonts, PDFTextField, PDFCheckBox, PDFRadioGroup } from 'pdf-lib';
+import {
+  PDFDocument,
+  StandardFonts,
+  PDFTextField,
+  PDFCheckBox,
+  PDFRadioGroup,
+  PDFDict,
+  PDFName,
+  PDFBool,
+} from 'pdf-lib';
 import { FormData, ReservationData, AmenagementData, VisibiliteData, EngagementData, CoExposant } from './types';
 import { generateStandTypeName } from './documentHelpers';
 import { PDF_FIELD_MAP, MappingCtx } from './pdfFieldMap';
@@ -8,6 +17,35 @@ import { formatSignatureFromIso } from './utils';
 // Resolve the packaged asset URL via Vite
 const CONTRACT_TEMPLATE_URL = new URL('../assets/Contrat de participation 2025 form.pdf', import.meta.url).href;
 const CO_EXPOSANT_TEMPLATE_URL = new URL('../assets/Co.exposant Form.pdf', import.meta.url).href;
+
+function stripXFAAndUsageRights(pdfDoc: PDFDocument) {
+  const catalog = pdfDoc.catalog;
+  const acroFormRef = catalog.get(PDFName.of('AcroForm'));
+  if (acroFormRef) {
+    const acroForm = pdfDoc.context.lookup(acroFormRef, PDFDict);
+    if (acroForm) {
+      const xfaKey = PDFName.of('XFA');
+      if (acroForm.has(xfaKey)) {
+        acroForm.delete(xfaKey);
+      }
+      acroForm.set(PDFName.of('NeedAppearances'), PDFBool.False);
+    }
+  }
+
+  const permsRef = catalog.get(PDFName.of('Perms'));
+  if (permsRef) {
+    const perms = pdfDoc.context.lookup(permsRef, PDFDict);
+    if (perms) {
+      const urKey = PDFName.of('UR');
+      const ur3Key = PDFName.of('UR3');
+      if (perms.has(urKey)) perms.delete(urKey);
+      if (perms.has(ur3Key)) perms.delete(ur3Key);
+      if (perms.size === 0) {
+        catalog.delete(PDFName.of('Perms'));
+      }
+    }
+  }
+}
 
 function normalize(str: string) {
   return str
@@ -172,11 +210,11 @@ export async function generateContractPdfBytes(
   const res = await fetch(CONTRACT_TEMPLATE_URL);
   const ab = await res.arrayBuffer();
   const pdfDoc = await PDFDocument.load(ab, { updateFieldAppearances: false });
+  stripXFAAndUsageRights(pdfDoc);
   const form = pdfDoc.getForm();
 
   // Embed a standard font for consistent appearances
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-  form.updateFieldAppearances(font);
 
   // Compute totals for explicit mapping
   const totals = calculateTotals(reservationData, amenagementData, visibiliteData);
@@ -245,6 +283,7 @@ export async function generateContractPdfBytes(
     }
   }
 
+  form.updateFieldAppearances(font);
   // Flatten so the PDF can’t be modified
   form.flatten();
 
@@ -286,10 +325,10 @@ export async function generateCoExposantPdfBytes(coExposant: CoExposant): Promis
   const res = await fetch(CO_EXPOSANT_TEMPLATE_URL);
   const ab = await res.arrayBuffer();
   const pdfDoc = await PDFDocument.load(ab, { updateFieldAppearances: false });
+  stripXFAAndUsageRights(pdfDoc);
   const form = pdfDoc.getForm();
 
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-  form.updateFieldAppearances(font);
 
   const setText = (name: string, value: string) => {
     if (!value) return;
@@ -305,6 +344,7 @@ export async function generateCoExposantPdfBytes(coExposant: CoExposant): Promis
   setText('resp_tel', coExposant.telResponsable);
   setText('resp_mail', coExposant.mailResponsable);
 
+  form.updateFieldAppearances(font);
   form.flatten();
 
   return pdfDoc.save({

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { getServerEnvFlags } from './envFlags.js';
 
 // Schémas de validation Zod pour sécuriser les données entrantes
 
@@ -179,3 +180,8 @@ export const SubmissionSchema = z.object({
   totals: TotalsSchema,
   submittedAt: z.string().optional(),
 });
+
+export function getSubmissionEnv(nodeEnv, env = process.env) {
+  const { bypassValidation, disableSubmission } = getServerEnvFlags(nodeEnv, env);
+  return { bypassValidation, disableSubmission };
+}

@@ -6,6 +6,17 @@ import { formatCurrency } from '../../lib/format';
 import { FormData, ReservationData, AmenagementData, VisibiliteData, EngagementData } from '../../lib/types';
 import { ZipAsset, downloadZipFromBlob } from '../../lib/documentGenerator';
 import { DetailedSummary } from '../shared/DetailedSummary';
+import {
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from '../ui/alert-dialog';
 
 interface ThanksPageProps {
   formData: FormData;
@@ -41,6 +52,7 @@ export function ThanksPage({
   onRestartFromReservation
 }: ThanksPageProps) {
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleDownload = async () => {
     if (!zipAsset) {
@@ -57,6 +69,11 @@ export function ThanksPage({
     } finally {
       setIsDownloading(false);
     }
+  };
+
+  const handleConfirmDownload = async () => {
+    setIsDialogOpen(false);
+    await handleDownload();
   };
 
   const handleRestartFromReservation = () => {
@@ -136,29 +153,50 @@ export function ThanksPage({
               <p className="text-gray-600">
                 Vos documents (devis et contrat) ont été générés automatiquement.
               </p>
-              
-              <button
-                type="button"
-                className="inline-flex items-center justify-center px-8 py-3 font-[Poppins] font-semibold text-white rounded-lg transition-all duration-200 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                style={{ 
-                  backgroundColor: COLORS.secondary,
-                  focusRingColor: COLORS.secondary
-                }}
-                onClick={handleDownload}
-                disabled={isDownloading || !zipAsset}
-              >
-                {isDownloading ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Téléchargement en cours...
-                  </>
-                ) : (
-                  'Si le téléchargement ne se lance pas, cliquez ici'
-                )}
-              </button>
+              <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <AlertDialogTrigger asChild>
+                  <button
+                    type="button"
+                    className="inline-flex items-center justify-center px-8 py-3 font-[Poppins] font-semibold text-white rounded-lg transition-all duration-200 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    style={{ 
+                      backgroundColor: COLORS.secondary,
+                      focusRingColor: COLORS.secondary
+                    }}
+                    disabled={isDownloading || !zipAsset}
+                  >
+                    {isDownloading ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Téléchargement en cours...
+                      </>
+                    ) : (
+                      'Si le téléchargement ne se lance pas, cliquez ici'
+                    )}
+                  </button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Confirmation du téléchargement</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Pour valider votre contrat, merci de le retourner signé et cacheté à l'adresse : mih@agence-porteduhainaut.fr
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel style={{ borderRadius: '8px' }}>Annuler</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleConfirmDownload}
+                      disabled={isDownloading}
+                      className="text-white"
+                      style={{ backgroundColor: COLORS.secondary, borderRadius: '8px' }}
+                    >
+                      Télécharger
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
 
             {/* Restart Button */}

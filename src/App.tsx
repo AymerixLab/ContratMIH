@@ -5,6 +5,7 @@ import { calculateTotals } from './lib/calculateTotals';
 import { useFormData } from './hooks/useFormData';
 import { generateContractZipBlob, downloadZipFromBlob, ZipAsset } from './lib/documentGenerator';
 import { submitFormData, uploadSubmissionDocument } from './lib/api';
+import { isSubmissionDisabled } from './lib/utils';
 import { Header } from './components/shared/Header';
 import { ProgressIndicator } from './components/shared/ProgressIndicator';
 import { IdentityPage } from './components/pages/IdentityPage';

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MAX_TOTAL_VALUE, SubmissionSchema } from './validation.js';
+import { MAX_TOTAL_VALUE, SubmissionSchema, getSubmissionEnv } from './validation.js';
 
 const createValidPayload = () => ({
   formData: {
@@ -70,6 +70,7 @@ const createValidPayload = () => ({
     cloisonBoisGainee: 0,
     reservePorteBois: 0,
     bandeauSignaletique: 0,
+    railSpots: 0,
     comptoir: 0,
     tabouret: 0,
     mangeDebout: 0,
@@ -187,5 +188,33 @@ describe('SubmissionSchema', () => {
       const formatted = result.error.format();
       expect(formatted.visibiliteData?.distributionHotesseSelectedDay?._errors?.[0]).toContain('Jour');
     }
+  });
+});
+
+describe('getSubmissionEnv', () => {
+  it('parses bypass and disable flags in non-production', () => {
+    const result = getSubmissionEnv('development', {
+      VITE_BYPASS_VALIDATION: 'true',
+      VITE_DISABLE_SUBMISSION: 'false',
+    });
+
+    expect(result).toEqual({ bypassValidation: true, disableSubmission: false });
+  });
+
+  it('ignores flags in production environments', () => {
+    const result = getSubmissionEnv('production', {
+      VITE_BYPASS_VALIDATION: 'true',
+      VITE_DISABLE_SUBMISSION: 'true',
+    });
+
+    expect(result).toEqual({ bypassValidation: false, disableSubmission: false });
+  });
+
+  it('accepts numeric truthy values for disabling submission', () => {
+    const result = getSubmissionEnv('development', {
+      VITE_DISABLE_SUBMISSION: '1',
+    });
+
+    expect(result.disableSubmission).toBe(true);
   });
 });

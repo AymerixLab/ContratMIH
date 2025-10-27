@@ -1,4 +1,6 @@
 import type { AmenagementData, EngagementData, FormData as SubmissionFormData, ReservationData, VisibiliteData } from './types';
+import { getApiBaseUrl } from './envFlags';
+import { isSubmissionDisabled } from './utils';
 
 export interface SubmissionTotals {
   totalHT1: number;
@@ -21,7 +23,7 @@ export interface SubmissionPayload {
 }
 
 const defaultBaseUrl = typeof window === 'undefined' ? '' : window.location.origin;
-const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || defaultBaseUrl;
+const API_BASE_URL = getApiBaseUrl() || defaultBaseUrl;
 
 export interface SubmissionResponse {
   id: string;
@@ -29,9 +31,18 @@ export interface SubmissionResponse {
 
 export interface UploadDocumentResponse {
   id: string;
+  filepath?: string;
 }
 
 export async function submitFormData(payload: SubmissionPayload): Promise<SubmissionResponse> {
+  if (isSubmissionDisabled()) {
+    const fakeId = `dev-submission-${Date.now().toString(36)}`;
+    if (typeof console !== 'undefined' && typeof console.info === 'function') {
+      console.info('[mih] Soumission désactivée, retour d\'un identifiant simulé.', fakeId);
+    }
+    return { id: fakeId };
+  }
+
   const response = await fetch(`${API_BASE_URL}/api/submissions`, {
     method: 'POST',
     headers: {
@@ -61,6 +72,11 @@ export async function uploadSubmissionDocument(
     formDataFactory?: () => FormData;
   }
 ): Promise<UploadDocumentResponse> {
+  const submissionDisabled = isSubmissionDisabled();
+  if (submissionDisabled && typeof console !== 'undefined' && typeof console.info === 'function') {
+    console.info('[mih] Soumission désactivée, envoi des documents en mode développement.');
+  }
+
   const formDataFactory = options?.formDataFactory ?? (() => new FormData());
   const formData = formDataFactory();
   let fileToSend: Blob | File = file;
