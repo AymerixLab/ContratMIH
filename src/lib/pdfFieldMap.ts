@@ -1,6 +1,6 @@
 import { FormData, ReservationData, AmenagementData, VisibiliteData, EngagementData } from './types';
 import { standPrices, anglePrice, electricityPrices, exteriorSpacePrice, amenagementPrices, visibilitePrices, readyToExposePrices } from './constants';
-import { formatSignatureFromIso } from './utils';
+import { formatSignatureFromIso, getChargeableMelamineReserves } from './utils';
 
 export type PdfFieldKind = 'text' | 'checkbox';
 
@@ -228,9 +228,15 @@ export const PDF_FIELD_MAP: Record<string, PdfFieldMapping> = {
   'bandeau_qte': { type: 'text', get: ({ amenagementData }) => amenagementData.bandeauSignaletique ? String(amenagementData.bandeauSignaletique) : '' },
   'rail_qte': { type: 'text', get: ({ amenagementData }) => amenagementData.railSpots ? String(amenagementData.railSpots) : '' },
   // Aménagements – totaux HT (les champs xxx_prix contiennent le total, pas le prix unitaire)
-  'reserve_melamine_prix': { type: 'text', get: ({ amenagementData }) => {
+  'reserve_melamine_prix': { type: 'text', get: ({ amenagementData, reservationData }) => {
     const qty = amenagementData.reservePorteMelamine || 0;
-    return qty > 0 ? num(qty * amenagementPrices.reservePorteMelamine) : '';
+    if (qty <= 0) {
+      return '';
+    }
+    const chargeable = getChargeableMelamineReserves(amenagementData, reservationData);
+    return chargeable > 0
+      ? num(chargeable * amenagementPrices.reservePorteMelamine)
+      : num(0);
   } },
   'moquette_prix': { type: 'text', get: ({ amenagementData }) => {
     const qty = amenagementData.moquetteDifferente || 0;

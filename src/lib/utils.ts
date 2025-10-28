@@ -117,11 +117,30 @@ export const calculateTotalHT1 = (reservationData: ReservationData): number => {
   return total;
 };
 
-export const calculateTotalHT2 = (amenagementData: AmenagementData): number => {
+export const getIncludedMelamineReserves = (reservationData?: ReservationData | null): number => {
+  if (!reservationData) {
+    return 0;
+  }
+  return reservationData.standType === 'ready' ? 1 : 0;
+};
+
+export const getChargeableMelamineReserves = (
+  amenagementData: AmenagementData,
+  reservationData?: ReservationData | null
+): number => {
+  const qty = amenagementData.reservePorteMelamine || 0;
+  const included = getIncludedMelamineReserves(reservationData);
+  return Math.max(qty - included, 0);
+};
+
+export const calculateTotalHT2 = (
+  amenagementData: AmenagementData,
+  reservationData?: ReservationData
+): number => {
   let total = 0;
   
   // ÉQUIPEMENTS STANDS
-  total += amenagementData.reservePorteMelamine * amenagementPrices.reservePorteMelamine;
+  total += getChargeableMelamineReserves(amenagementData, reservationData) * amenagementPrices.reservePorteMelamine;
   total += amenagementData.moquetteDifferente * amenagementPrices.moquetteDifferente;
   total += amenagementData.velumStand * amenagementPrices.velumStand;
   total += amenagementData.cloisonBoisGainee * amenagementPrices.cloisonBoisGainee;
@@ -256,6 +275,10 @@ export const validateIdentityPage = (formData: FormData): string[] => {
   if (!formData.contactComptaNom.trim()) missingFields.push('contactComptaNom');
   if (!formData.contactComptaTel.trim()) missingFields.push('contactComptaTel');
   if (!formData.contactComptaMail.trim()) missingFields.push('contactComptaMail');
+  if (!formData.facturationAdresse.trim()) missingFields.push('facturationAdresse');
+  if (!formData.facturationCP.trim()) missingFields.push('facturationCP');
+  if (!formData.facturationVille.trim()) missingFields.push('facturationVille');
+  if (!formData.facturationPays.trim()) missingFields.push('facturationPays');
   if (!formData.responsableNom.trim()) missingFields.push('responsableNom');
   if (!formData.responsablePrenom.trim()) missingFields.push('responsablePrenom');
   if (!formData.responsableTel.trim()) missingFields.push('responsableTel');
@@ -322,6 +345,10 @@ export const getFieldTitle = (fieldName: string): string => {
     contactComptaNom: 'Nom de contact (Comptabilité)',
     contactComptaTel: 'Téléphone direct (Comptabilité)',
     contactComptaMail: 'Email (Comptabilité)',
+    facturationAdresse: 'Adresse de facturation',
+    facturationCP: 'Code postal (facturation)',
+    facturationVille: 'Ville (facturation)',
+    facturationPays: 'Pays (facturation)',
     
     // Responsable entreprise
     responsableNom: 'Nom (Responsable de l\'entreprise)',

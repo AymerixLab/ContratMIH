@@ -132,10 +132,10 @@ const fullFormData = (): FormData => ({
     autre: false,
   },
   autreActivite: '',
-  facturationAdresse: '',
-  facturationCP: '',
-  facturationVille: '',
-  facturationPays: '',
+  facturationAdresse: '1 rue Facturation',
+  facturationCP: '75001',
+  facturationVille: 'PARIS',
+  facturationPays: 'FRANCE',
   contactComptaNom: 'Doe',
   contactComptaTel: '0601020304',
   contactComptaMail: 'compta@example.com',
@@ -178,7 +178,7 @@ describe('utils financial calculations', () => {
     };
 
     // Les produits complémentaires ne doivent plus impacter HT2 : (2*165 + 1*40) = 370
-    expect(calculateTotalHT2(amenagement)).toBe(370);
+    expect(calculateTotalHT2(amenagement, baseReservation)).toBe(370);
   });
 
   it('applies the updated amenagement unit prices', () => {
@@ -198,7 +198,36 @@ describe('utils financial calculations', () => {
       2 * amenagementPrices.planteBambou +
       amenagementPrices.planteKentia;
 
-    expect(calculateTotalHT2(amenagement)).toBe(expected);
+    expect(calculateTotalHT2(amenagement, baseReservation)).toBe(expected);
+  });
+
+  it('excludes the first melamine reserve when using the ready pack', () => {
+    const reservation: ReservationData = {
+      ...baseReservation,
+      standType: 'ready',
+      standSize: '15',
+    };
+
+    const amenagementSingle: AmenagementData = {
+      ...baseAmenagement,
+      reservePorteMelamine: 1,
+    };
+
+    expect(calculateTotalHT2(amenagementSingle, reservation)).toBe(0);
+
+    const amenagementMultiple: AmenagementData = {
+      ...amenagementSingle,
+      reservePorteMelamine: 3,
+    };
+
+    expect(calculateTotalHT2(amenagementMultiple, reservation)).toBe(
+      (amenagementMultiple.reservePorteMelamine - 1) * amenagementPrices.reservePorteMelamine
+    );
+
+    const totals = calculateTotals(reservation, amenagementMultiple, baseVisibilite);
+    expect(totals.ht2).toBe(
+      (amenagementMultiple.reservePorteMelamine - 1) * amenagementPrices.reservePorteMelamine
+    );
   });
 
   it('computes HT3 with complementary products', () => {
@@ -310,7 +339,7 @@ describe('utils financial calculations', () => {
     const totals = calculateTotals(reservation, amenagement, visibilite);
 
     expect(totals.ht1).toBeCloseTo(calculateTotalHT1(reservation));
-    expect(totals.ht2).toBeCloseTo(calculateTotalHT2(amenagement));
+    expect(totals.ht2).toBeCloseTo(calculateTotalHT2(amenagement, reservation));
     expect(totals.ht3).toBeCloseTo(calculateTotalHT3(amenagement));
     expect(totals.ht4).toBeCloseTo(calculateTotalHT4(visibilite, reservation));
   });
@@ -429,6 +458,20 @@ describe('utils validation helpers', () => {
     expect(errors).toContain('tel');
   });
 
+  it('requires billing address fields to be filled', () => {
+    const data = fullFormData();
+    data.facturationAdresse = '';
+    data.facturationCP = '';
+    data.facturationVille = '';
+    data.facturationPays = '';
+
+    const errors = validateIdentityPage(data);
+    expect(errors).toContain('facturationAdresse');
+    expect(errors).toContain('facturationCP');
+    expect(errors).toContain('facturationVille');
+    expect(errors).toContain('facturationPays');
+  });
+
   it('flags identity emails when malformed', () => {
     const data = fullFormData();
     data.contactComptaMail = 'invalid';
@@ -439,6 +482,7 @@ describe('utils validation helpers', () => {
 
   it('maps field names to human friendly titles with fallback', () => {
     expect(getFieldTitle('raisonSociale')).toBe('Raison sociale');
+    expect(getFieldTitle('facturationVille')).toBe('Ville (facturation)');
     expect(getFieldTitle('unknown_field')).toBe('unknown_field');
   });
 });

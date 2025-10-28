@@ -38,9 +38,17 @@ export function AmenagementPage({
   };
 
   // Fonction pour changer la quantité avec boutons +/-
-  const updateQuantity = (field: string, delta: number) => {
-    const currentValue = amenagementData[field as keyof AmenagementData] as number;
-    const newValue = Math.max(0, currentValue + delta);
+  const getMinQuantity = (field: keyof AmenagementData): number => {
+    if (field === 'reservePorteMelamine' && reservationData?.standType === 'ready') {
+      return 1;
+    }
+    return 0;
+  };
+
+  const updateQuantity = (field: keyof AmenagementData, delta: number) => {
+    const currentValue = amenagementData[field] as number;
+    const min = getMinQuantity(field);
+    const newValue = Math.max(min, currentValue + delta);
 
     onAmenagementChange(field, newValue);
   };
@@ -53,13 +61,14 @@ export function AmenagementPage({
     unit = "unité",
     description 
   }: { 
-    field: string; 
+    field: keyof AmenagementData; 
     label: string; 
     price: number; 
     unit?: string;
     description?: string;
   }) => {
-    const value = amenagementData[field as keyof AmenagementData] as number;
+    const value = amenagementData[field] as number;
+    const min = getMinQuantity(field);
     const total = value * price;
 
     return (
@@ -73,6 +82,11 @@ export function AmenagementPage({
             <p className="text-sm font-semibold mt-1" style={{ color: COLORS.primary }}>
               {formatCurrency(price)} € / {unit}
             </p>
+            {field === 'reservePorteMelamine' && reservationData?.standType === 'ready' && (
+              <p className="text-sm text-gray-600 mt-1 font-[Poppins]">
+                Une réserve est incluse dans le pack "Prêt à exposer".
+              </p>
+            )}
           </div>
         </div>
         
@@ -83,7 +97,7 @@ export function AmenagementPage({
               variant="outline"
               size="sm"
               onClick={() => updateQuantity(field, -1)}
-              disabled={value <= 0}
+              disabled={value <= min}
               className="w-8 h-8 p-0"
               style={{ borderColor: COLORS.secondary, borderRadius: "6px" }}
             >
@@ -92,9 +106,13 @@ export function AmenagementPage({
             
             <Input
               type="number"
-              min="0"
+              min={min}
               value={value}
-              onChange={(e) => onAmenagementChange(field, parseInt(e.target.value) || 0)}
+              onChange={(e) => {
+                const parsed = parseInt(e.target.value, 10);
+                const nextValue = Number.isNaN(parsed) ? min : Math.max(min, parsed);
+                onAmenagementChange(field, nextValue);
+              }}
               className="w-16 text-center font-[Poppins] border-[#3DB5A0] focus:ring-[#3DB5A0]"
               style={{ borderRadius: "6px" }}
             />

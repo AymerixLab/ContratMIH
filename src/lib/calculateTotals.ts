@@ -11,6 +11,7 @@ import {
   visibilitePrices,
   readyToExposePrices
 } from './constants';
+import { getChargeableMelamineReserves, getIncludedMelamineReserves } from './utils';
 
 /**
  * Calculateur de totaux centralisé
@@ -141,8 +142,17 @@ export function calculateTotals(
   };
 
   // Équipements stands
+  if (amenagementData.reservePorteMelamine > 0) {
+    const included = getIncludedMelamineReserves(reservationData);
+    const chargeableQty = getChargeableMelamineReserves(amenagementData, reservationData);
+    const cost = chargeableQty * amenagementPrices.reservePorteMelamine;
+    const label = included > 0
+      ? 'Réserve mélaminée (1 incluse dans le pack "PRÊT À EXPOSER")'
+      : 'Réserve mélaminée';
+    addSection2(label, cost);
+  }
+
   const equipements: { [key: string]: { qty: number; price: number } } = {
-    'Réserve mélaminée': { qty: amenagementData.reservePorteMelamine, price: amenagementPrices.reservePorteMelamine },
     'Moquette différente': { qty: amenagementData.moquetteDifferente, price: amenagementPrices.moquetteDifferente },
     'Velum': { qty: amenagementData.velumStand, price: amenagementPrices.velumStand },
     'Cloison bois gainée': { qty: amenagementData.cloisonBoisGainee, price: amenagementPrices.cloisonBoisGainee },

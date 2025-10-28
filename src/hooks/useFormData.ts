@@ -30,10 +30,10 @@ export function useFormData() {
       autre: false,
     },
     autreActivite: '',
-    facturationAdresse: '',
-    facturationCP: '',
-    facturationVille: '',
-    facturationPays: '',
+    facturationAdresse: devPrefillEnabled ? '1 rue Dev' : '',
+    facturationCP: devPrefillEnabled ? '75001' : '',
+    facturationVille: devPrefillEnabled ? 'PARIS' : '',
+    facturationPays: devPrefillEnabled ? 'FRANCE' : '',
     contactComptaNom: devPrefillEnabled ? 'COMPTA' : '',
     contactComptaTel: devPrefillEnabled ? '0102030407' : '',
     contactComptaMail: devPrefillEnabled ? 'compta@example.com' : '',
@@ -507,6 +507,10 @@ export function useFormData() {
           newData.coExposants = [];
         }
       }
+
+      if (newData.coExposants.length > 2) {
+        newData.coExposants = newData.coExposants.slice(0, 2);
+      }
       
       return newData;
     });
@@ -531,6 +535,16 @@ export function useFormData() {
 
         return prev;
       });
+
+      setAmenagementData(prev => {
+        if (value === 'ready') {
+          return {
+            ...prev,
+            reservePorteMelamine: Math.max(prev.reservePorteMelamine, 1)
+          };
+        }
+        return prev;
+      });
     }
   };
 
@@ -547,7 +561,10 @@ export function useFormData() {
     
     setReservationData(prev => ({
       ...prev,
-      coExposants: [...prev.coExposants, newCoExposant]
+      coExposants:
+        prev.coExposants.length >= 2
+          ? prev.coExposants
+          : [...prev.coExposants, newCoExposant]
     }));
   };
 

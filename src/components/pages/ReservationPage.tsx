@@ -200,8 +200,7 @@ export function ReservationPage({
     } else {
       // Sélectionner le nouveau stand
       onReservationChange("standType", type);
-      const defaultSize =
-        type === "ready" ? getAvailableSizes(type)[0] ?? "" : "";
+      const defaultSize = getAvailableSizes(type)[0] ?? "";
       onReservationChange("standSize", defaultSize);
       onReservationChange("standAngles", 0);
     }
@@ -522,7 +521,8 @@ export function ReservationPage({
                     <Button
                       type="button"
                       onClick={addCoExposant}
-                      className="mb-4 text-white"
+                      className={`mb-4 text-white ${reservationData.coExposants.length >= 2 ? 'opacity-60 cursor-not-allowed' : ''}`}
+                      disabled={reservationData.coExposants.length >= 2}
                       style={{
                         backgroundColor: COLORS.secondary,
                         borderRadius: "8px"
@@ -533,6 +533,12 @@ export function ReservationPage({
                     </Button>
                   )}
                 </div>
+
+                {reservationData.coExposants.length >= 2 && isCoExpositionEnabled && (
+                  <p className="text-sm text-gray-600 font-[Poppins] mb-4">
+                    Maximum de deux co-exposants atteint.
+                  </p>
+                )}
 
                 {reservationData.coExposants.map((coExposant, index) => {
                   const { companyMissing, emailInvalid } = getCoExposantValidation(coExposant);

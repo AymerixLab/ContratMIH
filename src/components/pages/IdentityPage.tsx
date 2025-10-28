@@ -835,84 +835,160 @@ export function IdentityPage({
               </CardHeader>
               <CardContent className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="md:col-span-2">
+                  <div className="md:col-span-2 relative">
                     <Label 
                       htmlFor="facturationAdresse" 
-                      className={`font-[Poppins] font-medium ${isFieldInError('facturationAdresse', errorFields) ? 'text-red-600' : ''}`}
+                      className={`font-[Poppins] font-medium transition-colors duration-200 ${
+                        getFieldStatus('facturationAdresse').isError
+                          ? 'text-red-600'
+                          : getFieldStatus('facturationAdresse').isValid
+                          ? 'text-green-600'
+                          : ''
+                      }`}
                     >
                       Adresse *
+                      {getFieldStatus('facturationAdresse').isValid && (
+                        <CheckCircle2 className="w-4 h-4 text-green-500 inline ml-1" />
+                      )}
                     </Label>
                     <Input 
                       id="facturationAdresse"
                       value={formData.facturationAdresse}
                       onChange={(e) => onInputChange('facturationAdresse', e.target.value)}
                       className={`mt-1 font-[Poppins] transition-all duration-200 ${
-                        isFieldInError('facturationAdresse', errorFields) 
-                          ? 'border-red-500 focus:ring-red-500' 
+                        getFieldStatus('facturationAdresse').isError
+                          ? 'border-red-500 focus:ring-red-500'
+                          : getFieldStatus('facturationAdresse').isValid
+                          ? 'border-green-500 focus:ring-green-500'
                           : 'border-gray-300 focus:border-[#3DB5A0] focus:ring-[#3DB5A0] hover:border-gray-400'
                       }`}
-                      data-error={isFieldInError('facturationAdresse', errorFields)}
+                      data-error={getFieldStatus('facturationAdresse').isError}
                     />
+                    {getFieldStatus('facturationAdresse').isError && (
+                      <div className="absolute right-3 top-8 text-red-500">
+                        <AlertCircle className="w-4 h-4" />
+                      </div>
+                    )}
+                    {getFieldStatus('facturationAdresse').isError && (
+                      <p className="text-xs text-red-600 mt-1 font-[Poppins]">Ce champ est obligatoire.</p>
+                    )}
                   </div>
 
-                  <div>
+                  <div className="relative">
                     <Label 
                       htmlFor="facturationCP" 
-                      className={`font-[Poppins] font-medium ${isFieldInError('facturationCP', errorFields) ? 'text-red-600' : ''}`}
+                      className={`font-[Poppins] font-medium transition-colors duration-200 ${
+                        getFieldStatus('facturationCP').isError
+                          ? 'text-red-600'
+                          : getFieldStatus('facturationCP').isValid
+                          ? 'text-green-600'
+                          : ''
+                      }`}
                     >
                       Code postal *
+                      {getFieldStatus('facturationCP').isValid && (
+                        <CheckCircle2 className="w-4 h-4 text-green-500 inline ml-1" />
+                      )}
                     </Label>
                     <Input 
                       id="facturationCP"
                       value={formData.facturationCP}
                       onChange={(e) => onCodePostalChange('facturationCP', e.target.value)}
                       className={`mt-1 font-[Poppins] transition-all duration-200 ${
-                        isFieldInError('facturationCP', errorFields) 
-                          ? 'border-red-500 focus:ring-red-500' 
+                        getFieldStatus('facturationCP').isError
+                          ? 'border-red-500 focus:ring-red-500'
+                          : getFieldStatus('facturationCP').isValid
+                          ? 'border-green-500 focus:ring-green-500'
                           : 'border-gray-300 focus:border-[#3DB5A0] focus:ring-[#3DB5A0] hover:border-gray-400'
                       }`}
-                      data-error={isFieldInError('facturationCP', errorFields)}
+                      data-error={getFieldStatus('facturationCP').isError}
                     />
+                    {getFieldStatus('facturationCP').isError && (
+                      <div className="absolute right-3 top-8 text-red-500">
+                        <AlertCircle className="w-4 h-4" />
+                      </div>
+                    )}
+                    {getFieldStatus('facturationCP').isError && (
+                      <p className="text-xs text-red-600 mt-1 font-[Poppins]">Ce champ est obligatoire.</p>
+                    )}
                   </div>
 
-                  <div>
+                  <div className="relative">
                     <Label 
                       htmlFor="facturationVille" 
-                      className={`font-[Poppins] font-medium ${isFieldInError('facturationVille', errorFields) ? 'text-red-600' : ''}`}
+                      className={`font-[Poppins] font-medium transition-colors duration-200 ${
+                        getFieldStatus('facturationVille').isError
+                          ? 'text-red-600'
+                          : getFieldStatus('facturationVille').isValid
+                          ? 'text-green-600'
+                          : ''
+                      }`}
                     >
                       Ville *
+                      {getFieldStatus('facturationVille').isValid && (
+                        <CheckCircle2 className="w-4 h-4 text-green-500 inline ml-1" />
+                      )}
                     </Label>
                     <Input 
                       id="facturationVille"
                       value={formData.facturationVille}
                       onChange={(e) => onVilleChange('facturationVille', e.target.value)}
                       className={`mt-1 font-[Poppins] transition-all duration-200 ${
-                        isFieldInError('facturationVille', errorFields) 
-                          ? 'border-red-500 focus:ring-red-500' 
+                        getFieldStatus('facturationVille').isError
+                          ? 'border-red-500 focus:ring-red-500'
+                          : getFieldStatus('facturationVille').isValid
+                          ? 'border-green-500 focus:ring-green-500'
                           : 'border-gray-300 focus:border-[#3DB5A0] focus:ring-[#3DB5A0] hover:border-gray-400'
                       }`}
-                      data-error={isFieldInError('facturationVille', errorFields)}
+                      data-error={getFieldStatus('facturationVille').isError}
                     />
+                    {getFieldStatus('facturationVille').isError && (
+                      <div className="absolute right-3 top-8 text-red-500">
+                        <AlertCircle className="w-4 h-4" />
+                      </div>
+                    )}
+                    {getFieldStatus('facturationVille').isError && (
+                      <p className="text-xs text-red-600 mt-1 font-[Poppins]">Ce champ est obligatoire.</p>
+                    )}
                   </div>
 
-                  <div>
+                  <div className="relative">
                     <Label 
                       htmlFor="facturationPays" 
-                      className={`font-[Poppins] font-medium ${isFieldInError('facturationPays', errorFields) ? 'text-red-600' : ''}`}
+                      className={`font-[Poppins] font-medium transition-colors duration-200 ${
+                        getFieldStatus('facturationPays').isError
+                          ? 'text-red-600'
+                          : getFieldStatus('facturationPays').isValid
+                          ? 'text-green-600'
+                          : ''
+                      }`}
                     >
                       Pays *
+                      {getFieldStatus('facturationPays').isValid && (
+                        <CheckCircle2 className="w-4 h-4 text-green-500 inline ml-1" />
+                      )}
                     </Label>
                     <Input 
                       id="facturationPays"
                       value={formData.facturationPays}
                       onChange={(e) => onPaysChange('facturationPays', e.target.value)}
                       className={`mt-1 font-[Poppins] transition-all duration-200 ${
-                        isFieldInError('facturationPays', errorFields) 
-                          ? 'border-red-500 focus:ring-red-500' 
+                        getFieldStatus('facturationPays').isError
+                          ? 'border-red-500 focus:ring-red-500'
+                          : getFieldStatus('facturationPays').isValid
+                          ? 'border-green-500 focus:ring-green-500'
                           : 'border-gray-300 focus:border-[#3DB5A0] focus:ring-[#3DB5A0] hover:border-gray-400'
                       }`}
-                      data-error={isFieldInError('facturationPays', errorFields)}
+                      data-error={getFieldStatus('facturationPays').isError}
                     />
+                    {getFieldStatus('facturationPays').isError && (
+                      <div className="absolute right-3 top-8 text-red-500">
+                        <AlertCircle className="w-4 h-4" />
+                      </div>
+                    )}
+                    {getFieldStatus('facturationPays').isError && (
+                      <p className="text-xs text-red-600 mt-1 font-[Poppins]">Ce champ est obligatoire.</p>
+                    )}
                   </div>
                 </div>
               </CardContent>

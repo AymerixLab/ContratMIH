@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
 import { COLORS, amenagementPrices, visibilitePrices, standPrices, readyToExposePrices, anglePrice, electricityPrices, coExpositionPrice, gardenCottagePrice, exteriorSpacePrice, getPassSoireeInclus } from '../../lib/constants';
 import { FormData, ReservationData, AmenagementData, VisibiliteData } from '../../lib/types';
+import { getChargeableMelamineReserves, getIncludedMelamineReserves } from '../../lib/utils';
 
 interface DetailedSummaryProps {
   formData: FormData;
@@ -47,6 +48,7 @@ export function DetailedSummary({
       price: number;
       total: number;
       unit?: string;
+      note?: string;
     }> = [];
 
     const complementaires: Array<{
@@ -58,11 +60,14 @@ export function DetailedSummary({
     
     // Équipements stands
     if (amenagementData.reservePorteMelamine > 0) {
+      const included = getIncludedMelamineReserves(reservationData);
+      const chargeable = getChargeableMelamineReserves(amenagementData, reservationData);
       amenagements.push({
         name: 'Réserve d\'1m² avec porte (cloisons mélaminées)',
         quantity: amenagementData.reservePorteMelamine,
         price: amenagementPrices.reservePorteMelamine,
-        total: amenagementData.reservePorteMelamine * amenagementPrices.reservePorteMelamine
+        total: chargeable * amenagementPrices.reservePorteMelamine,
+        note: included > 0 ? '1 incluse dans le pack "Prêt à exposer"' : undefined
       });
     }
     
@@ -433,16 +438,21 @@ export function DetailedSummary({
               </h4>
               <div className="space-y-2">
                 {selectedAmenagements.map((item, index) => (
-                  <div key={index} className="flex justify-between items-center py-2 border-b border-gray-200 last:border-0">
-                    <div>
-                      <span className="font-medium text-sm">{item.name}</span>
-                      {item.quantity && (
-                        <span className="text-gray-500 text-xs ml-2">
-                          {item.quantity} {item.unit || 'unité(s)'} × {item.price} €
-                        </span>
-                      )}
+                  <div key={index} className="py-2 border-b border-gray-200 last:border-0">
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <span className="font-medium text-sm">{item.name}</span>
+                        {item.quantity && (
+                          <span className="text-gray-500 text-xs ml-2">
+                            {item.quantity} {item.unit || 'unité(s)'} × {item.price} €
+                          </span>
+                        )}
+                      </div>
+                      <span className="font-semibold">{item.total.toLocaleString('fr-FR')} €</span>
                     </div>
-                    <span className="font-semibold">{item.total.toLocaleString('fr-FR')} €</span>
+                    {item.note && (
+                      <p className="text-xs text-gray-500 mt-1">{item.note}</p>
+                    )}
                   </div>
                 ))}
               </div>

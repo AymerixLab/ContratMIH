@@ -78,6 +78,27 @@ describe('useFormData hook', () => {
     );
   });
 
+  it('auto completes billing city and country when postal code matches a single commune', async () => {
+    const fetchSpy = vi.spyOn(global, 'fetch').mockResolvedValue(
+      mockFetchResponse([{ nom: 'Lille', codesPostaux: ['59000'] }])
+    );
+
+    const { result } = renderHook(() => useFormData());
+
+    await act(async () => {
+      result.current.handleCodePostalChange('facturationCP', '59000');
+    });
+
+    await waitFor(() => {
+      expect(result.current.formData.facturationPays).toBe('FRANCE');
+      expect(result.current.formData.facturationVille).toBe('LILLE');
+    });
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      'https://geo.api.gouv.fr/communes?codePostal=59000&fields=nom,codesPostaux'
+    );
+  });
+
   it('resets country when postal code format is invalid', () => {
     const { result } = renderHook(() => useFormData());
 
